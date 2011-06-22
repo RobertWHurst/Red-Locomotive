@@ -12,7 +12,7 @@ jQuery (function () {
         modules = {},
         hooks = {},
         kernel = function() {},
-		base = window._RLbaseurl || '';
+        options;
 
 	/**
 	 * loadScript - Load one or more scripts then fire a callback
@@ -28,7 +28,7 @@ jQuery (function () {
 
 			//load the script via ajax
 			$.ajax({
-				url: base + url,
+				url: options.baseUrl + url || '',
 				dataType: 'script',
 				complete: function() {
 					callback();
@@ -57,9 +57,9 @@ jQuery (function () {
 		loadScript(modulePath + moduleName + '.js', function () {
 			if (typeof modules[moduleName] === "function") {
 		        if(!inCore) {
-				    Engine[moduleName] = modules[moduleName]();
+				    Engine[moduleName] = modules[moduleName](options, Engine);
                 } else {
-				    Engine = jQuery.extend(Engine, modules[moduleName]());
+				    Engine = jQuery.extend(Engine, modules[moduleName](options, Engine));
                 }
 			}
 			if (typeof callback === "function") {
@@ -139,11 +139,38 @@ jQuery (function () {
         "action": action,
         "clearHook": clearHook,
         "clearAction": clearAction,
-		"require": require
+        //strip the 'core' flag so that the end user cannot reload core modules
+		"require": function(moduleName, callback) {
+            require(moduleName, callback);
+        }
     });
 	Engine.loader = {
 		"loadScript": loadScript
 	};
+
+    /**
+     * run - integrates all core modules and executes the kernel callback
+     */
+    function run(){
+        var coreModules = [
+            "core"
+        ],
+            i = 1;
+
+        function count() {
+            if (i >= coreModules.length) {
+                
+                //run the kernel
+                kernel(Engine);
+
+            } else {
+                i += 1;
+            }
+        }
+        for (var i = 0; i < coreModules.length; i += 1) {
+            require(coreModules[i], count, true);
+        }
+    }
 
     /**
      * RedLocomotive - Creates and returns an engine, or takes a module and extends Red Locomotive
@@ -157,7 +184,9 @@ jQuery (function () {
             if (typeof input === "string") {
                 modules[input] = callback;
             } else if(typeof input === "object") {
+                options = input;
                 kernel = callback;
+                run();
             }
         }
 
@@ -165,31 +194,4 @@ jQuery (function () {
 
     //globalize Red Locomotive's constructor
     window.RedLocomotive = RedLocomotive;
-
-    //add the core modules
-    function run(){
-        var coreModules = [
-            "core"
-        ],
-            i = 1;
-        
-        function count() {
-            if (i >= coreModules.length) {
-
-                //create a new engine
-                var newEngine = jQuery.extend(true, {}, Engine);
-
-                //run the kernel
-                kernel(newEngine);
-                
-            } else {
-                i += 1;
-            }
-        }
-        for (var i = 0; i < coreModules.length; i += 1) {
-            require(coreModules[i], count, true);
-        }
-    }
-
-    run();
 });
