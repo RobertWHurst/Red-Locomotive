@@ -1,0 +1,5 @@
+RedLocomotive('collisions', function() {
+
+    
+
+});

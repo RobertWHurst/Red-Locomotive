@@ -3,24 +3,52 @@
     <head>
         <title>Red Locomotive - Give your games some tractive effort!</title>
         <link rel="stylesheet" href="style.css">
+        <script src="lib/jQuery.js"></script>
+        <script src="red-locomotive/loader.js"></script>
+        <script src="game.js"></script>
     </head>
     <body>
         <a href="https://github.com/RobertWHurst/Red-Locomotive"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://d3nwyuy0nl342s.cloudfront.net/img/4c7dc970b89fd04b81c8e221ba88ff99a06c6b61/687474703a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f77686974655f6666666666662e706e67" alt="Fork me on GitHub"></a>
-
-        <div class="content">
-            <h1>Red Locomotive</h1>
-            <h2>Give your games some tractive effort!</h2>
-            <h3>Introduction</h3>
-            <p>
-                Red Locomotive is a JavaScript game engine for complex 2d and/or isometric games.
-                It give developers the <i>tractive effort</i> they need by abstracting complex systems like game loops,
-				pixel/cursor based events, frame rate management, sprite rendering, animation, and much more.
-            </p>
-            <p>
-                Currently Red Locomotive is in heavy development. It is not ready for use.
-                More information about Red Locomotive will be added here once there is somthing to play with.
-            </p>
-            <a class="checkIt" href="https://github.com/RobertWHurst/Red-Locomotive">Check it out!</a>
+        <div class="wrapper">
+            <div class="content">
+                <h1>Red Locomotive</h1>
+                <h2>Give your games some tractive effort!</h2>
+                <h3>Introduction</h3>
+                <p>
+                    Red Locomotive is a JavaScript game engine for complex 2d and/or isometric games.
+                    It give developers the <d>tractive effort</d> they need by abstracting complex systems like game loops,
+                    pixel/cursor based events, frame rate management, sprite rendering, animation, and much more.
+                </p>
+                <h3>Example</h3>
+                <canvas id="mainView">Sorry, Your web browser doesn't support canvas.</canvas>
+                <h4>Controls</h4>
+                <p>Use the <b>arrow keys</b> to navigate and the <b>ESC</b> key or switch to another tab to pause. Click anywhere in the window to resume.</p>
+                <h3>Current Features</h3>
+                <ul>
+                    <li>Module system</li>
+                    <li>Sprite Animation</li>
+                    <li>Movement Animation</li>
+                    <li>Movement via Vectors</li>
+                    <li>Multiple independent viewports</li>
+                    <li>Viewport scrolling</li>
+                    <li>Partal key bindings</li>
+                    <li>Improved trigonometric functions</li>
+                    <li>Framerate of 120 with 2000 animated elements</li>
+                </ul>
+                <h3>Comming Soon</h3>
+                <ul>
+                    <li>Collision Detection</li>
+                    <li>Pathfinding</li>
+                    <li>Viewport and sprite shaders and filters</li>
+                    <li>Isometrics</li>
+                </ul>
+                <h3>Note to Developers</h3>
+                <p>
+                    Currently Red Locomotive is in heavy development. It is not ready for use.
+                    More information about Red Locomotive will be added here once there is something to play with.
+                </p>
+                <a class="checkIt" href="https://github.com/RobertWHurst/Red-Locomotive">Check it out!</a>
+            </div>
         </div>
     </body>
 </html>
