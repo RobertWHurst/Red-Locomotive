@@ -99,31 +99,24 @@ RedLocomotive('core', function(engine, options) {
 		});
 
 		jQuery(window).keydown(function(e){
-            var fired = false;
-			if(e.keyCode === 38 && !depressedKeyCodes[38]) { keyboard.axisCode += 1; depressedKeyCodes[38] = true; fired = true; }
-			if(e.keyCode === 39 && !depressedKeyCodes[39]) { keyboard.axisCode += 10; depressedKeyCodes[39] = true; fired = true; }
-			if(e.keyCode === 40 && !depressedKeyCodes[40]) { keyboard.axisCode += 100; depressedKeyCodes[40] = true; fired = true; }
-			if(e.keyCode === 37 && !depressedKeyCodes[37]) { keyboard.axisCode += 1000; depressedKeyCodes[37] = true; fired = true; }
-			if(e.keyCode === 27) { keyboard.esc = true; fired = true; }
-			if(e.keyCode === 13) { keyboard.enter = true; fired = true; }
-			if (fired) {
-				engine.hook('keydown', e);
-				return false;
-			}
+			engine.hook('keydown', e);
+			if(e.keyCode === 38 && !depressedKeyCodes[38]) { keyboard.axisCode += 1; depressedKeyCodes[38] = true; return false; }
+			if(e.keyCode === 39 && !depressedKeyCodes[39]) { keyboard.axisCode += 10; depressedKeyCodes[39] = true; return false; }
+			if(e.keyCode === 40 && !depressedKeyCodes[40]) { keyboard.axisCode += 100; depressedKeyCodes[40] = true; return false; }
+			if(e.keyCode === 37 && !depressedKeyCodes[37]) { keyboard.axisCode += 1000; depressedKeyCodes[37] = true; return false; }
+			if(e.keyCode === 27) { keyboard.esc = true; return false; }
+			if(e.keyCode === 13) { keyboard.enter = true; return false; }
+			if(e.keyCode === 38  || e.keyCode === 39 || e.keyCode === 40 || e.keyCode === 37) { return false; }
 		});
 
 		jQuery(window).keyup(function(e){
-            var fired = false;
-			if(e.keyCode === 38) { keyboard.axisCode -= 1; depressedKeyCodes[38] = false; fired = true; }
-			if(e.keyCode === 39) { keyboard.axisCode -= 10; depressedKeyCodes[39] = false; fired = true; }
-			if(e.keyCode === 40) { keyboard.axisCode -= 100; depressedKeyCodes[40] = false; fired = true; }
-			if(e.keyCode === 37) { keyboard.axisCode -= 1000; depressedKeyCodes[37] = false; fired = true; }
-			if(e.keyCode === 27) { keyboard.esc = false; fired = true; }
-			if(e.keyCode === 13) { keyboard.enter = false; fired = true; }
-			if (fired) {
-				engine.hook('keyup', e);
-				return false;
-			}
+			engine.hook('keyup', e);
+			if(e.keyCode === 38) { keyboard.axisCode -= 1; depressedKeyCodes[38] = false; return false; }
+			if(e.keyCode === 39) { keyboard.axisCode -= 10; depressedKeyCodes[39] = false; return false; }
+			if(e.keyCode === 40) { keyboard.axisCode -= 100; depressedKeyCodes[40] = false; return false; }
+			if(e.keyCode === 37) { keyboard.axisCode -= 1000; depressedKeyCodes[37] = false; return false; }
+			if(e.keyCode === 27) { keyboard.esc = false; return false; }
+			if(e.keyCode === 13) { keyboard.enter = false; return false; }
 		});
 	})();
 

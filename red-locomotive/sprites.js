@@ -8,7 +8,6 @@ RedLocomotive('sprites', function(engine, options) {
 
     /**
      * newSpriteSheet - Makes a new sprite sheet for use with elements
-	 * @author <a href="mailto:robert@thinktankdesign.ca">Robert Hurst</a>
      * @param url {string} The url to the sprite sheet image
      * @param w {int} The sprite width
      * @param h {int} The sprite height
@@ -46,7 +45,6 @@ RedLocomotive('sprites', function(engine, options) {
 
     /**
      * getImage - Downloads the image and caches it, if its already cached then use the cached version
-	 * @author <a href="mailto:robert@thinktankdesign.ca">Robert Hurst</a>
      * @param url {string} The url to the sprite sheet image
      * @param callback {function} [optional] A function that will fire when the image has been fully downloaded
      * @param forceNewImage {boolean} [optional] If true, the image will download whether its cached or not. Though not recommended this can be used to update the spriteSheet revision already in memory.
@@ -72,7 +70,6 @@ RedLocomotive('sprites', function(engine, options) {
 
     /**
      * updateSpriteSheet - Used by newSpriteSheet() to make an pixel map of a sprite. It is a separate function because it is possible to prevent newSpriteSheet() from calling updateSpriteSheet(). Separating the two functions allows manual mapping later.
-     * @author <a href="mailto:robert@thinktankdesign.ca">Robert Hurst</a>
      * @param url {string} The url to the sprite sheet image
      * @param callback {function} [optional] A callback function to be fired after the sprite has been created
      */
@@ -147,7 +144,6 @@ RedLocomotive('sprites', function(engine, options) {
 
     /**
      * removeImage - Removes an image from the cache
-	 * @author <a href="mailto:robert@thinktankdesign.ca">Robert Hurst</a>
      * @param url {string} The image url
      */
     function removeImage(url) {
@@ -156,7 +152,6 @@ RedLocomotive('sprites', function(engine, options) {
 
     /**
      * removeSpriteSheet - Removes a sprite sheet and its corresponding image
-	 * @author <a href="mailto:robert@thinktankdesign.ca">Robert Hurst</a>
      * @param url {string} The sprite url
      */
     function removeSpriteSheet(url) {
