@@ -1,4 +1,4 @@
-RedLocomotive('animations', function (options, engine) {
+RedLocomotive('animations', function(engine, options) {
 
 	/**
 	 * Move any object that contains X and Y coordinates

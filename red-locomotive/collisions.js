@@ -1,4 +1,4 @@
-RedLocomotive('collisions', function() {
+RedLocomotive('collisions', function(engine, options) {
 
     
 

@@ -1,5 +1,5 @@
 //Start Red Locomotive
-window.onload = function(){
+jQuery(function(){
 	RedLocomotive({
 
 		//Configuration
@@ -205,4 +205,4 @@ window.onload = function(){
 
 
 	});
-}
+});

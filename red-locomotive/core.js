@@ -1,4 +1,4 @@
-RedLocomotive('core', function(options, engine){
+RedLocomotive('core', function(engine, options) {
 	"use strict"
 
 	//create configuration
@@ -108,26 +108,22 @@ RedLocomotive('core', function(options, engine){
 			if(e.keyCode === 13) { keyboard.enter = true; fired = true; }
 			if (fired) {
 				engine.hook('keydown', e);
+				return false;
 			}
-            if(e.keyCode === 38 || e.keyCode === 39 || e.keyCode === 40 || e.keyCode === 37) {
-                return false;
-            }
 		});
 
 		jQuery(window).keyup(function(e){
             var fired = false;
-			if(e.keyCode === 38 && depressedKeyCodes[38]) { keyboard.axisCode -= 1; depressedKeyCodes[38] = false; fired = true; }
-			if(e.keyCode === 39 && depressedKeyCodes[39]) { keyboard.axisCode -= 10; depressedKeyCodes[39] = false; fired = true; }
-			if(e.keyCode === 40 && depressedKeyCodes[40]) { keyboard.axisCode -= 100; depressedKeyCodes[40] = false; fired = true; }
-			if(e.keyCode === 37 && depressedKeyCodes[37]) { keyboard.axisCode -= 1000; depressedKeyCodes[37] = false; fired = true; }
+			if(e.keyCode === 38) { keyboard.axisCode -= 1; depressedKeyCodes[38] = false; fired = true; }
+			if(e.keyCode === 39) { keyboard.axisCode -= 10; depressedKeyCodes[39] = false; fired = true; }
+			if(e.keyCode === 40) { keyboard.axisCode -= 100; depressedKeyCodes[40] = false; fired = true; }
+			if(e.keyCode === 37) { keyboard.axisCode -= 1000; depressedKeyCodes[37] = false; fired = true; }
 			if(e.keyCode === 27) { keyboard.esc = false; fired = true; }
 			if(e.keyCode === 13) { keyboard.enter = false; fired = true; }
 			if (fired) {
 				engine.hook('keyup', e);
+				return false;
 			}
-            if(e.keyCode === 38 || e.keyCode === 39 || e.keyCode === 40 || e.keyCode === 37) {
-                return false;
-            }
 		});
 	})();
 
@@ -488,6 +484,8 @@ RedLocomotive('core', function(options, engine){
 		var elements,
 			element,
 			image,
+            x,
+            y,
 			sW,
 			sH,
 			cP,
@@ -510,11 +508,25 @@ RedLocomotive('core', function(options, engine){
 				element = elements[elementName];
 
 				//check to make sure its a valid element
-				if (element.spriteSheet && element.spriteSheet.image) {
-					if (!stack[element.z]) {
-						stack[element.z] = [];
-					}
-					stack[element.z].push(element);
+				if (element.spriteSheet) {
+
+					x = element.x - viewport.x;
+					y = element.y - viewport.y;
+
+					//Make sure the element is in view
+					if(
+						x + element.width > 0 &&
+						x < viewport.node[0].width &&
+						y + element.height > 0 &&
+						y < viewport.node[0].height
+					) {
+
+                        if (!stack[element.z]) {
+                            stack[element.z] = [];
+                        }
+                        stack[element.z].push(element);
+
+                    }
 				}
 
 			}
@@ -528,35 +540,22 @@ RedLocomotive('core', function(options, engine){
 					//get the element
 					element = stack[level][i];
 
+                    //abstract some data
+                    image = element.spriteSheet.image;
+                    sW = element.spriteSheet.spriteWidth;
+                    sH = element.spriteSheet.spriteHeight;
+
+                    cP = element.spritePos;
+                    sX = Math.floor(cP[0] * sW);
+                    sY = Math.floor(cP[1] * sH);
+
 					dX = element.x - viewport.x;
 					dY = element.y - viewport.y;
+                    dW = element.spriteSheet.spriteWidth;
+                    dH = element.spriteSheet.spriteHeight;
 
-					//Make sure the element is in view
-					if(
-						dX + element.width > 0 &&
-						dX < viewport.node[0].width &&
-						dY + element.height > 0 &&
-						dY < viewport.node[0].height
-					) {
-						if (element.spriteSheet) {
-
-							//abstract some data
-							image = element.spriteSheet.image;
-							sW = element.spriteSheet.spriteWidth;
-							sH = element.spriteSheet.spriteHeight;
-
-							cP = element.spritePos;
-							sX = Math.floor(cP[0] * sW);
-							sY = Math.floor(cP[1] * sH);
-
-							dW = element.spriteSheet.spriteWidth;
-							dH = element.spriteSheet.spriteHeight;
-
-							//draw the sprite on to the
-							viewport.context.drawImage(image[0], sX, sY, sW, sH, dX, dY, dW, dH);
-
-						}
-					}
+                    //draw the sprite on to the
+                    viewport.context.drawImage(image[0], sX, sY, sW, sH, dX, dY, dW, dH);
 				}
 			}
 		}
@@ -564,7 +563,7 @@ RedLocomotive('core', function(options, engine){
 
 	/**
 	 * Draws all text elements
-	 * @param viewport
+	 * @param viewport {object}
 	 */
 	function drawTextElements(viewport) {
 		var textElements,

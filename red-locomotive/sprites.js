@@ -1,4 +1,4 @@
-RedLocomotive('sprites', function(options, engine){
+RedLocomotive('sprites', function(engine, options) {
     "use strict"
 
     var sprites = {},
@@ -8,7 +8,8 @@ RedLocomotive('sprites', function(options, engine){
 
     /**
      * newSpriteSheet - Makes a new sprite sheet for use with elements
-	 * @param url {string} The url to the sprite sheet image
+	 * @author <a href="mailto:robert@thinktankdesign.ca">Robert Hurst</a>
+     * @param url {string} The url to the sprite sheet image
      * @param w {int} The sprite width
      * @param h {int} The sprite height
      * @param skipPixelMap {boolean} [optional] If true, A pixel map will not be created. Defaults to false
@@ -45,7 +46,8 @@ RedLocomotive('sprites', function(options, engine){
 
     /**
      * getImage - Downloads the image and caches it, if its already cached then use the cached version
-	 * @param url {string} The url to the sprite sheet image
+	 * @author <a href="mailto:robert@thinktankdesign.ca">Robert Hurst</a>
+     * @param url {string} The url to the sprite sheet image
      * @param callback {function} [optional] A function that will fire when the image has been fully downloaded
      * @param forceNewImage {boolean} [optional] If true, the image will download whether its cached or not. Though not recommended this can be used to update the spriteSheet revision already in memory.
      */
@@ -70,6 +72,7 @@ RedLocomotive('sprites', function(options, engine){
 
     /**
      * updateSpriteSheet - Used by newSpriteSheet() to make an pixel map of a sprite. It is a separate function because it is possible to prevent newSpriteSheet() from calling updateSpriteSheet(). Separating the two functions allows manual mapping later.
+     * @author <a href="mailto:robert@thinktankdesign.ca">Robert Hurst</a>
      * @param url {string} The url to the sprite sheet image
      * @param callback {function} [optional] A callback function to be fired after the sprite has been created
      */
@@ -144,7 +147,8 @@ RedLocomotive('sprites', function(options, engine){
 
     /**
      * removeImage - Removes an image from the cache
-	 * @param url {string} The image url
+	 * @author <a href="mailto:robert@thinktankdesign.ca">Robert Hurst</a>
+     * @param url {string} The image url
      */
     function removeImage(url) {
         delete images[url];
@@ -152,7 +156,8 @@ RedLocomotive('sprites', function(options, engine){
 
     /**
      * removeSpriteSheet - Removes a sprite sheet and its corresponding image
-	 * @param url {string} The sprite url
+	 * @author <a href="mailto:robert@thinktankdesign.ca">Robert Hurst</a>
+     * @param url {string} The sprite url
      */
     function removeSpriteSheet(url) {
         delete sprites[url];

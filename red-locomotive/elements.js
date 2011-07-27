@@ -1,33 +1,18 @@
-RedLocomotive("elements", function(options, engine) {
+RedLocomotive("elements", function(engine, options) {
 
     var elements = {},
 		textElements = {};
 
-   var lastX = 0, lastY = 0;
-   engine.every(function(){
-       for (var key in elements) {
-           if (elements.hasOwnProperty(key)) {
-               if (elements[key].x > lastX) {
-                   lastX = elements[key].x;
-               }
-               if (elements[key].y > lastY) {
-                   lastY = elements[key].y;
-               }
-           }
-       }
-
-   });
-
 	/**
-	 * New Element - Creates a new basic element.
-	 * @param elementName {string} An id for the element. If an element has the same id it will be overwritten.
-	 * @param spriteUrl {string} The url to a spritesheet for the element.
-	 * @param x {int} The x coordinate.
-	 * @param y {int} The y coordinate.
-	 * @param w {int} The element's width.
-	 * @param h {int} The element's height.
-	 * @param sX {int} [optional] The default sprite column
-	 * @param sY {int} [optional] The default sprite row
+	 * New Element
+	 * @param elementName
+	 * @param spriteUrl
+	 * @param x
+	 * @param y
+	 * @param w
+	 * @param h
+	 * @param sX
+	 * @param sY
 	 */
     function newElement(elementName, spriteUrl, x, y, z, w, h, sX, sY) {
 		
@@ -55,7 +40,7 @@ RedLocomotive("elements", function(options, engine) {
 
 	/**
 	 * Get Element or Elements
-	 * @param elementName {string} The name of the string
+	 * @param elementName
 	 */
 	function getElement(elementName) {
 

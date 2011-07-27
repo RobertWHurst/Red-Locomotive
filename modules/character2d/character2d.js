@@ -1,4 +1,4 @@
-RedLocomotive('character2d', function(options, engine) {
+RedLocomotive('character2d', function(engine, options) {
 
 	var idleTimer;
 

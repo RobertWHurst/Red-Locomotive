@@ -1,4 +1,4 @@
-RedLocomotive('audio', function(options, engine) {
+RedLocomotive('audio', function(engine, options) {
 
 	var sounds = {};
 
