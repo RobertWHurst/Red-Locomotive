@@ -46,7 +46,7 @@ body {
     background: linear-gradient(top, #eeeeee 0%,#cccccc 100%); /* W3C */
 }
 
-canvas {
+.canvasWrapper {
     background: #79a4a7;
     width: 400px;
     height: 320px;
