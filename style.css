@@ -54,7 +54,7 @@ body {
 
 .checkIt {
     display: block;
-    margin: 60px 60px -90px 60px;
+    margin: 60px 0 -90px 0;
     padding: 20px;
     font-size: 16px;
     font-weight: bold;
