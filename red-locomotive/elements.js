@@ -6,31 +6,32 @@ RedLocomotive("elements", function(engine, options) {
 	/**
 	 * New Element
 	 * @param elementName
-	 * @param spriteUrl
+	 * @param spriteSheet
 	 * @param x
 	 * @param y
-	 * @param w
-	 * @param h
-	 * @param sX
-	 * @param sY
+	 * @param z
 	 */
-    function newElement(elementName, spriteUrl, x, y, z, w, h, sX, sY) {
+    function newElement(elementName, spriteSheet, x, y, z) {
 		
 		if(elementName !== 'all') {
+
+			if(spriteSheet && typeof spriteSheet === 'string') {
+				spriteSheet = engine.spriteSheet.get(spriteSheet);
+			}
+
 			var element = {
 				"name": elementName,
-				"spriteSheet": engine.spriteSheet.get(spriteUrl),
-				"x": x,
-				"y": y,
-				"z": z,
-				"width": w,
-				"height": h,
-				"spritePos": [sX || 0, sY || 0]
+				"spriteSheet": spriteSheet,
+				"x": x || 0,
+				"y": y || 0,
+				"z": z || 0,
+				"width": spriteSheet.sprites[0][0].canvas[0].width,
+				"height": spriteSheet.sprites[0][0].canvas[0].height,
+				"spritePos": [0, 0]
 			};
 
 			//save the element
 			elements[elementName] = element;
-
 
 			return element;
 		}
@@ -74,26 +75,45 @@ RedLocomotive("elements", function(engine, options) {
 	/**
 	 * Takes an element and a vector, then moves the element to the vector's end point
 	 * @param element
-	 * @param degree
-	 * @param distance
+	 * @param x
+	 * @param y
 	 */
-	function move(element, degree, distance) {
+	function move(element, x, y) {
 
-		var newPos = engine.coords(degree, distance);
+		var cleared = false;
 
-		//find the x and y distance via sine and cosine
-		element.x += newPos.x;
-		element.y += newPos.y;
+		function clear() {
+			cleared = true;
+		}
+
+		var api = {
+			"clear": clear
+		};
+
+		//fire an event for movement
+		engine.event('move', api, x, y);
+		engine.event('move-' + element.name, api, x, y);
+
+		//if an element is returned by the collision check then
+		// try to place the element as close to the blocking element
+		// as possible
+		if(!cleared){
+
+			//apply the element position
+			element.x = x;
+			element.y = y;
+			return true;
+
+		} else {
+			return false;
+		}
 	}
 
 	function keepIn(element, viewport, marginX, marginY) {
 
+		//set the default margins
         marginX = marginX || 0;
         marginY = marginY || marginX;
-
-		function clear() {
-			bindingTimer.clear();
-		}
 
 		if(
 			typeof element.x !== "undefined" ||
@@ -106,16 +126,16 @@ RedLocomotive("elements", function(engine, options) {
 
 		) {
 
-			var bindingTimer = engine.every(function(){
+			var bindingAction = engine.when('move-' + element.name, function(){
 
                 //figure out limits
                 var viewportLimits = {
                         "top": viewport.y,
                         "bottom": viewport.y + viewport.node[0].height,
                         "left": viewport.x,
-                        "right": viewport.x + viewport.node[0].width,
-                        "centerX": (viewport.x + (viewport.node[0].width / 2)),
-                        "centerY": (viewport.y + (viewport.node[0].height / 2))
+                        "right": viewport.x + viewport.width,
+                        "centerX": (viewport.x + (viewport.width / 2)),
+                        "centerY": (viewport.y + (viewport.height / 2))
                     },
                     elementLimits = {
                         "top": element.y - marginY,
@@ -128,17 +148,17 @@ RedLocomotive("elements", function(engine, options) {
 
                 //if element height is greater than viewport height
                 if(marginX === -1 || elementLimits.bottom - elementLimits.top > viewportLimits.bottom - viewportLimits.top){
-                    
+
                     viewport.x += elementLimits.centerX - viewportLimits.centerX;
 
                 } else {
 
                     //scroll Y on limits
-                    if (viewportLimits.top > elementLimits.top) {
-                        //viewport.y = elementLimits.top;
+                    if (elementLimits.top < viewportLimits.top) {
+                        viewport.y = elementLimits.top;
                     }
-                    if (viewportLimits.bottom < elementLimits.bottom) {
-                        viewport.y = elementLimits.bottom
+                    if (elementLimits.bottom > viewportLimits.bottom) {
+                        viewport.y = elementLimits.bottom - (viewportLimits.bottom - viewportLimits.top);
                     }
                 }
 
@@ -150,18 +170,19 @@ RedLocomotive("elements", function(engine, options) {
                 } else {
 
                     //scroll X on limits
-                    if (viewportLimits.left > elementLimits.left) {
-                        viewport.x = elementLimits.left
+                    if (elementLimits.left < viewportLimits.left) {
+                        viewport.x = elementLimits.left;
                     }
-                    if (viewportLimits.right < elementLimits.right) {
-                        viewport.x = elementLimits.right
+                    if (elementLimits.right > viewportLimits.right) {
+                        viewport.x = elementLimits.right - (viewportLimits.right - viewportLimits.left);
                     }
                 }
 
 			});
+			engine.event('move-' + element.name);
 
 			return {
-				"clear": clear
+				"clear": bindingAction.clear
 			}
 
 		}
@@ -193,6 +214,21 @@ RedLocomotive("elements", function(engine, options) {
 		}
 
 		return false;
+
+		/*elementName = 'TEXT-' + elementName;
+
+		var canvas = jQuery('<canvas></canvas>'),
+			context = canvas.getContext('2d'),
+			textSprite = {
+			"spriteName": 'TEXT-' + elementName,
+			"spriteWidth": 0,
+			"spriteHeight": 0,
+			"canvas": canvas,
+			"context": context
+		}
+
+		var element = newElement(elementName, textSprite, x, y, z);*/
+
 	}
 
 	/**

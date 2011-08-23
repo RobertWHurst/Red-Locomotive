@@ -7,32 +7,31 @@ RedLocomotive('animations', function(engine, options) {
 	 * @param distance
 	 * @param frames
 	 */
-	function move(element, degree, distance, frames, callback) {
+	function move(element, endX, endY, frames, callback) {
+
+		var cleared = false;
+
+		function clear() {
+			cleared = true;
+		}
+
+		var api = {
+			"clear": clear
+		};
+
+		function setCallback(newCallback) {
+			callback = newCallback;
+		}
 
 		//if the element has x and y values, and they are int values.
-		if (element.x && element.y) {
+		if (typeof element.x === 'number' && typeof element.y === 'number') {
 
-			var counter = frames || 1,
-				moveTimer,
-                travelX,
-                travelY,
-                coords = engine.coords(degree, distance);
+			var moveTimer,
+				counter = frames || 1;
 
 			moveTimer = engine.every(function(){
 
-				travelX = Math.round(coords.x / counter);
-				travelY = Math.round(coords.y / counter);
-
-                coords.x -= travelX;
-                coords.y -= travelY;
-
-				element.x += travelX;
-				element.y += travelY;
-
-				counter -= 1;
-
-				if(!counter) {
-
+				if(cleared) {
 					//kill the timer
 					moveTimer.clear();
 
@@ -40,10 +39,45 @@ RedLocomotive('animations', function(engine, options) {
 						callback();
 					}
 				}
+
+				if(!counter) {
+
+					newX = endX;
+					newY = endY;
+
+					//kill the timer
+					moveTimer.clear();
+
+					if (typeof callback === 'function') {
+						callback();
+					}
+
+				} else {
+
+					counter -= 1;
+
+					//calculate the distance
+					var distanceX = endX - element.x,
+						distanceY = endY - element.y,
+						moveX = Math.round((distanceX / counter) * 100) / 100,
+						moveY = Math.round((distanceY / counter) * 100) / 100,
+						newX = element.x + moveX,
+						newY = element.y + moveY;
+				}
+
+
+				element.x = newX;
+				element.y = newY;
+
+				//fire an event for movement
+				engine.event('move', api, newX, newY);
+				engine.event('move-' + element.name, api, newX, newY);
+
 			});
 
 			return {
-				"clear": moveTimer.clear
+				"clear": moveTimer.clear,
+				"setCallback": setCallback
 			}
 		}
 		return false;
@@ -55,10 +89,15 @@ RedLocomotive('animations', function(engine, options) {
 	 * @param sequence
 	 */
 	function sequence(element, sequence, frames, callback) {
+
+		function setCallback(newCallback) {
+			callback = newCallback;
+		}
 		
 		var frame = 0, useloop = false;
 
 		if (element.spriteSheet && element.spritePos && typeof sequence === 'object') {
+
 			var aniTimer = engine.every(function () {
 
 				element.spritePos = sequence[frame];
@@ -92,7 +131,8 @@ RedLocomotive('animations', function(engine, options) {
 
 		return {
 			"loop": loop,
-			"clear": clear
+			"clear": clear,
+			"setCallback": setCallback
 		}
 	}
 

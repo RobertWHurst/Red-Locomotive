@@ -6,7 +6,6 @@ RedLocomotive('character2d', function(engine, options) {
 
 		//create an element
 		var character = engine.element.create(elementName, spriteUrl, x, y, z, w, h),
-			arrowKeysLoop,
 			aniBindings = {
 				"idle": false,
 				"up": false,
@@ -56,6 +55,8 @@ RedLocomotive('character2d', function(engine, options) {
 					f += 1;
 				} else {
 					f = 0;
+
+					// there is a running sequence use it from now on
 					if(binding.runningSequence.length) {
 						sequence = binding.runningSequence;
 					}
@@ -68,62 +69,6 @@ RedLocomotive('character2d', function(engine, options) {
 		});
 
 		/**
-		 * Binds the arrow keys to a character
-		 * @param distance
-		 */
-		function bindToArrowKeys(distance) {
-
-			//set the default pixel travel
-			distance = distance || 5;
-
-			//move loop
-			//Defines what the state of the object is and weather or not its moving
-			arrowKeysLoop = engine.every(function () {
-
-				//get the input.
-				var keyboard = engine.keyboard();
-
-				//none
-				if(keyboard.axisCode === 0) {
-					return false;
-
-				//up
-				} else if (keyboard.axisCode === 1) {
-					move(character, 0, distance);
-
-				// up + right
-				} else if (keyboard.axisCode === 11) {
-					move(character, 45, distance);
-
-				// right
-				} else if (keyboard.axisCode === 10) {
-					move(character, 90, distance);
-
-				//down + right
-				} else if (keyboard.axisCode === 110) {
-					move(character, 135, distance);
-
-				//down
-				} else if (keyboard.axisCode === 100) {
-					move(character, 180, distance);
-
-				//down + left
-				} else if (keyboard.axisCode === 1100) {
-					move(character, 225, distance);
-
-				//left
-				} else if (keyboard.axisCode === 1000) {
-					move(character, 270, distance);
-
-				//left + up
-				} else if (keyboard.axisCode === 1001) {
-					move(character, 315, distance);
-				}
-
-			});
-		}
-
-		/**
 		 * Defines a sequence of movement for a specific motion
 		 * @param movement
 		 * @param startSequence
@@ -132,10 +77,15 @@ RedLocomotive('character2d', function(engine, options) {
 		 */
 		function animateMovement(movement, startSequence, runningSequence, frames) {
 
+			if(typeof runningSequence === 'number' && !frames) {
+				frames = runningSequence;
+				runningSequence = false;
+			}
+
 			//bind the new animation set
 			if(movement === 'idle' || movement === 'up' || movement === 'down' || movement === 'right' || movement === 'left'){
 				aniBindings[movement] = {
-					"startSequence": startSequence || runningSequence,
+					"startSequence": startSequence,
 					"runningSequence": runningSequence,
 					"frames": frames
 				}
@@ -159,16 +109,7 @@ RedLocomotive('character2d', function(engine, options) {
 			animateMovement('left', startSequence, runningSequence, frames);
 		}
 
-		/**
-		 * Unbinds all user control of an element
-		 */
-		function unbind() {
-			arrowKeysLoop.clear();
-		}
-
 		return jQuery.extend(character, {
-			"bindToArrowKeys": bindToArrowKeys,
-			"unbind": unbind,
 			"sequence": {
 				"idle": onIdle,
 				"up": onUp,
@@ -179,24 +120,93 @@ RedLocomotive('character2d', function(engine, options) {
 		});
 	}
 
-	function setMovement(character, degree, framesToHoldFor) {
+	/**
+	 * Binds the arrow keys to a character
+	 * @param distance
+	 */
+	function bindToArrowKeys(character, distance) {
 
-		var framesToHoldFor = (framesToHoldFor || 0) + 1,
-		degree = degree + 45;
-		degree = degree < 360 ? degree : 0;
+		//set the default pixel travel
+		distance = distance || 1;
 
-		//prevent the sprite from returning to idle
-		if(character.idleTimer) { character.idleTimer.clear(); delete character.idleTimer; }
+		//move loop
+		//Defines what the state of the object is and weather or not its moving
+		var arrowKeysLoop = engine.every(function () {
 
-		//find out the state based on direction
-		if(degree > 0 && degree < 90) {
-			character.movement = 'up';
-		} else if (degree >= 90 && degree <= 180){
-			character.movement = 'right';
-		} else if (degree > 180 && degree < 270){
-			character.movement = 'down';
-		} else if (degree >= 270 || degree === 0){
-			character.movement = 'left';
+			//get the input.
+			var keyboard = engine.keyboard();
+
+			//none
+			if(keyboard.axisCode === 0) {
+				return false;
+
+			//up
+			} else if (keyboard.axisCode === 1) {
+				move(character, character.x, character.y - distance);
+
+			// up + right
+			} else if (keyboard.axisCode === 11) {
+				var coords = engine.coords(45, distance);
+				move(character, coords.x + character.x, coords.y + character.y);
+
+			// right
+			} else if (keyboard.axisCode === 10) {
+				move(character, character.x + distance, character.y);
+
+			//down + right
+			} else if (keyboard.axisCode === 110) {
+				var coords = engine.coords(135, distance);
+				move(character, character.x + coords.x, character.y + coords.y);
+
+			//down
+			} else if (keyboard.axisCode === 100) {
+				move(character, character.x, character.y + distance);
+
+			//down + left
+			} else if (keyboard.axisCode === 1100) {
+				var coords = engine.coords(225, distance);
+				move(character, character.x + coords.x, character.y + coords.y);
+
+			//left
+			} else if (keyboard.axisCode === 1000) {
+				move(character, character.x - distance, character.y);
+
+			//left + up
+			} else if (keyboard.axisCode === 1001) {
+				var coords = engine.coords(315, distance);
+				move(character, character.x + coords.x, character.y + coords.y);
+			}
+
+		});
+
+		return {
+			"clear": arrowKeysLoop.clear
+		}
+	}
+
+	function setMovement(character, x, y, framesToHoldFor) {
+
+		if(character.idleTimer) {
+			character.idleTimer.clear();
+			delete character.idleTimer;
+		}
+
+		var _x = x < 0 ? -x : x,
+			_y = y < 0 ? -y : y,
+			mH = _x >= _y;
+
+		if(mH) {
+			if(x < 0) {
+				character.movement = 'left';
+			} else {
+				character.movement = 'right';
+			}
+		} else {
+			if(y < 0) {
+				character.movement = 'up';
+			} else {
+				character.movement = 'down';
+			}
 		}
 
 		//setup a timer to idle the sprite movement
@@ -206,14 +216,27 @@ RedLocomotive('character2d', function(engine, options) {
 
 	}
 
-	function move(character, degree, distance) {
-		setMovement(character, degree);
-		engine.element.move(character, degree, distance);
+	function move(character, x, y) {
+
+		var vector = engine.vector(x - character.x, y - character.y);
+		var coords = {"x": x, "y": y};
+
+		setMovement(character, x - character.x, y - character.y);
+
+		if(!engine.element.move(character, coords.x, coords.y)) {
+			coords = engine.coords(vector[0] + 75, vector[1]);
+
+			if(!engine.element.move(character, coords.x + character.x, coords.y + character.y)) {
+				coords = engine.coords(vector[0] - 75, vector[1]);
+
+				engine.element.move(character, coords.x + character.x, coords.y + character.y);
+			}
+		}
 	}
 
-	function animateMove(character, degree, distance, frames, callback) {
-		setMovement(character, degree, frames);
-		engine.animate.move(character, degree, distance, frames, callback);
+	function animateMove(character, x, y, frames, callback) {
+		setMovement(character, x - character.x, y - character.y, frames);
+		engine.animate.move(character, x, y, frames, callback);
 	}
 
 	return {
@@ -222,6 +245,7 @@ RedLocomotive('character2d', function(engine, options) {
 		"animate": {
 			"move": animateMove
 		},
+		"bindToArrowKeys": bindToArrowKeys,
 		"setMovement": setMovement
 	}
 });
