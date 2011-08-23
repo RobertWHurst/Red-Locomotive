@@ -3,21 +3,20 @@
     <head>
         <title>Red Locomotive - Give your games some tractive effort!</title>
         <link rel="stylesheet" href="style.css">
+
+        <script async="true" src="http://api.flattr.com/js/0.6/load.js?mode=auto"></script>
+        <script async="true" src="http://www.google-analytics.com/ga.js"></script>
+
         <script src="lib/jQuery.js"></script>
         <script src="lib/shims/requestAnimationFrame.js"></script>
         <script src="red-locomotive/loader.js"></script>
         <script src="game.js"></script>
         <script type="text/javascript">
 
-            var _gaq = _gaq || [];
-            _gaq.push(['_setAccount', 'UA-8963518-2']);
-            _gaq.push(['_trackPageview']);
-
-            (function() {
-            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-            })();
+            _gaq = [
+	            ['_setAccount', 'UA-8963518-2'],
+	            ['_trackPageview']
+            ];
 
         </script>
     </head>
@@ -73,6 +72,12 @@
                     <br>
                     Sprites from the example above by <a title="Phil Welden on Google+" href="https://plus.google.com/107641409009359424133/">Phil Welden</a>.
                 </p>
+	            <a class="FlattrButton" style="display:none;" href="http://redlocomotive.github.com/Red-Locomotive"></a>
+				<noscript>
+					<a href="http://flattr.com/thing/380916/Red-Locomotive" target="_blank">
+						<img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" />
+					</a>
+				</noscript>
                 <a class="checkIt" href="https://github.com/RobertWHurst/Red-Locomotive">Check it out!</a>
             </div>
         </div>
