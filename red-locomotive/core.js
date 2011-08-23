@@ -30,10 +30,6 @@ RedLocomotive('core', function(engine, options) {
 		asinMap = {},
 		acosMap = {};
 
-	var fpsEle = jQuery('<h1>FPS: 0 Cycle Drift: 0</h1>'),
-		avgFPS = 0;
-	jQuery('body').append(fpsEle);
-
 	//core loop
 	(function coreLoop(coreLoopTime) {
 
@@ -65,11 +61,6 @@ RedLocomotive('core', function(engine, options) {
 
 				//draw the current frame
 				draw();
-			}
-
-			//update the fps
-			if (options.showFPS) {
-				fpsEle.html('FPS: ' + realFps + ' Cycles: '+ clockCycles);
 			}
 
 			//call the core loop hook

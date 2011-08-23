@@ -50,6 +50,12 @@ body {
     background: #79a4a7;
     width: 400px;
     height: 320px;
+	overflow: hidden;
+	border: 3px solid #000;
+	border-radius: 20px;
+
+	-moz-border-radius: 20px;
+	-webkit-border-radius: 20px;
 }
 
 .checkIt {

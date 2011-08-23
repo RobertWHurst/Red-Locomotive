@@ -15,10 +15,10 @@ RedLocomotive({
 	engine.start();
 
 	//Create the main viewport
-	var mainView = engine.viewport.create('main', '#mainView', 400, 320);
+	var mainView = engine.viewport.create('main', '#mainView', 394, 314);
 
-	mainView.node.width(400);
-	mainView.node.height(320);
+	mainView.node.width(394);
+	mainView.node.height(314);
 
 	//create a test sprite sheet
 	engine.spriteSheet.create([
@@ -123,7 +123,6 @@ RedLocomotive({
 		}
 
 		var rand = engine.random(2);
-		console.log(rand);
 		var initDirection = rand >= 1 ? 'left' : 'right';
 
 		patrol(initDirection);
