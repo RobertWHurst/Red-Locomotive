@@ -45,6 +45,9 @@ RedLocomotive('core', function(engine, options) {
 			//get the number of cycles for this loop
 			var clockCycles = Math.floor(cycleDrift);
 
+			//prevent runway cycles
+			clockCycles = clockCycles <= 30 ? clockCycles : 30;
+
 			//if there are cycles in this loop
 			if(clockCycles > 0) {
 
@@ -81,9 +84,6 @@ RedLocomotive('core', function(engine, options) {
 		//figure out the framerate
 		realFps = frameCount;
 		frameCount = 0;
-
-		avgFPS += realFps;
-		avgFPS = Math.round(avgFPS / 2);
 
 		//stop the loop if the system is inactive
 		if (!active) { return true; }
