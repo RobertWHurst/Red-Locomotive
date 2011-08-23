@@ -40,15 +40,13 @@ RedLocomotive('core', function(engine, options) {
 			var mspf = Math.floor(1000 / config.fps);
 
 			//count the amount of drift in milliseconds between frames
-			if(cycleDrift < 30) {
-				cycleDrift += Math.round(((coreLoopTime - lastCoreLoopTime) / mspf) * 10) / 10;
-			}
+			cycleDrift += Math.round(((coreLoopTime - lastCoreLoopTime) / mspf) * 10) / 10;
 
 			//get the number of cycles for this loop
 			var clockCycles = Math.floor(cycleDrift);
 
 			//prevent runway cycles
-			clockCycles = clockCycles <= 30 ? clockCycles : 30;
+			clockCycles = clockCycles <= 600 ? clockCycles : 600;
 
 			//if there are cycles in this loop
 			if(clockCycles > 0) {
