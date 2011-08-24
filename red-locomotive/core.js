@@ -46,7 +46,7 @@ RedLocomotive('core', function(engine, options) {
 			var clockCycles = Math.floor(cycleDrift);
 
 			//prevent runway cycles
-			clockCycles = clockCycles <= 600 ? clockCycles : 600;
+			clockCycles = clockCycles <= 30 ? clockCycles : 30;
 
 			//if there are cycles in this loop
 			if(clockCycles > 0) {
@@ -63,7 +63,9 @@ RedLocomotive('core', function(engine, options) {
 				}
 
 				//draw the current frame
-				draw();
+				if(cycleDrift < 30) {
+					draw();
+				}
 			}
 
 			//call the core loop hook
@@ -74,7 +76,7 @@ RedLocomotive('core', function(engine, options) {
 		//save the last core loop time
 		lastCoreLoopTime = coreLoopTime;
 
-		requestAnimFrame(coreLoop);
+		requestAnimationFrame(coreLoop);
 
 	})(new Date());
 
