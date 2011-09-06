@@ -3,6 +3,7 @@
     <head>
         <title>Red Locomotive - Give your games some tractive effort!</title>
         <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="lib/qtip/qtip.css">
 
         <script async="true" src="http://api.flattr.com/js/0.6/load.js?mode=auto"></script>
         <script async="true" src="http://www.google-analytics.com/ga.js"></script>
@@ -10,15 +11,30 @@
         <script async="true" src="http://platform.twitter.com/widgets.js"></script>
 
         <script src="lib/jQuery.js"></script>
+        <script src="lib/qtip/qtip.js"></script>
         <script src="lib/shims/requestAnimationFrame.js"></script>
         <script src="red-locomotive/loader.js"></script>
         <script src="game.js"></script>
         <script type="text/javascript">
 
+	        //google analytics
             _gaq = [
 	            ['_setAccount', 'UA-8963518-2'],
 	            ['_trackPageview']
             ];
+
+	        //qtip init
+	        jQuery(function(){
+		        jQuery('*[title]').qtip({
+			        "position": {
+				        "my": "top middle",
+				        "at": "bottom middle"
+			        },
+			        "style": {
+			            "classes": "ui-tooltip-shadow ui-tooltip-rounded ui-tooltip-dark"
+			        }
+		        });
+	        });
 
         </script>
     </head>
@@ -27,11 +43,11 @@
         <div class="wrapper">
             <div class="content">
                 <h1>Red Locomotive</h1>
-                <h2>Give your games some tractive effort!</h2>
+                <h2 title="Tractive Effort is used in railway engineering to describe the pulling or pushing capability of a locomotive.">Give your games some tractive effort!</h2>
                 <h3>Introduction</h3>
                 <p>
-                    Red Locomotive is a JavaScript game engine for complex 2d and/or isometric games.
-                    It give developers the <d>tractive effort</d> they need by abstracting complex systems like game loops,
+                    Red Locomotive is an open source JavaScript game engine designed for complex 2d and/or isometric games.
+                    It give developers the <d><a title="Tractive Effort is used in railway engineering to describe the pulling or pushing capability of a locomotive.">tractive effort</a></d> they need by abstracting complex systems like game loops,
                     pixel/cursor based events, frame rate management, sprite rendering, animation, and much more.
                 </p>
                 <h3>Example</h3>
@@ -48,9 +64,8 @@
                     <li>Calculate coordinates via vectors</li>
                     <li>Multiple independent viewports</li>
                     <li>Viewport scrolling</li>
-                    <li>Partial key bindings</li>
-                    <li>Improved trigonometric functions</li>
-                    <li>Framerate of 120 with 2000 animated elements</li>
+                    <li>Full key and key combo bindings</li>
+                    <li>Improved trigonomic functions</li>
                     <li>Collision Detection</li>
                 </ul>
                 <h3>Coming Soon</h3>

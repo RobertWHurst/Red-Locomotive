@@ -123,7 +123,12 @@ h2{
     text-align: center;
     color: #a00;
     margin-bottom: 60px;
+	cursor: pointer;
 }
 p{
     line-height: 1.2em;
+}
+a {
+    color: #a00;
+	cursor: pointer;
 }

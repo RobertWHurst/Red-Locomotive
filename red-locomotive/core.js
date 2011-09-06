@@ -116,13 +116,12 @@ RedLocomotive('core', function(engine, options) {
 		});
 		//window focus
 		jQuery(window).focus(function (e) {
+			active = true;
 			newEvent('focus', e);
 		});
 		//window blur
 		jQuery(window).blur(function (e) {
-			if (config.pauseOnBlur) {
-				active = false;
-			}
+			active = false;
 			newEvent('blur', e);
 		});
 
