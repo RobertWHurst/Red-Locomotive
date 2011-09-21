@@ -1,0 +1,76 @@
+html {
+	font-family: "Times New Roman", Georgia, serif;
+}
+body {
+	padding: 0;
+	margin: 0;
+}
+header {
+	border-bottom: 1px solid #ccc;
+	color: #a00;
+	padding-left: 20px;
+}
+h4 {
+	background: #dff;
+	margin: 0 0 21px 0;
+	padding: 6px 0;
+	border: #cff 1px solid;
+}
+code{
+	display: block;
+	height: 1em;
+	width: 20em;
+	overflow: hidden;
+	color: #aaa;
+	background: #ccc;
+}
+code:hover{
+	height: auto;
+	width: auto;
+	overflow: visible;
+	color: #000;
+}
+td, th{
+	border: 1px solid #ccc;
+	padding: 6px;
+	margin: 0;
+}
+footer {
+	height: 36px;
+	background: #eee;
+	color: #333;
+}
+
+#sidebar {
+	float: left;
+	width: 168px;
+	border-right: 1px solid #ccc;
+	padding: 10px 0 10px 18px;
+}
+#sidebar ul {
+	padding-left: 20px;
+}
+#content {
+	margin-left: 201px;
+	padding: 10px 0;
+}
+#wrapper:after{
+	display: block;
+	height: 0;
+	visibility: hidden;
+	clear: both;
+	content: '.';
+}
+
+.arguments {
+	color: #a00;
+	font-weight: normal;
+}
+.optional {
+	color: #a55;
+}
+.copy{
+	padding: 12px;
+	font-size: 12px;
+	margin: 0;
+}

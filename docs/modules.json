@@ -1,0 +1,346 @@
+[
+	{
+		"name": "core",
+		"isModule": true,
+		"methods": [
+			{
+				"name": "callCounter",
+				"description": "Allows funneling of callbacks. Accepts a callback and The number of executions before executing the callback. Returns a clock function that can be passed to a group of functions. Once the returned function has been executed the given number of times, the callback passed to the call counter will be executed.",
+				"arguments": [
+					{   "name": "iterations",
+						"type": ["number"],
+						"description": "The number of times the clock must be executed to trigger the callback."
+					},
+					{   "name": "callback",
+						"type": ["function"],
+						"description": "The callback that fires after the clock has been executed the maximum number of times."
+					}
+				],
+				"returns": {
+					"name": "clock",
+					"type": "function",
+					"description": "A clock function that can be passed a number of times as a callback."
+				}
+			},
+			{
+				"name": "distance",
+				"description": "Calculates the distance a pair of coordinates are from 0.",
+				"arguments": [
+					{   "name": "x",
+						"type": ["number"],
+						"description": "The X coordinate."
+					},
+					{   "name": "y",
+						"type": ["number"],
+						"description": "The Y coordinate."
+					}
+				],
+				"returns": {
+					"name": "distance",
+					"type": "number",
+					"description": "The distance between the X and Y coordinates, and 0."
+				}
+			},
+			{
+				"name": "degree",
+				"description": "Calculates the degree or angle a pair of coordinates are from 0. Moving straight up is 0 degrees.",
+				"arguments": [
+					{   "name": "x",
+						"type": ["number"],
+						"description": "The X coordinate."
+					},
+					{   "name": "y",
+						"type": ["number"],
+						"description": "The Y coordinate."
+					}
+				],
+				"returns": {
+					"name": "degree",
+					"type": "number",
+					"description": "The degree or angle the X and Y coordinates are from 0."
+				}
+			},
+			{
+				"name": "vector",
+				"description": "Calculates the degree or angle and the distance a pair of coordinates are from 0. Moving straight up is 0 degrees.",
+				"arguments": [
+					{   "name": "x",
+						"type": ["number"],
+						"description": "The X coordinate."
+					},
+					{   "name": "y",
+						"type": ["number"],
+						"description": "The Y coordinate."
+					}
+				],
+				"returns": {
+					"name": "vectorArray",
+					"type": "object",
+					"description": "An array containing the distance and the degree or angle the X and Y coordinates are from 0."
+				}
+			},
+			{
+				"name": "coords",
+				"description": "Calculates coordinates from degree or angle and a distance are from 0. Moving straight up is 0 degrees.",
+				"arguments": [
+					{   "name": "degree",
+						"type": ["number"],
+						"description": "The degree from 0. Moving straight up is 0 degrees."
+					},
+					{   "name": "distance",
+						"type": ["number"],
+						"description": "The distance from 0."
+					}
+				],
+				"returns": {
+					"name": "coordinatesArray",
+					"type": "object",
+					"description": "An array containing an X and Y coordinate from 0."
+				}
+			},
+			{
+				"name": "every",
+				"description": "Executes a callback on a set number of frame draws continuously. Useful for any time based logic.",
+				"arguments": [
+					{
+						"name": "callback",
+						"type": "function",
+						"description": "A callback to be executed on a set number of frame draws."
+					},
+					{
+						"name": "interval",
+						"type": "number",
+						"description": "The number of frames to wait before each callback execution.",
+						"default": "0"
+					}
+				]
+			},
+			{
+				"name": "after",
+				"description": "Executes a callback on a set number of frame draws a single time. Useful for any time based logic.",
+				"arguments": [
+					{
+						"name": "callback",
+						"type": "function",
+						"description": "A callback to be executed in a set number of frame draws."
+					},
+					{
+						"name": "interval",
+						"type": "number",
+						"description": "The number of frames to wait before executing the callback.",
+						"default": "0"
+					}
+				]
+			},
+			{
+				"name": "event",
+				"description": "Executes any action callbacks binded to a name with '.when()'.",
+				"arguments": [
+					{
+						"name": "eventName",
+						"type": "string",
+						"description": "The name used to bind to the event."
+					},
+					{
+						"name": "...args",
+						"type": ["string", "boolean", "object", "number", "function"],
+						"description": "Anything other arguments you wish to pass to the binded action callbacks.",
+						"default": "0"
+					}
+				]
+			},
+			{
+				"name": "when",
+				"description": "Binds a callback to an event name. The callback will be executed when the event is executed with 'event()'.",
+				"arguments": [
+					{
+						"name": "eventName",
+						"type": "string",
+						"description": "The name used to bind to the event."
+					},
+					{
+						"name": "callback",
+						"type": "function",
+						"description": "A callback to be executed with 'event()' using the same event name."
+					}
+				]
+			},
+			{
+				"name": "random",
+				"description": "Gives a random number between 0 and a given number.",
+				"arguments": [
+					{
+						"name": "limit",
+						"type": "number",
+						"description": "The maximum value the returned number may have."
+					}
+				],
+				"returns": {
+					"name": "number",
+					"type": "number"
+				}
+			},
+			{
+				"name": "idGen",
+				"description": "Returns a unique number.",
+				"returns": {
+					"name": "id",
+					"type": "number"
+				}
+			},
+			{
+				"name": "tan",
+				"description": "Used for calculating tangent from a degree quickly. This function will cache all results.",
+				"arguments": [
+					{   "name": "degree",
+						"type": ["number"]
+					}
+				],
+				"returns": {
+					"name": "decimal",
+					"type": "number"
+				}
+			},
+			{
+				"name": "sin",
+				"description": "Used for calculating sine from a degree quickly. This function will cache all results.",
+				"arguments": [
+					{   "name": "degree",
+						"type": ["number"]
+					}
+				],
+				"returns": {
+					"name": "decimal",
+					"type": "number"
+				}
+			},
+			{
+				"name": "cos",
+				"description": "Used for calculating cosine from a degree quickly. This function will cache all results.",
+				"arguments": [
+					{   "name": "degree",
+						"type": ["number"]
+					}
+				],
+				"returns": {
+					"name": "decimal",
+					"type": "number"
+				}
+			},
+			{
+				"name": "atan",
+				"description": "Used for calculating arc tan from a decimal quickly. This function will cache all results.",
+				"arguments": [
+					{   "name": "decimal",
+						"type": ["number"]
+					}
+				],
+				"returns": {
+					"name": "degree",
+					"type": "number"
+				}
+			},
+			{
+				"name": "asin",
+				"description": "Used for calculating arc sine from a decimal quickly. This function will cache all results.",
+				"arguments": [
+					{   "name": "decimal",
+						"type": ["number"]
+					}
+				],
+				"returns": {
+					"name": "degree",
+					"type": "number"
+				}
+			},
+			{
+				"name": "acos",
+				"description": "Used for calculating arc cosine from a decimal quickly. This function will cache all results.",
+				"arguments": [
+					{   "name": "decimal",
+						"type": ["number"]
+					}
+				],
+				"returns": {
+					"name": "degree",
+					"type": "number"
+				}
+			}
+		]
+	},
+	{
+		"name": "elements",
+		"isModule": true,
+		"objects": [
+			{
+				"name": "element",
+				"description": "Contains methods useful for manipulating elements",
+				"methods": [
+					{   "name": "create",
+						"description": "Creates a element that will be drawn to all viewports every frame.",
+						"returns": {
+							"name": "element",
+							"type": "object",
+							"description": "An element object that can be directly modified."
+						},
+						"arguments": [
+							{
+								"name": "elementName",
+								"description": "The desired name of the returned element.",
+								"type": "string"
+							},
+							{
+								"name": "spriteSheetName",
+								"description": "The sprite sheet object, or name of the sprite sheet the element will use.",
+								"default": "none",
+								"type": ["string", "object"]
+							},
+							{
+								"name": "x",
+								"description": "The X position of the element relative to the world origin.",
+								"default": 0,
+								"type": "number"
+							},
+							{
+								"name": "y",
+								"description": "The Y position of the element relative to the world origin.",
+								"default": 0,
+								"type": "number"
+							},
+							{
+								"name": "z",
+								"description": "The Z height of the element. Controls the order elements are drawn in. Elements with a higher Z height are draw on top of elements with lower Z heights.",
+								"default": 0,
+								"type": "number"
+							},
+							{
+								"name": "spriteColumn",
+								"description": "The column of the desired sprite in the sprite sheet assigned in 'spriteSheetName'.",
+								"default": 0,
+								"type": "number"
+							},
+							{
+								"name": "spriteRow",
+								"description": "The row of the desired sprite in the sprite sheet assigned in 'spriteSheetName'.",
+								"default": 0,
+								"type": "number"
+							},
+							{
+								"name": "collisionMaskColumn",
+								"description": "The column of the desired collision mask sprite in the sprite sheet assigned in 'spriteSheetName'.",
+								"default": 0,
+								"type": "number"
+							},
+							{
+								"name": "collisionMaskRow",
+								"description": "The row of the desired collision mask sprite in the sprite sheet assigned in 'spriteSheetName'.",
+								"default": 0,
+								"type": "number"
+							}
+						]
+					}
+				]
+			}
+		]
+	}
+]
