@@ -2,6 +2,7 @@
 	{
 		"name": "core",
 		"isModule": true,
+		"description": "Contains the majority of all base functions Red Locomotive is built on. Contains basic timing, positioning, and math related functions. The core module API is not frozen.",
 		"methods": [
 			{
 				"name": "callCounter",
