@@ -43,7 +43,7 @@ footer {
 
 #sidebar {
 	float: left;
-	width: 168px;
+	width: 218px;
 	border-right: 1px solid #ccc;
 	padding: 10px 0 10px 18px;
 }
@@ -51,7 +51,7 @@ footer {
 	padding-left: 20px;
 }
 #content {
-	margin-left: 201px;
+	margin-left: 251px;
 	padding: 10px 0;
 }
 #wrapper:after{
