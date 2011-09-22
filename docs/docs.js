@@ -44,7 +44,7 @@ jQuery(function(){
 		//add the bread crumb
 		if(!data.isModule) {
 			jQuery('<h3>Usage:</h3>').appendTo(content);
-			jQuery('<h4>' + breadCrumb + '.' + data.name + (data.methods || data.objects ? '' : '(<span class="arguments">' + args + '</span>)') + '</h4>').appendTo(content);
+			jQuery('<h4>' + (!data.isGlobal && breadCrumb + '.' || '') + data.name + (data.methods || data.objects ? '' : '(<span class="arguments">' + args + '</span>)') + '</h4>').appendTo(content);
 		}
 
 		//build the arguments table
@@ -167,12 +167,17 @@ jQuery(function(){
 
 	//creates a link method the executes a callback when clicked
 	function createLink(object, target, breadcrumb) {
-		return jQuery('<li><a href="#' + object.name.toLowerCase().replace(/\s/g, '') + '" title="' + (object.description || object.name) + '">' + object.name + '</a></li>')
-			.click(function(event) {
-				event.stopPropagation();
-				buildContent(object, breadcrumb);
-			})
-			.appendTo(target);
+		var link = jQuery('<li><a href="#' + object.name.toLowerCase().replace(/\s/g, '') + '" title="' + (object.description || object.name) + '">' + object.name + '</a></li>'),
+			a = link.find('a');
+
+		a.click(function(event) {
+			event.stopPropagation();
+			buildContent(object, breadcrumb);
+		});
+		
+		link.appendTo(target);
+
+		return link;
 	}
 
 	jQuery.ajax({

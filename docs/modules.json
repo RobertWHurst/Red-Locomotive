@@ -1,5 +1,29 @@
 [
 	{
+		"name": "loader",
+		"isModule": true,
+		"description": "The first module loaded when using Red Locomotive. Contains The RedLocomotive constructor. Unlike the other modules it is included into the page with a script tag.",
+		"methods": [
+			{
+				"name": "RedLocomotive",
+				"description": "The Red Locomotive constructor. This function creates an instance then passes it to a callback. Its also used to load modules.",
+				"isGlobal": true,
+				"arguments": [
+					{
+						"name": "configOrModuleName",
+						"type": ["object", "string"],
+						"description": "Accepts an object containing configuration for initializing Red Locomotive. Accepts a module name when using 'RedLocomotive()' for defining a module."
+					},
+					{
+						"name": "callback",
+						"type": "object",
+						"description": "Accepts a callback. Accepts a callback passing it a Red Locomotive instance. When defining a module it also passes a second parameter containing the configuration object passed to 'RedLocomotive()' on initialization."
+					}
+				]
+			}
+		]
+	},
+	{
 		"name": "core",
 		"isModule": true,
 		"description": "Contains the majority of all base functions Red Locomotive is built on. Contains basic timing, positioning, and math related functions. The core module API is not frozen.",
@@ -277,12 +301,13 @@
 				"name": "element",
 				"description": "Contains methods useful for manipulating elements. The Element module API is not frozen.",
 				"methods": [
-					{   "name": "create",
+					{
+						"name": "create",
 						"description": "Creates a element that will be drawn to all viewports every frame.",
 						"returns": {
-							"name": "element",
+							"name": "character",
 							"type": "object",
-							"description": "An element object that can be directly modified."
+							"description": "A character element object that can be directly modified."
 						},
 						"arguments": [
 							{
@@ -359,6 +384,218 @@
 								"name": "elementName",
 								"type": ["string", "object"],
 								"description": "The name of the element or the actual element you wish to remove. Setting to 'all' removes all the elements in the system."
+							}
+						]
+					},
+					{
+						"name": "keepIn",
+						"description": "Keeps an element in a viewport by scrolling the viewport to the element. A margin can be set to adjust how close the element can get to the edge of the viewport before scrolling.",
+						"arguments": [
+							{
+								"name": "element",
+								"type": "object",
+								"description": "Element object."
+							},
+							{
+								"name": "viewport",
+								"type": "object",
+								"description": "Viewport object."
+							},
+							{
+								"name": "marginX",
+								"type": "number",
+								"description": "The scroll margin for the left and right side of the viewport."
+							},
+							{
+								"name": "marginY",
+								"type": "number",
+								"description": "The scroll margin for the top and bottom of the viewport."
+							}
+						]
+					}
+				]
+			},
+			{
+				"name": "character",
+				"description": "Contains methods useful for manipulating character elements. The Element module API is not frozen.",
+				"methods": [
+					{
+						"name": "create",
+						"description": "Creates a character element that will be drawn to all viewports every frame. Characters are elements that have additional properties for movement animation.",
+						"returns": {
+							"name": "characterElement",
+							"type": "object",
+							"description": "A character element object that can be directly modified."
+						},
+						"arguments": [
+							{
+								"name": "elementName",
+								"description": "The desired name of the returned element.",
+								"type": "string"
+							},
+							{
+								"name": "spriteSheetName",
+								"description": "The sprite sheet object, or name of the sprite sheet the element will use.",
+								"default": "none",
+								"type": ["string", "object"]
+							},
+							{
+								"name": "x",
+								"description": "The X position of the element relative to the world origin.",
+								"default": 0,
+								"type": "number"
+							},
+							{
+								"name": "y",
+								"description": "The Y position of the element relative to the world origin.",
+								"default": 0,
+								"type": "number"
+							},
+							{
+								"name": "z",
+								"description": "The Z height of the element. Controls the order elements are drawn in. Elements with a higher Z height are draw on top of elements with lower Z heights.",
+								"default": 0,
+								"type": "number"
+							}
+						]
+					},
+					{
+						"name": "onIdle",
+						"description": "Sets an idle animation sequence. Sequence is applied when the element does not move for one frame.",
+						"arguments": [
+							{
+								"name": "character",
+								"type": "string",
+								"description": "The character element."
+							},
+							{
+								"name": "startSequence",
+								"type": "string",
+								"description": "The first sequence of animation. If a running sequence is defined this sequence runs once, then the running sequence is applied. If the sequence is no supplied then this sequence will continue to run."
+							},
+							{
+								"name": "runningSequence",
+								"type": "string",
+								"description": "The running sequence of animation that is applied after the start sequence has elapsed. Becomes the frames argument when a running sequence is not supplied.",
+								"default": "false"
+							},
+							{
+								"name": "frames",
+								"type": "string",
+								"description": "The number of frames between each sequence update.",
+								"default": "0"
+							}
+						]
+					},
+					{
+						"name": "onUp",
+						"description": "Sets an animation sequence for upwards movement. Sequence is applied when the element does not move for one frame.",
+						"arguments": [
+							{
+								"name": "character",
+								"type": "string",
+								"description": "The character element."
+							},
+							{
+								"name": "startSequence",
+								"type": "string",
+								"description": "The first sequence of animation. If a running sequence is defined this sequence runs once, then the running sequence is applied. If the sequence is no supplied then this sequence will continue to run."
+							},
+							{
+								"name": "runningSequence",
+								"type": "string",
+								"description": "The running sequence of animation that is applied after the start sequence has elapsed. Becomes the frames argument when a running sequence is not supplied.",
+								"default": "false"
+							},
+							{
+								"name": "frames",
+								"type": "string",
+								"description": "The number of frames between each sequence update.",
+								"default": "0"
+							}
+						]
+					},
+					{
+						"name": "onDown",
+						"description": "Sets an animation sequence for downwards movement. Sequence is applied when the element does not move for one frame.",
+						"arguments": [
+							{
+								"name": "character",
+								"type": "string",
+								"description": "The character element."
+							},
+							{
+								"name": "startSequence",
+								"type": "string",
+								"description": "The first sequence of animation. If a running sequence is defined this sequence runs once, then the running sequence is applied. If the sequence is no supplied then this sequence will continue to run."
+							},
+							{
+								"name": "runningSequence",
+								"type": "string",
+								"description": "The running sequence of animation that is applied after the start sequence has elapsed. Becomes the frames argument when a running sequence is not supplied.",
+								"default": "false"
+							},
+							{
+								"name": "frames",
+								"type": "string",
+								"description": "The number of frames between each sequence update.",
+								"default": "0"
+							}
+						]
+					},
+					{
+						"name": "onLeft",
+						"description": "Sets an animation sequence for movement to the left. Sequence is applied when the element does not move for one frame.",
+						"arguments": [
+							{
+								"name": "character",
+								"type": "string",
+								"description": "The character element."
+							},
+							{
+								"name": "startSequence",
+								"type": "string",
+								"description": "The first sequence of animation. If a running sequence is defined this sequence runs once, then the running sequence is applied. If the sequence is no supplied then this sequence will continue to run."
+							},
+							{
+								"name": "runningSequence",
+								"type": "string",
+								"description": "The running sequence of animation that is applied after the start sequence has elapsed. Becomes the frames argument when a running sequence is not supplied.",
+								"default": "false"
+							},
+							{
+								"name": "frames",
+								"type": "string",
+								"description": "The number of frames between each sequence update.",
+								"default": "0"
+							}
+						]
+					},
+					{
+						"name": "onRight",
+						"description": "Sets an animation sequence for movement to the right. Sequence is applied when the element does not move for one frame.",
+						"arguments": [
+							{
+								"name": "character",
+								"type": "string",
+								"description": "The character element."
+							},
+							{
+								"name": "startSequence",
+								"type": "string",
+								"description": "The first sequence of animation. If a running sequence is defined this sequence runs once, then the running sequence is applied. If the sequence is no supplied then this sequence will continue to run."
+							},
+							{
+								"name": "runningSequence",
+								"type": "string",
+								"description": "The running sequence of animation that is applied after the start sequence has elapsed. Becomes the frames argument when a running sequence is not supplied.",
+								"default": "false"
+							},
+							{
+								"name": "frames",
+								"type": "string",
+								"description": "The number of frames between each sequence update.",
+								"default": "0"
 							}
 						]
 					}
