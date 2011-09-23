@@ -139,7 +139,7 @@ jQuery(function(){
 
 		function methodUsage() {
 
-			if(!data.methods && !data.objects) {
+			if(!data.objects && !data.moduleName) {
 
 				//create a wrapping div
 				var container = jQuery('<div id="usageExample"></div>'),
@@ -150,10 +150,11 @@ jQuery(function(){
 					usagePath = '.' + path.split('-')[1];
 
 				//create the usage example
-					usage = (!data.isGlobal && usagePath || data.name) + '(';
+					usage = (!data.isGlobal && usagePath || data.name);
 
 				//make sure there are arguments
 				if(data.arguments) {
+					usage += '(';
 					for(var i = 0; i < data.arguments.length; i += 1) {
 						var argumentData = data.arguments[i];
 
@@ -164,10 +165,13 @@ jQuery(function(){
 							usage += ', '
 						}
 					}
+					usage += ')';
+				} else {
+					usage = usage.substring(0, usage.length - 1);
 				}
 
 				//wrap the usage example in a heading 4 tag
-				usage = jQuery('<h4>' + usage + ')</h4>');
+				usage = jQuery('<h4>' + usage + '</h4>');
 
 				//assemble and return
 				return container.append(heading, usage);
@@ -193,9 +197,30 @@ jQuery(function(){
 			return jQuery('<div class="JSON"><h3 class="source">Doc Source:</h3><code id="JSONDATA">' + JSON.stringify(data) + '</code></div>');
 		}
 
+		function parseBody() {
+			if(data.body) {
+
+				//create a wrapper
+				var container = jQuery('<div id="body"></div>'),
+
+				//TODO: Parse with markdown
+				//	body = jQuery('<p>' + markdown(data.body) + '</p>');
+					body = jQuery('<p>' + data.body + '</p>');
+
+				return container.append(body);
+			}
+
+			return false;
+		}
+
+		function pageJSONBlock() {
+			return jQuery('<div class="JSON"><h3 class="source">Doc Source:</h3><code id="JSONDATA">' + JSON.stringify(data) + '</code></div>');
+		}
+
 		var page = jQuery('<div></div>'),
 			title = pageTitle(),
 			description = parseDescription(),
+			body = parseBody(),
 			usage = methodUsage(),
 			args = argumentsTable(),
 			returns = returnsTable(),
@@ -213,6 +238,10 @@ jQuery(function(){
 
 			if(returns) {
 				page.append(returns);
+			}
+
+			if(body) {
+				page.append(body);
 			}
 
 			page.append(json);
