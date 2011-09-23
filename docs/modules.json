@@ -1,7 +1,6 @@
 [
 	{
-		"name": "loader",
-		"isModule": true,
+		"moduleName": "loader",
 		"description": "The first module loaded when using Red Locomotive. Contains The RedLocomotive constructor. Unlike the other modules it is included into the page with a script tag.",
 		"methods": [
 			{
@@ -24,8 +23,7 @@
 		]
 	},
 	{
-		"name": "core",
-		"isModule": true,
+		"moduleName": "core",
 		"description": "Contains the majority of all base functions Red Locomotive is built on. Contains basic timing, positioning, and math related functions. The core module API is not frozen.",
 		"methods": [
 			{
@@ -294,8 +292,7 @@
 		]
 	},
 	{
-		"name": "elements",
-		"isModule": true,
+		"moduleName": "elements",
 		"objects": [
 			{
 				"name": "element",

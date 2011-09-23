@@ -62,11 +62,11 @@ footer {
 	content: '.';
 }
 
-.arguments {
+#usageExample .argument {
 	color: #a00;
 	font-weight: normal;
 }
-.optional {
+#usageExample .argument.optional {
 	color: #a55;
 }
 .copy{
