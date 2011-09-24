@@ -19,6 +19,38 @@
 						"description": "Accepts a callback. Accepts a callback passing it a Red Locomotive instance. When defining a module it also passes a second parameter containing the configuration object passed to 'RedLocomotive()' on initialization."
 					}
 				]
+			},
+			{
+				"name": "require",
+				"description": "Used to load modules into the current RedLocomotive engine. Modules are stored and loaded from a folder named modules adjacent to the red-locomotive folder. This is suitable for hot loading modules. If you wish to load a module on startup with RedLocomotive you don't need to use this function. You can accomplish this with 'RedLocomotive({ \"require\": \"[moduleNameOne, moduleNameTwo...]\" },function(){ //your code });'",
+				"arguments": [
+					{
+						"name": "moduleName",
+						"type": ["string", "object"],
+						"description": "The name of a module or an array of module names."
+					},
+					{
+						"name": "callback",
+						"type": "function",
+						"description": "A callback to run after the module has been integrated into the engine."
+					}
+				]
+			},
+			{
+				"name": "loadScript",
+				"description": "downloads and executes a JavaScript file.",
+				"arguments": [
+					{
+						"name": "url",
+						"type": "string",
+						"description": "A url to a JavaScript file."
+					},
+					{
+						"name": "callback",
+						"type": "function",
+						"description": "A callback to run after the module has been integrated into the engine."
+					}
+				]
 			}
 		]
 	},
@@ -595,6 +627,185 @@
 								"default": "0"
 							}
 						]
+					}
+				]
+			}
+		]
+	},
+	{
+		"moduleName": "bitmaps",
+		"description": "Supplies a number of functions for working with image data. Using this module is highly recommended whenever you are working with image data. This module is used extensively by RedLocomotive's internal systems.",
+		"objects": [
+			{
+				"name": "bitmap",
+				"description": "wraps bitmap related functions.",
+				"methods": [
+					{
+						"name": "create",
+						"description": "Creates a new bitmap object. This function return an empty unmodified canvas if no arguments are set. The object contains a canvas and its context.",
+						"arguments": [
+							{
+								"name": "width",
+								"description": "The width of the bitmap.",
+								"type": "number",
+								"default": 0
+							},
+							{
+								"name": "height",
+								"description": "The height of the bitmap.",
+								"type": "number",
+								"default": 0
+							},
+							{
+								"name": "image",
+								"description": "The source of the bitmap. Can be an image object or a canvas.",
+								"type": "number",
+								"default": "false"
+							},
+							{
+								"name": "sX",
+								"description": "The x coordinate to pull from in source image object or canvas.",
+								"type": "number",
+								"default": "false"
+							},
+							{
+								"name": "sY",
+								"description": "The y coordinate to pull from in source image object or canvas.",
+								"type": "number",
+								"default": "false"
+							},
+							{
+								"name": "sW",
+								"description": "The width of the area to pull from in source image object or canvas.",
+								"type": "number",
+								"default": "false"
+							},
+							{
+								"name": "sH",
+								"description": "The height of the area to pull from in source image object or canvas.",
+								"type": "number",
+								"default": "false"
+							},
+							{
+								"name": "dX",
+								"description": "The x coordinate to apply the source data to within the new bitmap.",
+								"type": "number",
+								"default": "false"
+							},
+							{
+								"name": "dY",
+								"description": "The y coordinate to apply the source data to within the new bitmap.",
+								"type": "number",
+								"default": "false"
+							},
+							{
+								"name": "dW",
+								"description": "The width of the area to apply the source data to within the new bitmap.",
+								"type": "number",
+								"default": "false"
+							},
+							{
+								"name": "dH",
+								"description": "The height of the area to apply the source data to within the new bitmap.",
+								"type": "number",
+								"default": "false"
+							}
+						],
+						"returns": {
+							"name": "bitmap",
+							"type": "object",
+							"description": "Bitmap object."
+						}
+					},
+					{
+						"name": "trim",
+						"description": "Trims off excess transparent pixels around an image. This is useful for removing excessive transparency and reducing the size of a bitmap.",
+						"arguments": [
+							{
+								"name": "bitmap",
+								"type": "object",
+								"description": "A bitmap object created with '.bitmap.create()'."
+							}
+						],
+						"returns": {
+							"name": "bitmap",
+							"type": "object",
+							"description": "Bitmap object."
+						}
+					},
+					{
+						"name": "slice",
+						"description": "Cuts a bitmap up into an array equal sized smaller bitmaps. This is useful for turning sprite sheets into an array of sprites.",
+						"arguments": [
+							{
+								"name": "bitmap",
+								"type": "object",
+								"description": "A bitmap object created with '.bitmap.create()'."
+							}
+						],
+						"returns": {
+							"name": "bitmapArray",
+							"type": "object",
+							"description": "An array of bitmap objects."
+						}
+					},
+					{
+						"name": "dump",
+						"description": "Dumps an array of pixel data from a bitmap. Unlike canvas's 'getImageData()' function, 'dump()' wraps a pixel's red blue green and alpha data in its own array, then it inserts all of the pixel data into a single array.",
+						"arguments": [
+							{
+								"name": "bitmap",
+								"type": "object",
+								"description": "A bitmap object created with '.bitmap.create()'."
+							}
+						],
+						"returns": {
+							"name": "PixelArray",
+							"type": "object",
+							"description": "An array of pixel arrays."
+						}
+					},
+					{
+						"name": "isBlank",
+						"description": "Checks to see if a bitmap is empty. If the bitmap is this empty this function returns true, Otherwise it returns false.",
+						"arguments": [
+							{
+								"name": "bitmap",
+								"type": "object",
+								"description": "A bitmap object created with '.bitmap.create()'."
+							}
+						],
+						"returns": {
+							"name": "isEmpty",
+							"type": "boolean",
+							"description": "If the bitmap is this empty true, Otherwise false."
+						}
+					},
+					{
+						"name": "getPointData",
+						"description": "Gets the red, blue, green, and alpha data from a specific point in a bitmap.",
+						"arguments": [
+							{
+								"name": "bitmap",
+								"type": "object",
+								"description": "A bitmap object created with '.bitmap.create()'."
+							},
+							{
+								"name": "x",
+								"type": "number",
+								"description": "The x coordinate to pull from."
+							},
+							{
+								"name": "y",
+								"type": "number",
+								"description": "The y coordinate to pull from."
+							}
+						],
+						"returns": {
+							"name": "pixelArray",
+							"type": "object",
+							"description": "An array containing the red, blue, green, and alpha data."
+						}
 					}
 				]
 			}
