@@ -1,6 +1,6 @@
 [
 	{
-		"moduleName": "loader",
+		"moduleName": "loader.js",
 		"description": "The first module loaded when using Red Locomotive. Contains The RedLocomotive constructor. Unlike the other modules it is included into the page with a script tag.",
 		"methods": [
 			{
@@ -9,7 +9,7 @@
 				"isGlobal": true,
 				"arguments": [
 					{
-						"name": "configOrModuleName",
+						"name": "engineConfig",
 						"type": ["object", "string"],
 						"description": "Accepts an object containing configuration for initializing Red Locomotive. Accepts a module name when using 'RedLocomotive()' for defining a module."
 					},
@@ -55,7 +55,7 @@
 		]
 	},
 	{
-		"moduleName": "core",
+		"moduleName": "core.js",
 		"description": "Contains the majority of all base functions Red Locomotive is built on. Contains basic timing, positioning, and math related functions. The core module API is not frozen.",
 		"methods": [
 			{
@@ -324,11 +324,82 @@
 		]
 	},
 	{
-		"moduleName": "elements",
+		"moduleName": "sprites.js",
+		"description": "Contains all methods for loading sprite sheets into memory.",
+		"objects": [
+			{
+				"name": "spriteSheet",
+				"methods": [
+					{
+						"name": "create",
+						"description": "Downloads a spriteSheet in PNG format and prepares it to be applied to elements.",
+						"arguments": [
+							{
+								"name": "name",
+								"description": "The desired name of the sprite sheet. Or an array containing sub arrays representing each individual sprite sheet. These sub arrays should contain the same arguments listed here.",
+								"type": ["string", "object"]
+							},
+							{
+								"name": "url",
+								"description": "The url to the PNG spriteSheet. If name is an array of sprite sheets then this becomes the callback argument.",
+								"type": ["string", "function"]
+							},
+							{
+								"name": "spriteWidth",
+								"description": "The cell width of each sprite in the sprite sheet. The sprites sheet is divided in to equal parts of the specified width. Not used if 'name' is an array of sprite sheets.",
+								"type": "int",
+								"default": "none"
+							},
+							{
+								"name": "spriteHeight",
+								"description": "The cell width of each sprite in the sprite sheet. The sprites sheet is divided in to equal parts of the specified height. Not used if 'name' is an array of sprite sheets.",
+								"type": "int",
+								"default": "none"
+							},
+							{
+								"name": "callback",
+								"description": "Fired when the sprite sheet has been downloaded and is ready for use. If 'name' is an array of sprite sheets the 'url' argument acts as the callback instead.",
+								"type": "function",
+								"default": "none"
+							}
+						]
+					},
+					{
+						"name": "get",
+						"description": "Retrieves a sprite sheet by its assigned name.",
+						"arguments": [
+							{
+								"name": "name",
+								"description": "The name of the sprite sheet.",
+								"type": "string"
+							}
+						],
+						"returns": {
+							"name": "spriteSheetObject",
+							"description": "The sprite sheet object containing all of the sprites."
+						}
+					},
+					{
+						"name": "remove",
+						"description": "Removes a sprite sheet from memory by name.",
+						"arguments": [
+							{
+								"name": "name",
+								"description": "The name of the sprite sheet.",
+								"type": "string"
+							}
+						]
+					}
+				]
+			}
+		]
+	},
+	{
+		"moduleName": "elements.js",
+		"description": "Contains methods useful for manipulating elements. The Element module API is not frozen.",
 		"objects": [
 			{
 				"name": "element",
-				"description": "Contains methods useful for manipulating elements. The Element module API is not frozen.",
 				"methods": [
 					{
 						"name": "create",
@@ -443,188 +514,442 @@
 						]
 					}
 				]
-			},
+			}
+		]
+	},
+	{
+		"moduleName": "viewports.js",
+		"description": "Contains all methods for manipulating and creating viewports.",
+		"objects": [
 			{
-				"name": "character",
-				"description": "Contains methods useful for manipulating character elements. The Element module API is not frozen.",
+				"name": "viewport",
 				"methods": [
 					{
 						"name": "create",
-						"description": "Creates a character element that will be drawn to all viewports every frame. Characters are elements that have additional properties for movement animation.",
-						"returns": {
-							"name": "characterElement",
-							"type": "object",
-							"description": "A character element object that can be directly modified."
-						},
+						"description": "Creates a viewport and embeds in into a selected node on the page.",
 						"arguments": [
 							{
-								"name": "elementName",
-								"description": "The desired name of the returned element.",
+								"name": "name",
+								"description": "The desired name of the viewport.",
 								"type": "string"
 							},
 							{
-								"name": "spriteSheetName",
-								"description": "The sprite sheet object, or name of the sprite sheet the element will use.",
-								"default": "none",
-								"type": ["string", "object"]
+								"name": "containerSelector",
+								"description": "A jQuery (sizzle) selector used to select the container that the viewport will be embedded into.",
+								"type": "string"
+							},
+							{
+								"name": "width",
+								"description": "The width of the viewport's resolution and width of the viewport node in the page. CSS can override the width of the viewport node.",
+								"type": "int"
+							},
+							{
+								"name": "height",
+								"description": "The height of the viewport's resolution and height of the viewport node in the page. CSS can override the height of the viewport node.",
+								"type": "int"
 							},
 							{
 								"name": "x",
-								"description": "The X position of the element relative to the world origin.",
-								"default": 0,
-								"type": "number"
+								"description": "The x position of the viewport inside the game environment.",
+								"type": "int",
+								"default": "0"
 							},
 							{
 								"name": "y",
-								"description": "The Y position of the element relative to the world origin.",
-								"default": 0,
-								"type": "number"
+								"description": "The y position of the viewport inside the game environment.",
+								"type": "int",
+								"default": "0"
 							},
 							{
-								"name": "z",
-								"description": "The Z height of the element. Controls the order elements are drawn in. Elements with a higher Z height are draw on top of elements with lower Z heights.",
-								"default": 0,
-								"type": "number"
+								"name": "fillStyle",
+								"description": "A CSS background value for the viewport. Useful for setting a background color.",
+								"type": "string",
+								"default": "none"
 							}
 						]
 					},
 					{
-						"name": "onIdle",
-						"description": "Sets an idle animation sequence. Sequence is applied when the element does not move for one frame.",
+						"name": "get",
+						"description": "Returns a viewport object by name.",
 						"arguments": [
 							{
-								"name": "character",
-								"type": "string",
-								"description": "The character element."
-							},
-							{
-								"name": "startSequence",
-								"type": "string",
-								"description": "The first sequence of animation. If a running sequence is defined this sequence runs once, then the running sequence is applied. If the sequence is no supplied then this sequence will continue to run."
-							},
-							{
-								"name": "runningSequence",
-								"type": "string",
-								"description": "The running sequence of animation that is applied after the start sequence has elapsed. Becomes the frames argument when a running sequence is not supplied.",
-								"default": "false"
-							},
-							{
-								"name": "frames",
-								"type": "string",
-								"description": "The number of frames between each sequence update.",
-								"default": "0"
+								"name": "name",
+								"description": "The assigned name of the viewport.",
+								"type": "string"
 							}
 						]
 					},
 					{
-						"name": "onUp",
-						"description": "Sets an animation sequence for upwards movement. Sequence is applied when the element does not move for one frame.",
+						"name": "remove",
+						"description": "Removes a viewport from the draw cycle and from the page by name.",
 						"arguments": [
 							{
-								"name": "character",
-								"type": "string",
-								"description": "The character element."
-							},
-							{
-								"name": "startSequence",
-								"type": "string",
-								"description": "The first sequence of animation. If a running sequence is defined this sequence runs once, then the running sequence is applied. If the sequence is no supplied then this sequence will continue to run."
-							},
-							{
-								"name": "runningSequence",
-								"type": "string",
-								"description": "The running sequence of animation that is applied after the start sequence has elapsed. Becomes the frames argument when a running sequence is not supplied.",
-								"default": "false"
-							},
-							{
-								"name": "frames",
-								"type": "string",
-								"description": "The number of frames between each sequence update.",
-								"default": "0"
+								"name": "name",
+								"description": "The assigned name of the viewport.",
+								"type": "string"
 							}
 						]
 					},
 					{
-						"name": "onDown",
-						"description": "Sets an animation sequence for downwards movement. Sequence is applied when the element does not move for one frame.",
+						"name": "containsPoint",
+						"description": "Returns true or false depending on if a pair of given x and y coordinates are within a given viewport.",
 						"arguments": [
 							{
-								"name": "character",
-								"type": "string",
-								"description": "The character element."
+								"name": "viewport",
+								"description": "The viewport to check against.",
+								"type": "object"
 							},
 							{
-								"name": "startSequence",
-								"type": "string",
-								"description": "The first sequence of animation. If a running sequence is defined this sequence runs once, then the running sequence is applied. If the sequence is no supplied then this sequence will continue to run."
+								"name": "x",
+								"description": "The x coordinate.",
+								"type": "int"
 							},
 							{
-								"name": "runningSequence",
-								"type": "string",
-								"description": "The running sequence of animation that is applied after the start sequence has elapsed. Becomes the frames argument when a running sequence is not supplied.",
-								"default": "false"
+								"name": "y",
+								"description": "The y coordinate.",
+								"type": "int"
+							}
+						],
+						"returns": {
+							"name": "PointContainedBool",
+							"description": "Is true if the coordinates are contained in the viewport, false if they are not.",
+							"type": "boolean"
+						}
+					}
+				]
+			}
+		]
+	},
+	{
+		"moduleName": "controls.js",
+		"description": "Provides a host of methods for binding to the keyboard and the mouse. These are not just simple binds, the controls module allows to binding very complex key combinations with no limits other than those presented by the browser. With the mouse you have the ablity to bind to any viewport at any scale on any element.",
+		"methods": [
+			{
+				"name": "getActiveKeys",
+				"returns": {
+					"name": "ActiveKeysArray",
+					"description": "An array containing all pressed keys.",
+					"type": "object"
+				},
+				"arguments": []
+			}
+		],
+		"objects": [
+			{
+				"name": "bind",
+				"description": "Contains all methods relating to binding the keyboard and the mouse.",
+				"methods": [
+					{
+						"name": "key",
+						"description": "Used to bind to a single key, a group of keys, a combination of keys, or a group of a combination of keys. Fires a callback when a key pressed or a combo is executed, and another when released.",
+						"arguments": [
+							{
+								"name": "combo",
+								"description": "The key (the actual form the key represents) or combo to bind too. When binding to a combo separate the keys with the pluses. Accepts multiple keys or combos separated by commas.",
+								"type": "string"
 							},
 							{
-								"name": "frames",
-								"type": "string",
-								"description": "The number of frames between each sequence update.",
-								"default": "0"
+								"name": "firstCallback",
+								"description": "Fires after the key(s) is pressed, or the combo(s) is executed.",
+								"type": "function"
+							},
+							{
+								"name": "secondCallback",
+								"description": "Fires after the key(s) is pressed, or the combo(s) is released.",
+								"type": "function",
+								"default": "none"
 							}
 						]
 					},
 					{
-						"name": "onLeft",
-						"description": "Sets an animation sequence for movement to the left. Sequence is applied when the element does not move for one frame.",
+						"name": "axis",
+						"description": "Useful for creating directional controls. Allows binding to four keys and/or key combinations.",
 						"arguments": [
 							{
-								"name": "character",
-								"type": "string",
-								"description": "The character element."
+								"name": "upCombo",
+								"description": "A key or combo to bind upward movement too. When binding to a combo separate the keys with the pluses. Accepts multiple keys or combos separated by commas.",
+								"type": "string"
 							},
 							{
-								"name": "startSequence",
-								"type": "string",
-								"description": "The first sequence of animation. If a running sequence is defined this sequence runs once, then the running sequence is applied. If the sequence is no supplied then this sequence will continue to run."
+								"name": "downCombo",
+								"description": "A key or combo to bind downward movement too. When binding to a combo separate the keys with the pluses. Accepts multiple keys or combos separated by commas.",
+								"type": "string"
 							},
 							{
-								"name": "runningSequence",
-								"type": "string",
-								"description": "The running sequence of animation that is applied after the start sequence has elapsed. Becomes the frames argument when a running sequence is not supplied.",
-								"default": "false"
+								"name": "leftCombo",
+								"description": "A key or combo to bind leftward movement too. When binding to a combo separate the keys with the pluses. Accepts multiple keys or combos separated by commas.",
+								"type": "string"
 							},
 							{
-								"name": "frames",
-								"type": "string",
-								"description": "The number of frames between each sequence update.",
-								"default": "0"
+								"name": "rightCombo",
+								"description": "A key or combo to bind rightward movement too. When binding to a combo separate the keys with the pluses. Accepts multiple keys or combos separated by commas.",
+								"type": "string"
+							},
+							{
+								"name": "callback",
+								"description": "Fires when one or more of the four key bindings are executed. This callback is passed the degree of movement via its first argument.",
+								"type": "function"
 							}
 						]
 					},
 					{
-						"name": "onRight",
-						"description": "Sets an animation sequence for movement to the right. Sequence is applied when the element does not move for one frame.",
+						"name": "click",
+						"description": "Binds a callback or set of callbacks to a click event from any mouse button on a given element's bounding box in a given viewport.",
 						"arguments": [
 							{
-								"name": "character",
-								"type": "string",
-								"description": "The character element."
+								"name": "element",
+								"type": "object",
+								"description": "Element object."
 							},
 							{
-								"name": "startSequence",
-								"type": "string",
-								"description": "The first sequence of animation. If a running sequence is defined this sequence runs once, then the running sequence is applied. If the sequence is no supplied then this sequence will continue to run."
+								"name": "viewport",
+								"type": "object",
+								"description": "Viewport object."
 							},
 							{
-								"name": "runningSequence",
-								"type": "string",
-								"description": "The running sequence of animation that is applied after the start sequence has elapsed. Becomes the frames argument when a running sequence is not supplied.",
-								"default": "false"
+								"name": "firstCallback",
+								"description": "Fires after a mouse button is pressed over the given element's bounding box in the given viewport. Callback is passed the event object. Set to false if you only wish to bind to the 'mouseup' event.",
+								"type": ["function", "false"]
 							},
 							{
-								"name": "frames",
-								"type": "string",
-								"description": "The number of frames between each sequence update.",
-								"default": "0"
+								"name": "secondCallback",
+								"description": "Fires after a mouse button is released over the given element's bounding box in the given viewport. Callback is passed the event object.",
+								"type": "function",
+								"default": "none"
+							}
+						]
+					},
+					{
+						"name": "leftClick",
+						"description": "Binds a callback or set of callbacks to a click event from the left button on a given element's bounding box in a given viewport.",
+						"arguments": [
+							{
+								"name": "element",
+								"type": "object",
+								"description": "Element object."
+							},
+							{
+								"name": "viewport",
+								"type": "object",
+								"description": "Viewport object."
+							},
+							{
+								"name": "firstCallback",
+								"description": "Fires after the left mouse button is pressed over the given element's bounding box in the given viewport. Callback is passed the event object. Set to false if you only wish to bind to the 'mouseup' event.",
+								"type": ["function", "false"]
+							},
+							{
+								"name": "secondCallback",
+								"description": "Fires after the left mouse button is released over the given element's bounding box in the given viewport. Callback is passed the event object.",
+								"type": "function",
+								"default": "none"
+							}
+						]
+					},
+					{
+						"name": "middleClick",
+						"description": "Binds a callback or set of callbacks to a click event from the middle button on a given element's bounding box in a given viewport.",
+						"arguments": [
+							{
+								"name": "element",
+								"type": "object",
+								"description": "Element object."
+							},
+							{
+								"name": "viewport",
+								"type": "object",
+								"description": "Viewport object."
+							},
+							{
+								"name": "firstCallback",
+								"description": "Fires after the middle mouse button is pressed over the given element's bounding box in the given viewport. Callback is passed the event object. Set to false if you only wish to bind to the 'mouseup' event.",
+								"type": ["function", "false"]
+							},
+							{
+								"name": "secondCallback",
+								"description": "Fires after the middle mouse button is released over the given element's bounding box in the given viewport. Callback is passed the event object.",
+								"type": "function",
+								"default": "none"
+							}
+						]
+					},
+					{
+						"name": "rightClick",
+						"description": "Binds a callback or set of callbacks to a click event from the right mouse button on a given element's bounding box in a given viewport.",
+						"arguments": [
+							{
+								"name": "element",
+								"type": "object",
+								"description": "Element object."
+							},
+							{
+								"name": "viewport",
+								"type": "object",
+								"description": "Viewport object."
+							},
+							{
+								"name": "firstCallback",
+								"description": "Fires after the right mouse button is pressed over the given element's bounding box in the given viewport. Callback is passed the event object. Set to false if you only wish to bind to the 'mouseup' event.",
+								"type": ["function", "false"]
+							},
+							{
+								"name": "secondCallback",
+								"description": "Fires after the right mouse button is released over the given element's bounding box in the given viewport. Callback is passed the event object.",
+								"type": "function",
+								"default": "none"
+							}
+						]
+					}
+				],
+				"objects": [
+					{
+						"name": "alpha",
+						"description": "Contains methods for binding click events to elements based on the alpha value of the pixel below the cursor.",
+						"methods": [
+							{
+								"name": "click",
+								"description": "Binds a callback or set of callbacks to a click event from any mouse button on a given element's collision mask in a given viewport.",
+								"arguments": [
+									{
+										"name": "element",
+										"type": "object",
+										"description": "Element object."
+									},
+									{
+										"name": "viewport",
+										"type": "object",
+										"description": "Viewport object."
+									},
+									{
+										"name": "alpha",
+										"type": "int",
+										"description": "The minimum required alpha value (1 - 255) of the pixel under the cursor from the element's collision mask."
+									},
+									{
+										"name": "firstCallback",
+										"description": "Fires after a mouse button is pressed over the given element's collision mask in the given viewport. Callback is passed the event object. Set to false if you only wish to bind to the 'mouseup' event.",
+										"type": ["function", "false"]
+									},
+									{
+										"name": "secondCallback",
+										"description": "Fires after a mouse button is released over the given element's collision mask in the given viewport. Callback is passed the event object.",
+										"type": "function",
+										"default": "none"
+									}
+								]
+							},
+							{
+								"name": "leftClick",
+								"description": "Binds a callback or set of callbacks to a click event from the left button on a given element's collision mask in a given viewport.",
+								"arguments": [
+									{
+										"name": "element",
+										"type": "object",
+										"description": "Element object."
+									},
+									{
+										"name": "viewport",
+										"type": "object",
+										"description": "Viewport object."
+									},
+									{
+										"name": "alpha",
+										"type": "int",
+										"description": "The minimum required alpha value (1 - 255) of the pixel under the cursor from the element's collision mask."
+									},
+									{
+										"name": "firstCallback",
+										"description": "Fires after the left mouse button is pressed over the given element's collision mask in the given viewport. Callback is passed the event object. Set to false if you only wish to bind to the 'mouseup' event.",
+										"type": ["function", "false"]
+									},
+									{
+										"name": "secondCallback",
+										"description": "Fires after the left mouse button is released over the given element's collision mask in the given viewport. Callback is passed the event object.",
+										"type": "function",
+										"default": "none"
+									}
+								]
+							},
+							{
+								"name": "middleClick",
+								"description": "Binds a callback or set of callbacks to a click event from the middle button on a given element's collision mask in a given viewport.",
+								"arguments": [
+									{
+										"name": "element",
+										"type": "object",
+										"description": "Element object."
+									},
+									{
+										"name": "viewport",
+										"type": "object",
+										"description": "Viewport object."
+									},
+									{
+										"name": "alpha",
+										"type": "int",
+										"description": "The minimum required alpha value (1 - 255) of the pixel under the cursor from the element's collision mask."
+									},
+									{
+										"name": "firstCallback",
+										"description": "Fires after the middle mouse button is pressed over the given element's collision mask in the given viewport. Callback is passed the event object. Set to false if you only wish to bind to the 'mouseup' event.",
+										"type": ["function", "false"]
+									},
+									{
+										"name": "secondCallback",
+										"description": "Fires after the middle mouse button is released over the given element's collision mask in the given viewport. Callback is passed the event object.",
+										"type": "function",
+										"default": "none"
+									}
+								]
+							},
+							{
+								"name": "rightClick",
+								"description": "Binds a callback or set of callbacks to a click event from the right mouse button on a given element's collision mask in a given viewport.",
+								"arguments": [
+									{
+										"name": "element",
+										"type": "object",
+										"description": "Element object."
+									},
+									{
+										"name": "viewport",
+										"type": "object",
+										"description": "Viewport object."
+									},
+									{
+										"name": "alpha",
+										"type": "int",
+										"description": "The minimum required alpha value (1 - 255) of the pixel under the cursor from the element's collision mask."
+									},
+									{
+										"name": "firstCallback",
+										"description": "Fires after the right mouse button is pressed over the given element's collision mask in the given viewport. Callback is passed the event object. Set to false if you only wish to bind to the 'mouseup' event.",
+										"type": ["function", "false"]
+									},
+									{
+										"name": "secondCallback",
+										"description": "Fires after the right mouse button is released over the given element's collision mask in the given viewport. Callback is passed the event object.",
+										"type": "function",
+										"default": "none"
+									}
+								]
+							}
+						]
+					}
+				]
+			},
+			{
+				"name": "unbind",
+				"description": "THIS OBJECT IS INCOMPLETE! It is missing several methods. Contains methods for unbinding key combinations and mouse bindings.",
+				"methods": [
+					{
+						"name": "key",
+						"description": "Clears all bindings created by '.bind.key()' that use a provided key.",
+						"arguments": [
+							{
+								"name": "key",
+								"description": "The name of the key to be unbound.",
+								"type": "string"
 							}
 						]
 					}
@@ -633,7 +958,7 @@
 		]
 	},
 	{
-		"moduleName": "bitmaps",
+		"moduleName": "bitmaps.js",
 		"description": "Supplies a number of functions for working with image data. Using this module is highly recommended whenever you are working with image data. This module is used extensively by RedLocomotive's internal systems.",
 		"objects": [
 			{

@@ -5,22 +5,29 @@ jQuery(function(){
 
 		pages = {};
 
-	(function MaintainColumnHeight(){
+	function maintainColumnHeight(){
 
-		//align sidebar and content
-		setInterval(function(){
+		//grab the sidebar and content
+		var sidebar = jQuery('#sidebar'),
+			content = jQuery('#content');
 
-			var sidebar = jQuery('#sidebar').css('height', 'auto'),
-				content = jQuery('#content').css('height', 'auto');
+		//remove there height and measure the outer height
+		sidebar.css('height', 0);
+		content.css('height', 0);
+		content.css('width', 0);
+		var sidebarOuterHeight = sidebar.outerHeight(),
+			contentOuterHeight = content.outerHeight(),
+			contentOuterWidth = content.outerWidth(true),
+			headerOuterHeight = jQuery('header').outerHeight(true),
+			footerOuterHeight = jQuery('footer').outerHeight(true);
 
-			if(sidebar.height() > content.height()) {
-				content.height(sidebar.height());
-			} else {
-				sidebar.height(content.height());
-			}
-		}, 100);
-
-	})();
+		//set the new height for the content and sidebar
+		sidebar.css('height', window.innerHeight - sidebarOuterHeight - headerOuterHeight - footerOuterHeight);
+		content.css('height', window.innerHeight - contentOuterHeight - headerOuterHeight - footerOuterHeight);
+		content.css('width', window.innerWidth - contentOuterWidth - 16);
+	}
+	maintainColumnHeight();
+	jQuery(window).resize(maintainColumnHeight);
 
 	function LoadCurrentHash() {
 		if(location.hash) {
@@ -52,7 +59,7 @@ jQuery(function(){
 		function argumentsTable() {
 
 			//make sure there are arguments
-			if(data.arguments) {
+			if(data.arguments && data.arguments.length) {
 
 				//create a wrapping div
 				var container = jQuery('<div id="argumentsTable"></div>'),
@@ -182,6 +189,10 @@ jQuery(function(){
 		}
 
 		function parseDescription() {
+
+			if(!data.description) {
+				return false;
+			}
 			
 			//create a wrapper
 			var container = jQuery('<div id="description"></div>'),
