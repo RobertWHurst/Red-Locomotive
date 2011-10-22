@@ -518,6 +518,86 @@
 		]
 	},
 	{
+		"moduleName": "animations.js",
+		"description": "Provides methods that enable a developer to animate the movement of element and/or its sprite.",
+		"objects": [
+			{
+				"name": "animate",
+				"methods": [
+					{
+						"name": "move",
+						"description": "Moves an element, animating that movement over time.",
+						"arguments": [
+							{
+								"name": "element",
+								"description": "The element you would like to move.",
+								"type": "object"
+							},
+							{
+								"name": "endX",
+								"description": "The end position of the element on the X axis.",
+								"type": "number"
+							},
+							{
+								"name": "endY",
+								"description": "The end position of the element on the Y axis.",
+								"type": "number"
+							},
+							{
+								"name": "frames",
+								"description": "The number of frames the move animation should occur over.",
+								"type": "number"
+							},
+							{
+								"name": "callback",
+								"description": "The callback function the is fired when the animation has completed.",
+								"type": "function",
+								"default": "none"
+							}
+						],
+						"returns": {
+							"name": "controlObject",
+							"description": "contains methods; 'clear' for canceling the move animation before it ends, and setCallback for changing the callback before the move animation ends.",
+							"type": "object"
+						}
+					},
+					{
+						"name": "sequence",
+						"description": "Sequences sprite animation. Takes an array of sprite positions and animates the element with the sequence.",
+						"arguments": [
+							{
+								"name": "element",
+								"description": "The element you would like to apply the sprite sequence too.",
+								"type": "object"
+							},
+							{
+								"name": "sequence",
+								"description": "An array of sprite sheet positions to be used in the sequence.",
+								"type": "object"
+							},
+							{
+								"name": "frames",
+								"description": "The number of frames the move animation should occur over.",
+								"type": "number"
+							},
+							{
+								"name": "callback",
+								"description": "The callback function the is fired when the animation has completed.",
+								"type": "function",
+								"default": "none"
+							}
+						],
+						"returns": {
+							"name": "controlObject",
+							"description": "contains methods; 'loop' for making the sequence loop indefinitely, 'clear' for canceling the sequence before it ends, and setCallback for changing the callback before the sequence ends.",
+							"type": "object"
+						}
+					}
+				]
+			}
+		]
+	},
+	{
 		"moduleName": "viewports.js",
 		"description": "Contains all methods for manipulating and creating viewports.",
 		"objects": [
