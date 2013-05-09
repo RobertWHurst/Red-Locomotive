@@ -11,7 +11,6 @@ function Viewports(engine, config){
     var viewports = {};
 
     engine.Viewport = Viewport;
-    engine.Viewport.getById = getViewport;
 
     function Viewport(id, x, y, width, height, fillStyle) {
         var uid = ViewportUid(id);

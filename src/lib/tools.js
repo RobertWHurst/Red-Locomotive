@@ -1,12 +1,12 @@
-module.exports = attachAllTools;
-module.exports.random = random;
-module.exports.tan = tan;
-module.exports.sin = sin;
-module.exports.cos = cos;
-module.exports.atan = atan;
-module.exports.asin = asin;
-module.exports.acos = acos;
-module.exports.extend = extend;
+Tools.random = random;
+Tools.tan = tan;
+Tools.sin = sin;
+Tools.cos = cos;
+Tools.atan = atan;
+Tools.asin = asin;
+Tools.acos = acos;
+Tools.extend = extend;
+module.exports = Tools;
 
 var tanMap = {};
 var sinMap = {};
@@ -15,10 +15,10 @@ var atanMap = {};
 var asinMap = {};
 var acosMap = {};
 
-function attachAllTools(obj) {
-    for(var tool in module.exports) {
-        if(module.exports.hasOwnProperty(tool)) {
-            obj[tool] = module.exports[tool];
+function Tools(base) {
+    for(var tool in Tools) {
+        if(Tools.hasOwnProperty(tool)) {
+            base[tool] = module.exports[tool];
         }
     }
 }
