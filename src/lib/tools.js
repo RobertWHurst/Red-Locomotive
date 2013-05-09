@@ -1,4 +1,6 @@
 Tools.random = random;
+Tools.round = round;
+Tools.pow = pow;
 Tools.tan = tan;
 Tools.sin = sin;
 Tools.cos = cos;
@@ -8,6 +10,8 @@ Tools.acos = acos;
 Tools.extend = extend;
 module.exports = Tools;
 
+var roundMap = {};
+var powMap = {};
 var tanMap = {};
 var sinMap = {};
 var cosMap = {};
@@ -25,6 +29,22 @@ function Tools(base) {
 
 function random(limit) {
     return Math.floor(Math.random() * (limit || 100)) || 0
+}
+
+function round(number, precision) {
+    if(!roundMap[key]) {
+        m = pow(10, precision);
+        roundMap[key] = Math.round(number * m) / m;
+    }
+    return roundMap[key];
+}
+
+function pow(number, power) {
+    var key = number + '^' + power;
+    if(!powMap[key]) {
+        powMap[key] = Math.pow(number, power);
+    }
+    return powMap[key];
 }
 
 function tan(input) {
