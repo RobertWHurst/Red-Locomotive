@@ -1,9 +1,9 @@
 module.exports = Dispatcher;
 
-function Dispatcher() {
+function Dispatcher(base) {
     var listeners = [];
 
-    var api = {};
+    var api = base || {};
     api.trigger = trigger;
     api.bind = bind;
     api.unbind = unbind;
@@ -27,6 +27,7 @@ function Dispatcher() {
         for(var iL = 0; iL < listeners.length; iL += 1) {
             if(listeners[iL] == listener) {
                 listeners.splice(iL, 1);
+                iL -= 1;
             }
         }
     }
