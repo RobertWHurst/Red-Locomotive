@@ -6,29 +6,26 @@ module.exports.fromVector = fromVector;
 
 function Quad(quadrant, opposite, adjacent) {
     var quad = {
-        q: quadrant || 0,
-        o: opposite || 0,
-        a: adjacent || 0
+        q: quadrant ? Math.abs(quadrant) : 0,
+        o: opposite ? Math.abs(opposite) : 0,
+        a: adjacent ? Math.abs(adjacent) : 0
     };
     return quad;
 }
 
 function fromPoint(point) {
-    if(point.x > -1) {
-        if(point.y < 0) { return Quad(0, point.x, -point.y); }
-        else { return Quad(1, point.y, point.x); }
-    } else {
-        if(point.y > -1) { return Quad(2, -point.x, point.y); }
-        // NOTE: changed point.y to -point.y.
-        // If function breaks try reversing this change.
-        else { return Quad(3, -point.y, -point.x); }
-    }
+    if(point.x == 0 && point.y == 0) { return Quad(); }
+    if(point.x >= 0 && point.y < 0) { return Quad(0, point.y, point.x); }
+    if(point.x > 0 && point.y >= 0) { return Quad(1, point.x, point.y); }
+    if(point.x <= 0 && point.y > 0) { return Quad(2, point.y, point.x); }
+    if(point.x < 0 && point.y <= 0) { return Quad(3, point.x, point.y); }
 }
 
 function fromVector(vector) {
-    var degree = vector.degree % 90;
-    var o = t.sin(degree) * vector.length;
-    var a = t.cos(degree) * vector.length;
-    var q = Math.floor(vector.degree / 90);
+    if(vector.length == 0) { return Quad(); }
+    var degree = vector.degree - (Math.floor(vector.degree / 360) * 360);
+    var o = t.sin(degree % 90) * vector.length;
+    var a = t.cos(degree % 90) * vector.length;
+    var q = Math.floor(degree / 90);
     return Quad(q, o, a);
 }
