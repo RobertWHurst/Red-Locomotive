@@ -15,11 +15,20 @@ RedLocomotive.Bitmap = require('./lib/bitmap');
 RedLocomotive.Clock = require('./lib/clock');
 RedLocomotive.Dispatcher = require('./lib/dispatcher');
 RedLocomotive.Emitter = require('./lib/emitter');
+RedLocomotive.Point = require('./lib/point');
 RedLocomotive.QuadTree = require('./lib/quad-tree');
+RedLocomotive.Quad = require('./lib/quad');
 RedLocomotive.Rect = require('./lib/rect');
 RedLocomotive.UidRegistry = require('./lib/uid-registry');
+RedLocomotive.Vector = require('./lib/vector');
 
-if(typeof window === 'object') {
+//TOOLING FUNCTIONS
+var t = require('./lib/tools')
+t(RedLocomotive);
+
+if(typeof define == 'function' && define.amd) {
+    define(RedLocomotive);
+} else if(typeof window == 'object') {
     if(!window.RedLocomotive) { window.RedLocomotive = RedLocomotive; }
 } else {
     module.exports = RedLocomotive;
@@ -28,28 +37,14 @@ if(typeof window === 'object') {
 function RedLocomotive(opts) {
 
     //CONFIG
-    var config = opts && extend(defaults, opts) || defaults;
+    var config = opts && t.extend(defaults, opts) || defaults;
 
     //MODULES
     var api = {};
-    api.extend = extend;
     Core(api, config);
     Elements(api, config);
     Stages(api, config);
     Viewports(api, config);
 
     return api
-
-    function extend(    ) {
-        var objs = Array.prototype.slice.call(arguments);
-        var newObj = {};
-        while(objs[0]) {
-            var obj = objs.shift();
-            for(var key in obj) {
-                if(!obj.hasOwnProperty(key)) { continue; }
-                newObj[key] = obj[key];
-            }
-        }
-        return newObj;
-    }
 }
