@@ -43,7 +43,7 @@ function Canvas(width, height) {
         canvas.height = height;
     }
     else {
-        var canvas = new (require('canvas'))(width, height);
+        var canvas = new (require('canvas' + ''))(width, height);
     }
 
     return canvas;
