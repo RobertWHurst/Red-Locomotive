@@ -29,9 +29,11 @@ function Emitter(base) {
     }
 
     function unbind(event, listener) {
-        for(var iL = 0; iL < listeners.length; iL += 1) {
+        if(!listeners[event]) { return; }
+        for(var iL = 0; iL < listeners[event].length; iL += 1) {
             if(listeners[event][iL] == listener) {
                 listeners[event].splice(iL, 1);
+                iL -= 1;
             }
         }
     }
