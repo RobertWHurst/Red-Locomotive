@@ -15,8 +15,9 @@ RedLocomotive.Bitmap = require('./lib/bitmap');
 RedLocomotive.Clock = require('./lib/clock');
 RedLocomotive.Dispatcher = require('./lib/dispatcher');
 RedLocomotive.Emitter = require('./lib/emitter');
-RedLocomotive.Rect = require('./lib/rect');
 RedLocomotive.QuadTree = require('./lib/quad-tree');
+RedLocomotive.Rect = require('./lib/rect');
+RedLocomotive.UidRegistry = require('./lib/uid-registry');
 
 if(typeof window === 'object') {
     if(!window.RedLocomotive) { window.RedLocomotive = RedLocomotive; }
