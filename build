@@ -1,0 +1,47 @@
+#!/usr/bin/env node
+
+//==============================================
+// CONFIG
+//----------------------------------------------
+
+var input = './src/red-locomotive.js'
+var output = './bin/red-locomotive.js'
+var opts = {
+    debug: true
+}
+
+//===============================================
+
+var commander = require('commander')
+var browserify = require('browserify')
+var watch = require('node-watch')
+var fs = require('fs')
+
+commander
+  .version(require('./package.json').version)
+  .option('-w, --watch', 'Rebuild automatically when source modified.')
+  .parse(process.argv)
+
+var handleErr = function(err) {
+    if(!err) return
+    if(!commander.watch) throw err
+    console.log(err)
+}
+var writeFileCallback = function(err) {
+    if(err) handleErr(err)
+    console.log('red-locomotive sucessfully built')
+}
+var bundleCallback = function(err, src) {
+    if(err) handleErr(err)
+    fs.writeFile(output, src, writeFileCallback)
+}
+var build = function() {
+    var parser = browserify(input)
+    parser.bundle(opts, bundleCallback)
+}
+
+if(commander.watch) {
+    console.log('watching src directory for changes...')
+    watch('./src', build)
+}
+build()

@@ -1,0 +1,17 @@
+{
+    "name": "Red-Locomotive",
+    "version": "0.0.2",
+    "main": "./src/red-locomotive",
+    "author": {
+        "name": "Robert Hurst",
+        "email": "robertwhurst@gmail.com"
+    },
+    "devDependencies": {
+        "browserify": "2.13.x",
+        "node-watch": "0.3.x",
+        "commander": "1.1.x"
+    },
+    "dependencies": {
+        "canvas": "1.0.x"
+    }
+}
