@@ -66,10 +66,3 @@ describe('Quad.fromVector', function() {
         if(q8.q != 3 || q8.o.toFixed(1) != 0.7 || q8.a.toFixed(1) != 0.7) { throw new Error('quad 8 incorrect'); }
     });
 });
-
-// describe('Quad.relativeTo', function() {
-//     it('should accept two quads and return a new quad repesenting the second relative to the first', function() {
-//         var quad = Quad.relativeTo(Quad(10, 0), Quad(15, 5));
-//         if(quad.x != 5 || quad.y != 5) { throw new Error('quad incorrect'); }
-//     });
-// });
