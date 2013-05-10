@@ -6,7 +6,7 @@ module.exports.fromVector = fromVector;
 
 function Quad(quadrant, opposite, adjacent) {
     var quad = {
-        q: quadrant ? Math.abs(quadrant) : 0,
+        q: quadrant ? quadrant - (Math.floor(quadrant / 4) * 4) : 0,
         o: opposite ? Math.abs(opposite) : 0,
         a: adjacent ? Math.abs(adjacent) : 0
     };
@@ -15,10 +15,10 @@ function Quad(quadrant, opposite, adjacent) {
 
 function fromPoint(point) {
     if(point.x == 0 && point.y == 0) { return Quad(); }
-    if(point.x >= 0 && point.y < 0) { return Quad(0, point.y, point.x); }
-    if(point.x > 0 && point.y >= 0) { return Quad(1, point.x, point.y); }
-    if(point.x <= 0 && point.y > 0) { return Quad(2, point.y, point.x); }
-    if(point.x < 0 && point.y <= 0) { return Quad(3, point.x, point.y); }
+    if(point.x >= 0 && point.y < 0) { return Quad(0, point.x, point.y); }
+    if(point.x > 0 && point.y >= 0) { return Quad(1, point.y, point.x); }
+    if(point.x <= 0 && point.y > 0) { return Quad(2, point.x, point.y); }
+    if(point.x < 0 && point.y <= 0) { return Quad(3, point.y, point.x); }
 }
 
 function fromVector(vector) {
