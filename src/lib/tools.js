@@ -1,3 +1,4 @@
+Tools.extend = extend;
 Tools.random = random;
 Tools.round = round;
 Tools.pow = pow;
@@ -7,7 +8,6 @@ Tools.cos = cos;
 Tools.atan = atan;
 Tools.asin = asin;
 Tools.acos = acos;
-Tools.extend = extend;
 module.exports = Tools;
 
 var roundMap = {};
@@ -27,13 +27,27 @@ function Tools(base) {
     }
 }
 
+function extend(    ) {
+    var objs = Array.prototype.slice.call(arguments);
+    var newObj = {};
+    while(objs[0]) {
+        var obj = objs.shift();
+        for(var key in obj) {
+            if(!obj.hasOwnProperty(key)) { continue; }
+            newObj[key] = obj[key];
+        }
+    }
+    return newObj;
+}
+
 function random(limit) {
     return Math.floor(Math.random() * (limit || 100)) || 0
 }
 
 function round(number, precision) {
+    var key = number + '^' + precision;
     if(!roundMap[key]) {
-        m = pow(10, precision);
+        m = precision != undefined ? pow(10, precision) : 1;
         roundMap[key] = Math.round(number * m) / m;
     }
     return roundMap[key];
@@ -87,17 +101,4 @@ function acos(input) {
         acosMap[input] = Math.acos(input) / Math.PI * 180
     }
     return acosMap[input]
-}
-
-function extend(    ) {
-    var objs = Array.prototype.slice.call(arguments);
-    var newObj = {};
-    while(objs[0]) {
-        var obj = objs.shift();
-        for(var key in obj) {
-            if(!obj.hasOwnProperty(key)) { continue; }
-            newObj[key] = obj[key];
-        }
-    }
-    return newObj;
 }
