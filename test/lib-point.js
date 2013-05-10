@@ -5,12 +5,11 @@ var Quad = RL.Quad;
 
 describe('Point()', function() {
     it('should return a point instance', function() {
-        var point = Point(34, 12);
+        var point = Point();
         if(typeof point != 'object') { throw new Error('point must be an object'); }
     });
     it('should return a point at 0,0 if no arguments are given', function() {
         var point = Point();
-        if(typeof point != 'object') { throw new Error('point must be an object'); }
         if(point.x != 0) { throw new Error('point.x must be 0'); }
         if(point.y != 0) { throw new Error('point.y must be 0'); }
     });
