@@ -21,3 +21,12 @@ describe('Bitmap()', function() {
         if(pixel[0] !== 50 || pixel[1] !== 255 || pixel[2] !== 30) { throw new Error('bitmap should contain image data from source'); }
     });
 });
+
+describe('Bitmap.is()', function() {
+    it('should accept an object and return true if the object is a Bitmap. should return false if not a Bitmap', function() {
+        var bitmap = Bitmap();
+        var obj = {};
+        if(!Bitmap.is(bitmap)) { throw new Error('must return true'); }
+        if(Bitmap.is(obj)) { throw new Error('must return false'); }
+    });
+});

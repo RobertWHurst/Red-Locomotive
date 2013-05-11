@@ -3,6 +3,7 @@ module.exports.trim = trimRect;
 module.exports.grow = growRect;
 module.exports.contains = containsRect;
 module.exports.overlaps = overlapsRect;
+module.exports.is = isRect;
 
 function Rect(x, y, width, height) {
     var rect = {
@@ -32,6 +33,17 @@ function cy(rect, newCy) {
         rect.y += newCy - curCy;
     }
     return curCy;
+}
+
+function isRect(obj) {
+    return (
+        typeof obj.x == 'number' &&
+        typeof obj.y == 'number' &&
+        typeof obj.cx == 'number' &&
+        typeof obj.cy == 'number' &&
+        typeof obj.width == 'number' &&
+        typeof obj.height == 'number'
+    );
 }
 
 function trimRect(rect, modifierRect) {

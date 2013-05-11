@@ -1,4 +1,6 @@
 module.exports = Bitmap;
+module.exports.is = isBitmap;
+var NodeCanvas;
 
 function Bitmap(width, height, source, sX, sY, sW, sH, dX, dY, dW, dH) {
 
@@ -38,6 +40,20 @@ function Bitmap(width, height, source, sX, sY, sW, sH, dX, dY, dW, dH) {
     return bitmap;
 }
 
+function isBitmap(obj) {
+    if(NodeCanvas) {
+        return (
+            obj instanceof NodeCanvas &&
+            obj.context instanceof NodeCanvas.Context2d
+        );
+    } else if(typeof window == 'object') {
+        return (
+            obj instanceof window.HTMLCanvasElement &&
+            obj.context instanceof window.CanvasRenderingContext2D
+        );
+    }
+}
+
 function Canvas(width, height) {
 
     width = width || 0;
@@ -49,7 +65,8 @@ function Canvas(width, height) {
         canvas.height = height;
     }
     else {
-        var canvas = new (require('canvas' + ''))(width, height);
+        NodeCanvas = require('canvas' + '');
+        var canvas = new NodeCanvas(width, height);
     }
 
     return canvas;

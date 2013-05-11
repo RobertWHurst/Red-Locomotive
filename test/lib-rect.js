@@ -12,6 +12,16 @@ describe('Rect()', function() {
         if(typeof rect.height != 'number') { throw new Error('rect must be an object.'); }
     });
 });
+
+describe('Rect.is()', function() {
+    it('should accept an object and return true if the object is a Rect. should return false if not a Rect', function() {
+        var rect = Rect();
+        var obj = {};
+        if(!Rect.is(rect)) { throw new Error('must return true'); }
+        if(Rect.is(obj)) { throw new Error('must return false'); }
+    });
+});
+
 describe('rect{}', function() {
     var rect;
     beforeEach(function() {
