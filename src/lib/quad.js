@@ -23,9 +23,8 @@ function fromPoint(point) {
 
 function fromVector(vector) {
     if(vector.length == 0) { return Quad(); }
-    var degree = vector.degree - (Math.floor(vector.degree / 360) * 360);
-    var o = t.sin(degree % 90) * vector.length;
-    var a = t.cos(degree % 90) * vector.length;
-    var q = Math.floor(degree / 90);
+    var o = t.sin(vector.degree % 90) * vector.length;
+    var a = t.cos(vector.degree % 90) * vector.length;
+    var q = Math.floor(vector.degree / 90);
     return Quad(q, o, a);
 }

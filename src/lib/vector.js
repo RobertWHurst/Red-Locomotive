@@ -8,7 +8,7 @@ module.exports.fromQuad = fromQuad;
 
 function Vector(degree, length) {
     var rect = {
-        degree: degree || 0,
+        degree: degree ? degree - (Math.floor(degree / 360) * 360) : 0,
         length: length ? Math.abs(length) : 0,
     };
     return rect;
