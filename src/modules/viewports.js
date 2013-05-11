@@ -90,7 +90,7 @@ function Viewports(engine, config){
             var bitmapCtx = bitmap.context;
 
             var elements = viewport.stage.index.get(viewport);
-            
+
             while(elements[0]) {
                 var element = elements.shift();
                 var sprite = element.sprite;
