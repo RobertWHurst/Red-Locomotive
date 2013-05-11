@@ -1,21 +1,41 @@
-var Clock = require('../lib/clock')
-var Dispatcher = require('../lib/dispatcher')
+var Clock = require('../lib/clock');
+var Dispatcher = require('../lib/dispatcher');
+var Emitter = require('../lib/emitter');
 
-module.exports = Core
+module.exports = Core;
 
 function Core(engine, options) {
+    var logs = {};
+    var clock = Clock(1000);
 
-    var clock = Dispatcher()
-    Clock(1000).onTick = clock.trigger
+    Emitter(engine);
+    engine.start = clock.start;
+    engine.stop = clock.stop;
+    engine.log = log;
+    engine.info = info;
+    engine.warn = warn;
+    engine.error = error;
 
-    engine.clock = {}
-    engine.clock.start = clock.start
-    engine.clock.stop = clock.stop
-    engine.clock.bind = clock.bind
-    engine.clock.unbind = clock.unbind
-    engine.log = log
-    engine.error = error
+    clock.onTick = function() { engine.trigger('tick'); };
 
-    function log(    ) { console.log.apply(console, arguments) }
-    function error(err) { throw new Error(err) }
+    function log(log    ) {
+        var args = Array.prototype.slice.call(arguments, 1);
+        logs[log] = args;
+    }
+
+    function info(    ) {
+        var args = Array.prototype.slice.call(arguments);
+        log.apply(null, ['info'].concat(args));
+    }
+
+    function warn(    ) {
+        var args = Array.prototype.slice.call(arguments);
+        log.apply(null, ['warn'].concat(args));
+    }
+
+    function error(    ) {
+        var args = Array.prototype.slice.call(arguments);
+        log.apply(null, ['error'].concat(args));
+    }
+
 }
