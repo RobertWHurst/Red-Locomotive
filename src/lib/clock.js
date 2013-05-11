@@ -22,16 +22,22 @@ function Clock(Hz) {
     var maxBatchSize = 0;
     var scheduledTicks = 0;
     var paused = true;
+    var visible = true;
 
     var api = {};
     api.start = start;
     api.stop = stop;
     api.onTick = function() {};
+
+    if(typeof window == 'object') {
+        window.addEventListener('focus', function() { visible = true; start(); });
+        window.addEventListener('blur', function() { visible = false; });
+    }
+
     return api;
 
     function start() {
-        if(!paused) { return; }
-        paused = false;
+        if(paused) { paused = false; }
         clockTime = Date.now();
         scheduledTicks = 0;
         exec();
@@ -50,7 +56,7 @@ function Clock(Hz) {
     function exec() {
 
         //exit if paused
-        if(paused) { return; }
+        if(paused || !visible) { return; }
 
         //if target Hz set 
         if(Hz > 0) {

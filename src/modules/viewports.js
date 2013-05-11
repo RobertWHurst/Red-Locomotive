@@ -15,11 +15,6 @@ function Viewports(engine, config){
 
     engine.Viewport = Viewport;
 
-    if(typeof window == 'object') {
-        window.addEventListener('focus', function() { visible = true; });
-        window.addEventListener('blur', function() { visible = false; });
-    }
-
     function Viewport(id, x, y, width, height, fillStyle, fps) {
         var uid = ViewportUid(id);
 
