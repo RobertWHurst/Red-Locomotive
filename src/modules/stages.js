@@ -10,6 +10,7 @@ function Stages(engine, config){
     var stages = {};
 
     engine.Stage = Stage;
+    engine.Stage.rawAccess = rawAccess;
 
     function Stage(id) {
         var uid = StageUid(id);
@@ -51,5 +52,9 @@ function Stages(engine, config){
             stage.index.remove(element, element);
             delete element.parent;
         }
+    }
+
+    function rawAccess(api) {
+        return stages[api.uid];
     }
 }
