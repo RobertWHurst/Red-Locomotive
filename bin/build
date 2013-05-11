@@ -1,0 +1,11 @@
+#!/usr/bin/env node
+
+var build = require('../build')
+var commander = require('commander')
+
+commander
+  .version(require('../package.json').version)
+  .option('-w, --watch', 'Rebuild automatically when source modified.')
+  .parse(process.argv)
+
+build(commander)

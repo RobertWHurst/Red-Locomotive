@@ -1,30 +1,23 @@
-#!/usr/bin/env node
-
 //==============================================
 // CONFIG
 //----------------------------------------------
 
 var input = './src/red-locomotive.js'
-var output = './bin/red-locomotive.js'
+var output = './red-locomotive.js'
 var opts = {
     debug: true
 }
 
 //===============================================
 
-var commander = require('commander')
 var browserify = require('browserify')
 var watch = require('node-watch')
 var fs = require('fs')
 
-commander
-  .version(require('./package.json').version)
-  .option('-w, --watch', 'Rebuild automatically when source modified.')
-  .parse(process.argv)
-
+var throwErrors = true
 var handleErr = function(err) {
     if(!err) return
-    if(!commander.watch) throw err
+    if(!throwErrors) throw err
     console.log(err)
 }
 var writeFileCallback = function(err) {
@@ -37,11 +30,17 @@ var bundleCallback = function(err, src) {
 }
 var build = function() {
     var parser = browserify(input)
+    parser.ignore('./node_modules/canvas');
     parser.bundle(opts, bundleCallback)
 }
 
-if(commander.watch) {
-    console.log('watching src directory for changes...')
-    watch('./src', build)
+module.exports = function(flags) {
+    flags = flags || {}
+    if(flags.watch) {
+        throwErrors = false
+        console.log('watching src directory for changes...')
+        watch('./src', build)
+    }
+    build()
 }
-build()
+
