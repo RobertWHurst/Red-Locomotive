@@ -10,15 +10,6 @@ Tools.asin = asin;
 Tools.acos = acos;
 module.exports = Tools;
 
-var roundMap = {};
-var powMap = {};
-var tanMap = {};
-var sinMap = {};
-var cosMap = {};
-var atanMap = {};
-var asinMap = {};
-var acosMap = {};
-
 function Tools(base) {
     for(var tool in Tools) {
         if(Tools.hasOwnProperty(tool)) {
@@ -45,60 +36,37 @@ function random(limit) {
 }
 
 function round(number, precision) {
-    var key = number + '^' + precision;
-    if(!roundMap[key]) {
-        m = precision != undefined ? pow(10, precision) : 1;
-        roundMap[key] = Math.round(number * m) / m;
-    }
-    return roundMap[key];
+    if(number % 1 == 0) { return number; }
+    precision = precision || 0;
+    m = precision != undefined ? pow(10, precision) : 1;
+    return Math.round(number * m) / m;
 }
 
 function pow(number, power) {
-    var key = number + '^' + power;
-    if(!powMap[key]) {
-        powMap[key] = Math.pow(number, power);
-    }
-    return powMap[key];
+    if(power == 1 || power == undefined) { return number; }
+    return Math.pow(number, power);
 }
 
 function tan(input) {
-    if (!tanMap[input]) {
-        tanMap[input] = Math.tan(input * Math.PI / 180)
-    }
-    return tanMap[input]
+    return Math.tan(input * Math.PI / 180);
 }
 
 function sin(input) {
-    if (!sinMap[input]) {
-        sinMap[input] = Math.sin(input * Math.PI / 180)
-    }
-    return sinMap[input]
+    return Math.sin(input * Math.PI / 180);
 }
 
 function cos(input) {
-    if (!cosMap[input]) {
-        cosMap[input] = Math.cos(input * Math.PI / 180)
-    }
-    return cosMap[input]
+    return Math.cos(input * Math.PI / 180);
 }
 
 function atan(input) {
-    if (!atanMap[input]) {
-        atanMap[input] = Math.atan(input) / Math.PI * 180
-    }
-    return atanMap[input]
+    return Math.atan(input) / Math.PI * 180;
 }
 
 function asin(input) {
-    if (!asinMap[input]) {
-        asinMap[input] = Math.asin(input) / Math.PI * 180
-    }
-    return asinMap[input]
+    return Math.asin(input) / Math.PI * 180;
 }
 
 function acos(input) {
-    if (!acosMap[input]) {
-        acosMap[input] = Math.acos(input) / Math.PI * 180
-    }
-    return acosMap[input]
+    return Math.acos(input) / Math.PI * 180;
 }
