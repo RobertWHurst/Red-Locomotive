@@ -2,6 +2,12 @@ module.exports = Bitmap;
 
 function Bitmap(width, height, source, sX, sY, sW, sH, dX, dY, dW, dH) {
 
+    if(height == undefined && typeof width == 'object') {
+        source = width;
+        width = source.width;
+        height = source.height;
+    }
+
     var bitmap = Canvas(width, height);
     bitmap.context = bitmap.getContext('2d');
 
