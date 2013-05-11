@@ -10,20 +10,31 @@ function Elements(engine, config){
     var elements = {};
 
     engine.Element = Element;
-    engine.Element.get = get;
     engine.Element.rawAccess = rawAccess;
+    engine.Element.get = get;
 
     function Element(id, sprite, x, y, width, height) {
         var uid = ElementUid(id);
+
+        if(typeof sprite == 'string') { sprite = engine.Sprite.get(sprite); }
+        sprite = engine.Sprite.rawAccess(sprite);
 
         var element = Rect(x, y, width, height);
         element.uid = uid;
         element.sprite = sprite;
         elements[uid] = element;
 
-        var api = {};
+        var api = {
+            get x() { return posAndDim('x', element); },
+            set x(value) { return posAndDim('x', element, value); },
+            get y() { return posAndDim('y', element); },
+            set y(value) { return posAndDim('y', element, value); },
+            get width() { return posAndDim('width', element); },
+            set width(value) { return posAndDim('width', element, value); },
+            get height() { return posAndDim('height', element); },
+            set height(value) { return posAndDim('height', element, value); }
+        };
         api.uid = uid;
-        api.position = function(x, y, z) { position(element, x, y, z); };
         api.size = function(width, height) { size(element, width, height); };
         api.clear = function() { clear(element); };
         api.append = function(api) { appendChild(element, rawAccess(api)); };
@@ -41,12 +52,14 @@ function Elements(engine, config){
         element.redraw = true; //set to true for first draw
     }
 
-    function position(element, x, y, z) {
-        unIndex(element);
-        if(typeof x == 'number') { element.x = x; }
-        if(typeof y == 'number') { element.y = y; }
-        if(typeof z == 'number') { element.z = z; }
-        index(element);
+    function posAndDim(property, element, value) {
+        if(property != 'x' && property != 'y' && property != 'width' && property != 'height') { return; }
+        if(value != undefined) {
+            unIndex(element);
+            element[property] = value;
+            index(element);
+        }
+        return element[property];
     }
 
     function size(element, width, height) {
@@ -54,12 +67,6 @@ function Elements(engine, config){
         if(typeof width == 'number') { element.width = width; }
         if(typeof height == 'number') { element.height = height; }
         index(element);
-    }
-
-    function clear(element) {
-        unIndex(element);
-        ElementUid.clear(element.uid);
-        delete elements[uid];
     }
 
     function index(element) {
@@ -92,5 +99,11 @@ function Elements(engine, config){
 
     function get(uid) {
         return elements[uid].api;
+    }
+
+    function clear(element) {
+        unIndex(element);
+        ElementUid.clear(element.uid);
+        delete elements[uid];
     }
 }
