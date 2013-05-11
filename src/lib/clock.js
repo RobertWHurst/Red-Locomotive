@@ -1,32 +1,5 @@
 module.exports = Clock;
 
-var next = (function() {
-    if(typeof setImmediate == 'function') { return setImmediate; }
-
-    var nextQueue = [];
-    var canPost = (
-        typeof postMessage == 'function' &&
-        typeof addEventListener == 'function'
-    );    
-    if(canPost) { addEventListener('rdnxttck', processQueue); }
-
-    processQueue();
-    return function(callback) {
-        nextQueue.push(callback);
-    }
-
-    function processQueue() {
-        while(nextQueue[0]) {
-            nextQueue.shift()();
-        }
-        if(canPost) {
-            postMessage('rdnxttck', '*');
-        } else {
-            setTimeout(processQueue, 4);
-        }
-    }
-})();
-
 /**
  * Clock Class
  *
@@ -110,6 +83,8 @@ function Clock(Hz) {
         }
 
         //schedule the next batch
-        next(exec);
+        if(typeof setImmediate == 'function') { setImmediate(exec); }
+        else if(typeof requestAnimationFrame == 'function') { requestAnimationFrame(exec); }
+        else { setTimeout(exec, 0); }
     }
 };
