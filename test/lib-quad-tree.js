@@ -70,13 +70,14 @@ describe('quadTree{}', function() {
         var data1 = {x: 0, y: 0, width: 64, height: 64 };
         q.insert(data0);
         q.insert(data1);
-        q.remove({x: 0, y: 0, width: 64, height: 64 });
+        var removed = q.remove({x: 0, y: 0, width: 64, height: 64 });
         if(q.root.leafs[0].x != data0.x) { throw new Error('remaining leaf did not mach x coordinate'); }
         if(q.root.leafs[0].y != data0.y) { throw new Error('remaining leaf did not mach y coordinate'); }
         if(q.root.leafs[0].width != data0.width) { throw new Error('remaining leaf did not mach width'); }
         if(q.root.leafs[0].height != data0.height) { throw new Error('remaining leaf did not mach height'); }
         if(q.root.leafs[1]) { throw new Error('leaf was not removed'); }
-    });
+        if(removed[0] != data1) { throw new Error('removed leaf was not returned'); }
+    })
 
     it('should remove only given data when specified', function() {
         var data0 = {x: -64, y: -64, width: 64, height: 64 };

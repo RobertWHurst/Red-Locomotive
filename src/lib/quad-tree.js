@@ -65,15 +65,18 @@ function QuadTree(size, maxLeafsPerNode, maxDepth, x, y) {
             var leafs = removeLeaf(quadTree, rect);
         }
 
+        var results = [];
         var uids = [];
         while(leafs[0]) {
             var leaf = leafs.shift();
             if(uids.indexOf(leaf.uid) == -1) {
+                results.push(leafData[leaf.uid]);
                 delete leafData[leaf.uid];
                 LeafUid.clear(leaf.uid);
                 uids.push(leaf.uid);
             }
         }
+        return results;
 
         function filter(leaf) {
             return leafData[leaf.uid] == data;
@@ -132,7 +135,7 @@ function QuadTree(size, maxLeafsPerNode, maxDepth, x, y) {
             for(var iI = 0; iI < node.leafs.length; iI += 1) {
                 if(Rect.overlaps(rect, node.leafs[iI])) {
                     if(callback != undefined && callback(node.leafs[iI]) == false) { continue; }
-                    leafs.push(node.leafs.splice(iI, 1));
+                    leafs.push(node.leafs.splice(iI, 1)[0]);
                     iI -= 1;
                 }
             }
