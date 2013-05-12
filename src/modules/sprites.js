@@ -20,6 +20,7 @@ function Sprites(engine, config){
 
         var sprite = {};
         sprite.uid = uid;
+        sprite.ready = false;
         sprite.index = index;
         sprites[uid] = sprite;
 
@@ -29,6 +30,7 @@ function Sprites(engine, config){
 
         fetchSource(source, function(bitmap) {
             sprite.bitmap = bitmap;
+            sprite.ready = true;
             api.trigger('ready');
         });
 
@@ -42,7 +44,9 @@ function Sprites(engine, config){
             var image = new Image();
             image.src = source;
             if(image.width > 0) {
-                callback(Bitmap(image));
+                setTimeout(function() {
+                    callback(Bitmap(image))
+                }, 0);
             } else {
                 image.onload = function() {
                     callback(Bitmap(image));
