@@ -18,6 +18,6 @@ function UidRegistry() {
         return uid;
     }
     function clearUid(uid) {
-        delete uids.splice(uids.indexOf(uid), 1);
+        uids.splice(uids.indexOf(uid), 1);
     }
 }

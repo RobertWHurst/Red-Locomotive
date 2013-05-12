@@ -35,7 +35,7 @@ function QuadTree(size, maxLeafsPerNode, maxDepth, x, y) {
 
     function Leaf(data) {
         var leaf = Rect(data.x, data.y, data.width, data.height);
-        leaf.uid = LeafUid(data.uid || data.id || '');
+        leaf.uid = LeafUid();
         leafData[leaf.uid] = data;
         return leaf;
     }
@@ -71,7 +71,6 @@ function QuadTree(size, maxLeafsPerNode, maxDepth, x, y) {
             var leaf = leafs.shift();
             if(uids.indexOf(leaf.uid) == -1) {
                 results.push(leafData[leaf.uid]);
-                delete leafData[leaf.uid];
                 LeafUid.clear(leaf.uid);
                 uids.push(leaf.uid);
             }
@@ -164,15 +163,11 @@ function QuadTree(size, maxLeafsPerNode, maxDepth, x, y) {
         node.q2 = Node(node.x, node.y + halfSize, halfSize, node.depth + 1);
         node.q3 = Node(node.x + halfSize, node.y + halfSize, halfSize, node.depth + 1);
         var leafs = node.leafs;
-        delete node.leafs;
+        node.leafs = undefined;
         while(leafs[0]) { insertLeaf(node, leafs.shift()); }
     }
 
     function mergeNode(node) {
-        delete node.q0;
-        delete node.q1;
-        delete node.q2;
-        delete node.q3;
         node.leafs = [];
     }
 

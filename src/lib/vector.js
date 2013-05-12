@@ -7,6 +7,8 @@ module.exports.fromPoint = fromPoint;
 module.exports.fromQuad = fromQuad;
 
 function Vector(degree, length) {
+    if(degree != undefined && typeof degree != 'number') { throw new Error('degree must be a number'); }
+    if(length != undefined && typeof length != 'number') { throw new Error('length must be a number'); }
     var rect = {
         degree: degree ? degree - (Math.floor(degree / 360) * 360) : 0,
         length: length ? Math.abs(length) : 0,

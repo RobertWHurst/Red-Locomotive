@@ -1,11 +1,15 @@
 module.exports = Rect;
 module.exports.trim = trimRect;
-module.exports.grow = growRect;
+module.exports.merge = mergeRect;
 module.exports.contains = containsRect;
 module.exports.overlaps = overlapsRect;
 module.exports.is = isRect;
 
 function Rect(x, y, width, height) {
+    if(x != undefined && typeof x != 'number') { throw new Error('x must be a number'); }
+    if(y != undefined && typeof y != 'number') { throw new Error('y must be a number'); }
+    if(width != undefined && typeof width != 'number') { throw new Error('width must be a number'); }
+    if(height != undefined && typeof height != 'number') { throw new Error('height must be a number'); }
     var rect = {
         x: x || 0,
         y: y || 0,
@@ -60,19 +64,19 @@ function trimRect(rect, modifierRect) {
     return Rect(x, y, width, height);
 }
 
-function growRect(rect, modifierRect) {
-    var x = modifierRect.x > rect.x ? rect.x : modifierRect.x;
-    var y = modifierRect.y > rect.y ? rect.y : modifierRect.y;
+function mergeRect(rectA, rectB) {
+    var x = rectA.x < rectB.x ? rectA.x : rectB.x;
+    var y = rectA.y < rectB.y ? rectA.y : rectB.y;
 
-    if(modifierRect.x + modifierRect.width > rect.x + rect.width) {
-        var width = (rect.x + rect.width - modifierRect.x) + modifierRect.width;
+    if(rectA.x + rectA.width > rectB.x + rectB.width) {
+        var width = (rectA.x - x) + rectA.width;
     } else {
-        var width = rect.width;
+        var width = (rectB.x - x) + rectB.width;
     }
-    if(modifierRect.y + modifierRect.height > rect.y + rect.height) {
-        var height = (rect.y + rect.height - modifierRect.y) + modifierRect.height;
+    if(rectA.y + rectA.height > rectB.y + rectB.height) {
+        var height = (rectA.y - y) + rectA.height;
     } else {
-        var height = rect.height;
+        var height = (rectB.y - y) + rectB.height;
     }
 
     return Rect(x, y, width, height);

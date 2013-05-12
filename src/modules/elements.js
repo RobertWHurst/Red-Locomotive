@@ -16,10 +16,11 @@ function Elements(engine, config){
     engine.Element.rawAccess = rawAccess;
     engine.Element.get = get;
 
-    function Element(id, x, y, width, height, spriteApi) {
+    function Element(id, x, y, z, width, height, spriteApi) {
         var uid = ElementUid(id);
 
         var element = Rect(x, y, width, height);
+        element.z = z || 0;
         element.uid = uid;
         elements[uid] = element;
 
@@ -31,6 +32,8 @@ function Elements(engine, config){
             set x(value) { return getSetPosOrDim('x', element, value); },
             get y() { return getSetPosOrDim('y', element); },
             set y(value) { return getSetPosOrDim('y', element, value); },
+            get z() { return getSetPosOrDim('z', element); },
+            set z(value) { return getSetPosOrDim('z', element, value); },
             get width() { return getSetPosOrDim('width', element); },
             set width(value) { return getSetPosOrDim('width', element, value); },
             get height() { return getSetPosOrDim('height', element); },
@@ -39,15 +42,27 @@ function Elements(engine, config){
             set sprite(spriteApi) { return getSetSprite(element, spriteApi); },
             clear: function() { clear(element); },
             append: function(elementApi) { appendChild(element, rawAccess(elementApi)); },
-            remove: function(elementApi) { removeChild(element, rawAccess(elementApi)); }
+            remove: function(elementApi) { removeChild(element, rawAccess(elementApi)); },
+            upgrade: function() { upgrade(element); }
         };
 
         return api;
     }
 
     function getSetPosOrDim(property, element, value) {
-        if(property != 'x' && property != 'y' && property != 'width' && property != 'height') { return; }
+        if(
+            property != 'x' &&
+            property != 'y' &&
+            property != 'z' &&
+            property != 'width' &&
+            property != 'height'
+        ) { return; }
         if(value != undefined) {
+            if(element.bitmap) {
+                if(property == 'width') { element.bitmap.width = value; }
+                if(property == 'height') { element.bitmap.height = value; }
+                redraw(element, element);
+            }
             unIndex(element);
             element[property] = value;
             index(element);
@@ -71,25 +86,32 @@ function Elements(engine, config){
         element.childIndex = QuadTree();
         element.redrawIndex = QuadTree();
         element.redraw = true; //set to true for first draw
-        element.bitmap = Bitmap();
+        element.bitmap = Bitmap(element.width, element.height);
+        element.childDrawOrder = UidRegistry();
     }
 
     function redraw(element, rect) {
-        if(!element.parent) { return; }
         element.redraw = true;
-        element.redrawIndex.insert(rect);
+        var overlapingRects = element.redrawIndex.remove(rect);
+        var newRect = rect;
+        while(overlapingRects[0]) {
+            newRect = Rect.merge(newRect, overlapingRects.shift());
+        }
+        element.redrawIndex.insert(newRect);
     }
 
     function index(element) {
         if(!element.parent) { return }
+        element.drawOrder = element.parent.childDrawOrder();
         element.parent.childIndex.insert(element);
-        redraw(element.parent, Rect(element.x, element.y, element.width, element.height));
+        redraw(element.parent, element);
     }
 
     function unIndex(element) {
         if(!element.parent) { return; }
+        redraw(element.parent, element);
         element.parent.childIndex.remove(element, element);
-        redraw(element.parent, Rect(element.x, element.y, element.width, element.height));
+        element.parent.childDrawOrder.clear(element.drawOrder);
     }
 
     function appendChild(parent, element) {
@@ -101,7 +123,7 @@ function Elements(engine, config){
     function removeChild(parent, element) {
         if(!parent.childIndex) { return; }
         unIndex(element);
-        delete element.parent;
+        element.parent = undefined;
     }
 
     function rawAccess(api) {
@@ -115,6 +137,5 @@ function Elements(engine, config){
     function clear(element) {
         unIndex(element);
         ElementUid.clear(element.uid);
-        delete elements[uid];
     }
 }

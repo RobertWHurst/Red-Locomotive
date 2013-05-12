@@ -66,6 +66,5 @@ function Sprites(engine, config){
     function clear(sprite) {
         unIndex(sprite);
         SpriteUid.clear(sprite.uid);
-        delete sprites[uid];
     }
 }

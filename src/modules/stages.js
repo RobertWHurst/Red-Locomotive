@@ -15,6 +15,7 @@ function Stages(engine, config){
     function Stage(id) {
 
         var stage = Element.rawAccess(Element(id));
+        stage.api.upgrade();
         stages[stage.uid] = stage;
 
         var api = {};

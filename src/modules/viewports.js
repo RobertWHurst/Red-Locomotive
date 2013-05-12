@@ -5,6 +5,7 @@ var UidRegistry = require('../lib/uid-registry');
 var t = require('../lib/tools');
 
 module.exports = Viewports;
+var SHOW_REDRAW_AREA = false;
 
 function Viewports(engine, config){
     var ViewportUid = UidRegistry();
@@ -56,8 +57,10 @@ function Viewports(engine, config){
         function stage(stage) {
             if(stage != undefined) { 
                 viewport.stage = Stage.rawAccess(stage);
-                viewport.stage.width = viewport.width;
-                viewport.stage.height = viewport.height;
+                viewport.stage.parent = viewport;
+                viewport.stage.bitmap.width = viewport.width;
+                viewport.stage.bitmap.height = viewport.height;
+                console.log(viewport.stage);
                 return stage;
             } else if(viewport.stage && viewport.stage.api) {
                 return viewport.stage.api;
@@ -65,77 +68,119 @@ function Viewports(engine, config){
         }
 
         function render() {
-            if(!visible) { return; }
-
-            var bitmap = viewport.bitmap;
-            var bitmapCtx = bitmap.context;
-
-            if(viewport.fillStyle) {
-                if(bitmapCtx.fillStyle != viewport.fillStyle) { bitmapCtx.fillStyle = viewport.fillStyle; }
-                bitmapCtx.fillRect(viewport.x, viewport.y, viewport.width, viewport.height);
-            } else {
-                bitmapCtx.clearRect(viewport.x, viewport.y, viewport.width, viewport.height);
-            }
-
-            if(viewport.stage) {
-                renderElement(viewport.stage, viewport, viewport.bitmap.context);
+            if(visible && viewport.stage) {
+                viewport.bitmap.context.clearRect(
+                    viewport.x,
+                    viewport.y,
+                    viewport.width,
+                    viewport.height
+                );
+                viewport.bitmap.context.drawImage(
+                    viewport.stage.bitmap,
+                    0, 0
+                );
+                renderElement(viewport.stage);
             }
         }
 
-        function renderElement(element, parent, context) {
-            if(element.sprite && element.sprite.ready) {
-                var sprite = element.sprite;
-                var spriteBitmap = sprite.bitmap;
-                var spriteBitmapCtx = spriteBitmap.context;
+        function renderElement(element) {
 
-                //MASK
-                var padding = 0;
-                var px = parent.x + padding;
-                var pxx = px + parent.width - (padding * 2);
-                var py = parent.y + padding;
-                var pyy = py + parent.height - (padding * 2);
-                var pw = parent.width - (padding * 2);
-                var ph = parent.height - (padding * 2);
-
-                //ELEMENT
-                var ex = element.x;
-                var exx = ex + element.width;
-                var ey = element.y;
-                var eyy = ey + element.height;
-                var ew = element.width;
-                var eh = element.height;
-
-                //CLIPPING
-                var cl = ex < px ? px - ex : 0;
-                var cr = pxx < exx ? exx - pxx : 0;
-                var ct = ey < py ? py - ey : 0;
-                var cb = pyy < eyy ? eyy - pyy : 0;
-
-                //SOURCE BITMAP
-                var sx = cl;
-                var sy = ct;
-                var sw = ew - cl - cr;
-                var sh = eh - ct - cb;
-
-                //DESTINATION BITMAP
-                var dx = ex + cl;
-                var dy = ey + ct;
-                var dw = ew - cl - cr;
-                var dh = eh - ct - cb;
-
-                if(dw > 0 && dh > 0 && sw > 0 && sh > 0) {
-                    context.drawImage(
-                        spriteBitmap,
-                        sx, sy, sw, sh,
-                        dx, dy, dw, dh
-                    );
+            //return sprite bitmap
+            if(!element.bitmap) {
+                if(element.sprite && element.sprite.ready) {
+                    return element.sprite.bitmap;
                 }
-            }
+            } 
 
-            if(element.childIndex) {
-                var children = element.childIndex.get(element);
-                while(children[0]) {
-                    renderElement(children.shift(), element, context);
+            //return composited bitmap
+            else {
+
+                //redraw if nessisary
+                if(element.redraw) {
+
+                    //get the areas for redraw
+                    var redrawRects = element.redrawIndex.remove(element.parent);
+                    while(redrawRects[0]) {
+                        var redrawRect = redrawRects.shift();
+
+                        //clear the redraw area
+                        element.bitmap.context.clearRect(redrawRect.x, redrawRect.y, redrawRect.width, redrawRect.height);
+
+                        if(SHOW_REDRAW_AREA) {
+                            element.bitmap.context.strokeStyle = '#f00';
+                            element.bitmap.context.strokeRect(redrawRect.x, redrawRect.y, redrawRect.width, redrawRect.height);
+                        }
+
+                        //redraw the current redrawRect
+                        var children = element.childIndex.get(redrawRect).sort(elementSort);
+                        while(children[0]) {
+                            var child = children.shift();
+
+                            //MASK
+                            var padding = 0;
+                            var px = redrawRect.x + padding;
+                            var pxx = px + redrawRect.width - (padding * 2);
+                            var py = redrawRect.y + padding;
+                            var pyy = py + redrawRect.height - (padding * 2);
+                            var pw = redrawRect.width - (padding * 2);
+                            var ph = redrawRect.height - (padding * 2);
+
+                            //ELEMENT
+                            var ex = child.x;
+                            var exx = ex + child.width;
+                            var ey = child.y;
+                            var eyy = ey + child.height;
+                            var ew = child.width;
+                            var eh = child.height;
+
+                            //CLIPPING
+                            var cl = ex < px ? px - ex : 0;
+                            var cr = pxx < exx ? exx - pxx : 0;
+                            var ct = ey < py ? py - ey : 0;
+                            var cb = pyy < eyy ? eyy - pyy : 0;
+
+                            //SOURCE BITMAP
+                            var sx = cl;
+                            var sy = ct;
+                            var sw = ew - cl - cr;
+                            var sh = eh - ct - cb;
+
+                            //DESTINATION BITMAP
+                            var dx = ex + cl;
+                            var dy = ey + ct;
+                            var dw = ew - cl - cr;
+                            var dh = eh - ct - cb;
+
+                            //draw the child to the bitmap
+                            if(dw > 0 && dh > 0 && sw > 0 && sh > 0) {
+                                element.bitmap.context.drawImage(
+                                    renderElement(child),
+                                    Math.floor(sx), Math.floor(sy), 
+                                    Math.floor(sw), Math.floor(sh),
+                                    Math.floor(dx), Math.floor(dy),
+                                    Math.floor(dw), Math.floor(dh)
+                                );
+                            }
+                        }
+                    }
+                }
+
+                return element.bitmap;
+            }
+        }
+
+        function elementSort(elementA, elementB) {
+            if(elementA.z > elementB.z) {
+                return 1;
+            } else if(elementA.z < elementB.z) {
+                return -1;
+            } else {
+                if(elementA.drawOrder > elementB.drawOrder){
+                    return 1;
+                } else if(elementA.drawOrder < elementB.drawOrder) {
+                    return -1;
+                } else {
+                    return 0;
                 }
             }
         }
@@ -148,8 +193,8 @@ function Viewports(engine, config){
             viewport.width = viewport.bitmap.width = width;
             viewport.height = viewport.bitmap.height = height;
             if(viewport.stage) {
-                viewport.stage.width = width;
-                viewport.stage.height = height;
+                viewport.stage.bitmap.width = width;
+                viewport.stage.bitmap.height = height;
             }
         }
 
