@@ -56,11 +56,11 @@ function Viewports(engine, config){
         function stage(stage) {
             if(stage != undefined) { 
                 viewport.stage = Stage.rawAccess(stage);
+                viewport.stage.width = viewport.width;
+                viewport.stage.height = viewport.height;
                 return stage;
             } else if(viewport.stage && viewport.stage.api) {
                 return viewport.stage.api;
-            } else {
-                return viewport.stage;
             }
         }
 
@@ -77,11 +77,9 @@ function Viewports(engine, config){
                 bitmapCtx.clearRect(viewport.x, viewport.y, viewport.width, viewport.height);
             }
 
-            if(viewport.stage) { renderStage(); }
-        }
-
-        function renderStage() {
-            renderElement(viewport.stage, viewport, viewport.bitmap.context);
+            if(viewport.stage) {
+                renderElement(viewport.stage, viewport, viewport.bitmap.context);
+            }
         }
 
         function renderElement(element, parent, context) {
@@ -134,17 +132,10 @@ function Viewports(engine, config){
                 }
             }
 
-            if(element.index) {
-                if(Rect.is(element)) {
-                    var children = element.index.get(element);
-                    while(children[0]) {
-                        renderElement(children.shift(), element, context);
-                    }
-                } else {
-                    var children = element.index.get(parent);
-                    while(children[0]) {
-                        renderElement(children.shift(), parent, context);
-                    }
+            if(element.childIndex) {
+                var children = element.childIndex.get(element);
+                while(children[0]) {
+                    renderElement(children.shift(), element, context);
                 }
             }
         }
@@ -156,6 +147,10 @@ function Viewports(engine, config){
         function resize(width, height) {
             viewport.width = viewport.bitmap.width = width;
             viewport.height = viewport.bitmap.height = height;
+            if(viewport.stage) {
+                viewport.stage.width = width;
+                viewport.stage.height = height;
+            }
         }
 
         function clear() {

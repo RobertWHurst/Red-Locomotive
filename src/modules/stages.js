@@ -13,45 +13,21 @@ function Stages(engine, config){
     engine.Stage.rawAccess = rawAccess;
 
     function Stage(id) {
-        var uid = StageUid(id);
 
-        var stage = {};
-        stage.uid = uid;
-        stage.index = QuadTree();
-        stage.redraw = true; //set to true for first draw
-
-        stages[uid] = stage;
+        var stage = Element.rawAccess(Element(id));
+        stages[stage.uid] = stage;
 
         var api = {};
-        api.uid = uid;
+        api.uid = stage.uid;
 
         //stage api
-        api.clear = clear;
+        api.clear = stage.api.clear;
 
         //children api
-        api.append = appendChild;
-        api.remove = removeChild;
+        api.append = stage.api.append;
+        api.remove = stage.api.remove;
 
         return api;
-
-        function clear() {
-            delete stages[uid];
-            StageUid.clear(uid);
-        }
-
-        function appendChild(api) {
-            var element = Element.rawAccess(api);
-            element.parent = stage;
-            stage.redraw = true;
-            stage.index.insert(element);
-        }
-
-        function removeChild(api) {
-            var element = Element.rawAccess(api);
-            stage.redraw = true;
-            stage.index.remove(element, element);
-            delete element.parent;
-        }
     }
 
     function rawAccess(api) {

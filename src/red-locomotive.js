@@ -43,8 +43,8 @@ function RedLocomotive(opts) {
     //MODULES
     var api = {};
     Core(api, config);
-    Elements(api, config);
     Sprites(api, config);
+    Elements(api, config);
     Stages(api, config);
     Viewports(api, config);
 
