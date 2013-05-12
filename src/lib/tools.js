@@ -1,7 +1,6 @@
 Tools.extend = extend;
 Tools.random = random;
 Tools.round = round;
-Tools.pow = pow;
 Tools.tan = tan;
 Tools.sin = sin;
 Tools.cos = cos;
@@ -38,13 +37,8 @@ function random(limit) {
 function round(number, precision) {
     if(number % 1 == 0) { return number; }
     precision = precision || 0;
-    m = precision != undefined ? pow(10, precision) : 1;
+    m = precision != undefined ? Math.pow(10, precision) : 1;
     return Math.round(number * m) / m;
-}
-
-function pow(number, power) {
-    if(power == 1 || power == undefined) { return number; }
-    return Math.pow(number, power);
 }
 
 function tan(input) {
