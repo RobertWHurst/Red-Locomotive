@@ -81,27 +81,71 @@ function Viewports(engine, config){
         }
 
         function renderStage() {
-            var bitmap = viewport.bitmap;
-            var bitmapCtx = bitmap.context;
+            renderElement(viewport.stage, viewport, viewport.bitmap.context);
+        }
 
-            var elements = viewport.stage.index.get(viewport);
-
-            while(elements[0]) {
-                var element = elements.shift();
+        function renderElement(element, parent, context) {
+            if(element.sprite && element.sprite.ready) {
                 var sprite = element.sprite;
                 var spriteBitmap = sprite.bitmap;
-                var spriteBitmapCtx = bitmap.context;
-                bitmapCtx.drawImage(
-                    spriteBitmap,
-                    0,
-                    0,
-                    t.round(element.width),
-                    t.round(element.height),
-                    t.round(element.x),
-                    t.round(element.y),
-                    t.round(element.width),
-                    t.round(element.height)
-                );
+                var spriteBitmapCtx = spriteBitmap.context;
+
+                //MASK
+                var padding = 0;
+                var px = parent.x + padding;
+                var pxx = px + parent.width - (padding * 2);
+                var py = parent.y + padding;
+                var pyy = py + parent.height - (padding * 2);
+                var pw = parent.width - (padding * 2);
+                var ph = parent.height - (padding * 2);
+
+                //ELEMENT
+                var ex = element.x;
+                var exx = ex + element.width;
+                var ey = element.y;
+                var eyy = ey + element.height;
+                var ew = element.width;
+                var eh = element.height;
+
+                //CLIPPING
+                var cl = ex < px ? px - ex : 0;
+                var cr = pxx < exx ? exx - pxx : 0;
+                var ct = ey < py ? py - ey : 0;
+                var cb = pyy < eyy ? eyy - pyy : 0;
+
+                //SOURCE BITMAP
+                var sx = cl;
+                var sy = ct;
+                var sw = ew - cl - cr;
+                var sh = eh - ct - cb;
+
+                //DESTINATION BITMAP
+                var dx = ex + cl;
+                var dy = ey + ct;
+                var dw = ew - cl - cr;
+                var dh = eh - ct - cb;
+
+                if(dw > 0 && dh > 0 && sw > 0 && sh > 0) {
+                    context.drawImage(
+                        spriteBitmap,
+                        sx, sy, sw, sh,
+                        dx, dy, dw, dh
+                    );
+                }
+            }
+
+            if(element.index) {
+                if(Rect.is(element)) {
+                    var children = element.index.get(element);
+                    while(children[0]) {
+                        renderElement(children.shift(), element, context);
+                    }
+                } else {
+                    var children = element.index.get(parent);
+                    while(children[0]) {
+                        renderElement(children.shift(), parent, context);
+                    }
+                }
             }
         }
 
