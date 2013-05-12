@@ -16,8 +16,6 @@ module.exports = Clock;
  */
 function Clock(Hz) {
 
-    Hz = Hz || 0;
-
     var clockTime = Date.now();
     var maxBatchSize = 0;
     var scheduledTicks = 0;
@@ -59,7 +57,7 @@ function Clock(Hz) {
         if(paused || !visible) { return; }
 
         //if target Hz set 
-        if(Hz > 0) {
+        if(typeof Hz == 'number') {
 
             //compute clock time and ticks for this batch
             var batchTime = Date.now();
@@ -80,16 +78,13 @@ function Clock(Hz) {
 
         //max Hz
         else {
-            var start = Date.now();
-            var iX = 0;
-            while(iX < 100 && (Date.now() - start) < 30) {
-                api.onTick();
-                iX += 1;
-            }
+            api.onTick();
         }
 
         //schedule the next batch
-        if(typeof setImmediate == 'function') { setImmediate(exec); }
+        if(Hz == 'r' && typeof requestAnimationFrame == 'function') { requestAnimationFrame(exec); }
+        else if(Hz == 'i' && typeof setImmediate == 'function') { setImmediate(exec); }
+        else if(typeof setImmediate == 'function') { setImmediate(exec); }
         else if(typeof requestAnimationFrame == 'function') { requestAnimationFrame(exec); }
         else { setTimeout(exec, 0); }
     }

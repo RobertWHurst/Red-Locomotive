@@ -5,7 +5,7 @@ var UidRegistry = require('../lib/uid-registry');
 var t = require('../lib/tools');
 
 module.exports = Viewports;
-var SHOW_REDRAW_AREA = false;
+var SHOW_REDRAW_AREA = true;
 
 function Viewports(engine, config){
     var ViewportUid = UidRegistry();
@@ -29,7 +29,7 @@ function Viewports(engine, config){
 
         var viewport = Rect(x, y, width, height);
 
-        var clock = Clock(fps || 60);
+        var clock = Clock('r');
         clock.onTick = render;
         clock.start();
 
@@ -60,7 +60,6 @@ function Viewports(engine, config){
                 viewport.stage.parent = viewport;
                 viewport.stage.bitmap.width = viewport.width;
                 viewport.stage.bitmap.height = viewport.height;
-                console.log(viewport.stage);
                 return stage;
             } else if(viewport.stage && viewport.stage.api) {
                 return viewport.stage.api;
@@ -117,13 +116,12 @@ function Viewports(engine, config){
                             var child = children.shift();
 
                             //MASK
-                            var padding = 0;
-                            var px = redrawRect.x + padding;
-                            var pxx = px + redrawRect.width - (padding * 2);
-                            var py = redrawRect.y + padding;
-                            var pyy = py + redrawRect.height - (padding * 2);
-                            var pw = redrawRect.width - (padding * 2);
-                            var ph = redrawRect.height - (padding * 2);
+                            var px = redrawRect.x;
+                            var pxx = px + redrawRect.width;
+                            var py = redrawRect.y;
+                            var pyy = py + redrawRect.height;
+                            var pw = redrawRect.width;
+                            var ph = redrawRect.height;
 
                             //ELEMENT
                             var ex = child.x;
@@ -155,10 +153,10 @@ function Viewports(engine, config){
                             if(dw > 0 && dh > 0 && sw > 0 && sh > 0) {
                                 element.bitmap.context.drawImage(
                                     renderElement(child),
-                                    Math.floor(sx), Math.floor(sy), 
-                                    Math.floor(sw), Math.floor(sh),
-                                    Math.floor(dx), Math.floor(dy),
-                                    Math.floor(dw), Math.floor(dh)
+                                    sx | 0, sy | 0, 
+                                    sw | 0, sh | 0,
+                                    dx | 0, dy | 0,
+                                    dw | 0, dh | 0
                                 );
                             }
                         }

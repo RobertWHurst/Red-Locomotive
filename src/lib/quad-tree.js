@@ -6,6 +6,7 @@ module.exports = QuadTree;
 function QuadTree(size, maxLeafsPerNode, maxDepth, x, y) {
     var LeafUid = UidRegistry();
     var leafData = {};
+    var fallenLeafs = [];
 
     size = size || 4096;
     maxLeafsPerNode = maxLeafsPerNode || 4;
@@ -34,7 +35,15 @@ function QuadTree(size, maxLeafsPerNode, maxDepth, x, y) {
     }
 
     function Leaf(data) {
-        var leaf = Rect(data.x, data.y, data.width, data.height);
+        if(fallenLeafs[0]) {
+            var leaf = fallenLeafs.shift();
+            leaf.x = data.x;
+            leaf.y = data.y;
+            leaf.width = data.width;
+            leaf.height = data.height;
+        } else {
+            var leaf = Rect(data.x, data.y, data.width, data.height);
+        }
         leaf.uid = LeafUid();
         leafData[leaf.uid] = data;
         return leaf;
@@ -69,6 +78,7 @@ function QuadTree(size, maxLeafsPerNode, maxDepth, x, y) {
         var uids = [];
         while(leafs[0]) {
             var leaf = leafs.shift();
+            fallenLeafs.push(leaf);
             if(uids.indexOf(leaf.uid) == -1) {
                 results.push(leafData[leaf.uid]);
                 LeafUid.clear(leaf.uid);
@@ -95,13 +105,10 @@ function QuadTree(size, maxLeafsPerNode, maxDepth, x, y) {
                 splitNode(node);
             }
         } else {
-            var nodes = ['q0', 'q1', 'q2', 'q3'];
-            while(nodes[0]) {
-                var subNode = node[nodes.shift()];
-                if(Rect.overlaps(subNode, leaf)) {
-                    insertLeaf(subNode, leaf);
-                }
-            }
+            if(Rect.overlaps(node.q0, leaf)) { insertLeaf(node.q0, leaf); }
+            if(Rect.overlaps(node.q1, leaf)) { insertLeaf(node.q1, leaf); }
+            if(Rect.overlaps(node.q2, leaf)) { insertLeaf(node.q2, leaf); }
+            if(Rect.overlaps(node.q3, leaf)) { insertLeaf(node.q3, leaf); }
         }
     }
 
@@ -115,13 +122,10 @@ function QuadTree(size, maxLeafsPerNode, maxDepth, x, y) {
                 }
             }
         } else {
-            var nodes = ['q0', 'q1', 'q2', 'q3'];
-            while(nodes[0]) {
-                var subNode = node[nodes.shift()];
-                if(Rect.overlaps(rect, subNode)) {
-                    leafs = leafs.concat(getLeaf(subNode, rect));
-                }
-            }
+            if(Rect.overlaps(node.q0, leaf)) { leafs = leafs.concat(getLeaf(node.q0, rect)); }
+            if(Rect.overlaps(node.q1, leaf)) { leafs = leafs.concat(getLeaf(node.q1, rect)); }
+            if(Rect.overlaps(node.q2, leaf)) { leafs = leafs.concat(getLeaf(node.q2, rect)); }
+            if(Rect.overlaps(node.q3, leaf)) { leafs = leafs.concat(getLeaf(node.q3, rect)); }
         }
 
         return leafs;
@@ -139,17 +143,15 @@ function QuadTree(size, maxLeafsPerNode, maxDepth, x, y) {
                 }
             }
         } else {
-            var nodes = ['q0', 'q1', 'q2', 'q3'];
             var empty = true;
-            while(nodes[0]) {
-                var subNode = node[nodes.shift()];
-                if(Rect.overlaps(rect, subNode)) {
-                    leafs = leafs.concat(removeLeaf(subNode, rect, callback));
-                }
-                if(empty && (!subNode.leafs || subNode.leafs[0])) {
-                    empty = false;
-                }
-            }
+            if(Rect.overlaps(rect, node.q0)) { leafs = leafs.concat(removeLeaf(node.q0, rect, callback)); }
+            if(Rect.overlaps(rect, node.q1)) { leafs = leafs.concat(removeLeaf(node.q1, rect, callback)); }
+            if(Rect.overlaps(rect, node.q2)) { leafs = leafs.concat(removeLeaf(node.q2, rect, callback)); }
+            if(Rect.overlaps(rect, node.q3)) { leafs = leafs.concat(removeLeaf(node.q3, rect, callback)); }
+            if(empty && (!node.q0.leafs || node.q0.leafs[0])) { empty = false; }
+            if(empty && (!node.q1.leafs || node.q1.leafs[0])) { empty = false; }
+            if(empty && (!node.q2.leafs || node.q2.leafs[0])) { empty = false; }
+            if(empty && (!node.q3.leafs || node.q3.leafs[0])) { empty = false; }
             if(empty) { mergeNode(node); }
         }
 

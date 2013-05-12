@@ -25,12 +25,12 @@ describe('Rect.is()', function() {
 describe('Rect.merge()', function() {
     it('should accept to rects and return a new rect that contains both', function() {
         var rectA = Rect(0, 0, 100, 100);
-        var rectB = Rect(100, 100, 100, 100);
+        var rectB = Rect(100, 100, 300, 300);
         var rect = Rect.merge(rectA, rectB);
         if(rect.x != 0) { throw new Error('rect x must be 0'); }
         if(rect.y != 0) { throw new Error('rect y must be 0'); }
-        if(rect.width != 200) { throw new Error('rect width must be 200'); }
-        if(rect.height != 200) { throw new Error('rect height must be 200'); }
+        if(rect.width != 400) { throw new Error('rect width must be 200'); }
+        if(rect.height != 400) { throw new Error('rect height must be 200'); }
     });
 });
 

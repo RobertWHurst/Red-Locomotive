@@ -32,6 +32,10 @@ function Elements(engine, config){
             set x(value) { return getSetPosOrDim('x', element, value); },
             get y() { return getSetPosOrDim('y', element); },
             set y(value) { return getSetPosOrDim('y', element, value); },
+            get cx() { return getSetPosOrDim('cx', element); },
+            set cx(value) { return getSetPosOrDim('cx', element, value); },
+            get cy() { return getSetPosOrDim('cy', element); },
+            set cy(value) { return getSetPosOrDim('cy', element, value); },
             get z() { return getSetPosOrDim('z', element); },
             set z(value) { return getSetPosOrDim('z', element, value); },
             get width() { return getSetPosOrDim('width', element); },
@@ -53,6 +57,8 @@ function Elements(engine, config){
         if(
             property != 'x' &&
             property != 'y' &&
+            property != 'cx' &&
+            property != 'cy' &&
             property != 'z' &&
             property != 'width' &&
             property != 'height'
@@ -90,14 +96,14 @@ function Elements(engine, config){
         element.childDrawOrder = UidRegistry();
     }
 
-    function redraw(element, rect) {
+    function redraw(element, child) {
         element.redraw = true;
+        var rect = Rect(child.x, child.y, child.width, child.height);
         var overlapingRects = element.redrawIndex.remove(rect);
-        var newRect = rect;
         while(overlapingRects[0]) {
-            newRect = Rect.merge(newRect, overlapingRects.shift());
+            rect = Rect.merge(rect, overlapingRects.shift());
         }
-        element.redrawIndex.insert(newRect);
+        element.redrawIndex.insert(rect);
     }
 
     function index(element) {
