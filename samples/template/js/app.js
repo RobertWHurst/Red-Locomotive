@@ -19,21 +19,21 @@ window.addEventListener('load', function() {
     sprite.bind('ready', function() {
         var foo = app.Element('foo', -800, 100, 0, 800, 665, sprite);
 
-        var x, y;
-        window.addEventListener('mousemove', function(event) {
-            x = event.pageX;
-            y = event.pageY;
-        });
-        app.bind('tick', function() {
-            foo.cx = x;
-            foo.cy = y;
-        });
-
-        // var diff = 1;
-        // app.bind('tick', function() {
-        //     foo.x += diff
-        //     if(foo.x >= innerWidth) { foo.x = -foo.width; }
+        // var x, y;
+        // window.addEventListener('mousemove', function(event) {
+        //     x = event.pageX;
+        //     y = event.pageY;
         // });
+        // app.bind('tick', function() {
+        //     foo.cx = x;
+        //     foo.cy = y;
+        // });
+
+        var diff = 1;
+        app.bind('tick', function() {
+            foo.x += diff
+            if(foo.x >= innerWidth) { foo.x = -foo.width; }
+        });
 
         main.append(foo);
     });
