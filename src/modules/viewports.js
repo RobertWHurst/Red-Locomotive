@@ -5,7 +5,7 @@ var UidRegistry = require('../lib/uid-registry');
 var t = require('../lib/tools');
 
 module.exports = Viewports;
-var SHOW_REDRAW_AREA = true;
+var SHOW_REDRAW_AREA = false;
 
 function Viewports(engine, config){
     var ViewportUid = UidRegistry();
@@ -60,6 +60,7 @@ function Viewports(engine, config){
                 viewport.stage.parent = viewport;
                 viewport.stage.bitmap.width = viewport.width;
                 viewport.stage.bitmap.height = viewport.height;
+                viewport.stage.bitmap = viewport.bitmap;
                 return stage;
             } else if(viewport.stage && viewport.stage.api) {
                 return viewport.stage.api;
@@ -68,16 +69,6 @@ function Viewports(engine, config){
 
         function render() {
             if(visible && viewport.stage) {
-                viewport.bitmap.context.clearRect(
-                    viewport.x,
-                    viewport.y,
-                    viewport.width,
-                    viewport.height
-                );
-                viewport.bitmap.context.drawImage(
-                    viewport.stage.bitmap,
-                    0, 0
-                );
                 renderElement(viewport.stage);
             }
         }
@@ -97,18 +88,18 @@ function Viewports(engine, config){
                 //redraw if nessisary
                 if(element.redraw) {
 
+                    window.q = element.redrawIndex;
+
                     //get the areas for redraw
                     var redrawRects = element.redrawIndex.remove(element.parent);
                     while(redrawRects[0]) {
-                        var redrawRect = redrawRects.shift();
+                        var redrawRect = Rect.trim(redrawRects.shift(), element.parent);
 
                         //clear the redraw area
-                        element.bitmap.context.clearRect(redrawRect.x, redrawRect.y, redrawRect.width, redrawRect.height);
-
-                        if(SHOW_REDRAW_AREA) {
-                            element.bitmap.context.strokeStyle = '#f00';
-                            element.bitmap.context.strokeRect(redrawRect.x, redrawRect.y, redrawRect.width, redrawRect.height);
-                        }
+                        element.bitmap.context.clearRect(
+                            redrawRect.x, redrawRect.y,
+                            redrawRect.width, redrawRect.height
+                        );
 
                         //redraw the current redrawRect
                         var children = element.childIndex.get(redrawRect).sort(elementSort);
@@ -153,11 +144,19 @@ function Viewports(engine, config){
                             if(dw > 0 && dh > 0 && sw > 0 && sh > 0) {
                                 element.bitmap.context.drawImage(
                                     renderElement(child),
-                                    sx | 0, sy | 0, 
-                                    sw | 0, sh | 0,
-                                    dx | 0, dy | 0,
-                                    dw | 0, dh | 0
+                                    sx|0, sy|0, 
+                                    sw|0, sh|0,
+                                    dx|0, dy|0,
+                                    dw|0, dh|0
                                 );
+                                if(SHOW_REDRAW_AREA) {
+                                    element.bitmap.context.strokeStyle = '#f00';
+                                    element.bitmap.context.lineWidth = 1;
+                                    element.bitmap.context.strokeRect(
+                                        dx|0, dy|0,
+                                        dw|0, dh|0
+                                    );
+                                }
                             }
                         }
                     }

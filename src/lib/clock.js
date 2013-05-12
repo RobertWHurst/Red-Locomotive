@@ -14,10 +14,10 @@ module.exports = Clock;
  *
  * new(Clock)([Number Hz=1000]) => Clock clock
  */
-function Clock(Hz) {
+function Clock(Hz, maxBatchSize) {
 
     var clockTime = Date.now();
-    var maxBatchSize = 0;
+    var maxBatchSize = maxBatchSize || 10;
     var scheduledTicks = 0;
     var paused = true;
     var visible = true;
@@ -26,6 +26,16 @@ function Clock(Hz) {
     api.start = start;
     api.stop = stop;
     api.onTick = function() {};
+
+    next = (function() {
+        var si = typeof setImmediate == 'function';
+        var ra = typeof requestAnimationFrame == 'function';
+        if(Hz == 'i' && si) { return setImmediate; }
+        else if(Hz == 'r' && ra) { return requestAnimationFrame; }
+        else if(si) { return setImmediate; }
+        else if(ra) { return requestAnimationFrame; }
+        else { return function(callback) { setTimeout(callback, 0); }; }
+    })();
 
     if(typeof window == 'object') {
         window.addEventListener('focus', function() { visible = true; start(); });
@@ -51,6 +61,7 @@ function Clock(Hz) {
      * is a separate function so it can be
      * overwritten.
      */
+    var batchTime, ticks;
     function exec() {
 
         //exit if paused
@@ -60,9 +71,9 @@ function Clock(Hz) {
         if(typeof Hz == 'number') {
 
             //compute clock time and ticks for this batch
-            var batchTime = Date.now();
+            batchTime = Date.now();
             scheduledTicks += (batchTime - clockTime) * (Hz / 1000);
-            var ticks = Math.floor(scheduledTicks);
+            ticks = scheduledTicks|0;
             scheduledTicks -= ticks;
             clockTime = batchTime;
 
@@ -73,19 +84,13 @@ function Clock(Hz) {
 
             //execute each tick
             while(ticks--) { api.onTick(); }
-
         }
 
         //max Hz
         else {
             api.onTick();
         }
-
-        //schedule the next batch
-        if(Hz == 'r' && typeof requestAnimationFrame == 'function') { requestAnimationFrame(exec); }
-        else if(Hz == 'i' && typeof setImmediate == 'function') { setImmediate(exec); }
-        else if(typeof setImmediate == 'function') { setImmediate(exec); }
-        else if(typeof requestAnimationFrame == 'function') { requestAnimationFrame(exec); }
-        else { setTimeout(exec, 0); }
+        
+        next(exec);
     }
 };
