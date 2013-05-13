@@ -5,7 +5,6 @@ var UidRegistry = require('../lib/uid-registry');
 var t = require('../lib/tools');
 
 module.exports = Viewports;
-var SHOW_REDRAW_AREA = false;
 
 function Viewports(engine, config){
     var ViewportUid = UidRegistry();
@@ -31,7 +30,6 @@ function Viewports(engine, config){
 
         var clock = Clock('r');
         clock.onTick = render;
-        clock.start();
 
         viewport.uid = uid;
         viewport.fillStyle = fillStyle;
@@ -88,44 +86,47 @@ function Viewports(engine, config){
                 //redraw if nessisary
                 if(element.redraw) {
 
-                    window.q = element.redrawIndex;
-
                     //get the areas for redraw
                     var redrawRects = element.redrawIndex.remove(element.parent);
                     while(redrawRects[0]) {
-                        var redrawRect = Rect.trim(redrawRects.shift(), element.parent);
+                        var redrawRect = Rect.trim(redrawRects.shift().rect, element.parent);
+                        redrawRect.x -= 1;
+                        redrawRect.y -= 1;
+                        redrawRect.width += 2;
+                        redrawRect.height += 2;
 
                         //clear the redraw area
                         element.bitmap.context.clearRect(
-                            redrawRect.x, redrawRect.y,
-                            redrawRect.width, redrawRect.height
+                            redrawRect.x|0, redrawRect.y|0,
+                            redrawRect.width|0, redrawRect.height|0
                         );
 
                         //redraw the current redrawRect
                         var children = element.childIndex.get(redrawRect).sort(elementSort);
                         while(children[0]) {
-                            var child = children.shift();
+                            var child = children.shift().data;
 
                             //MASK
-                            var px = redrawRect.x;
-                            var pxx = px + redrawRect.width;
-                            var py = redrawRect.y;
-                            var pyy = py + redrawRect.height;
                             var pw = redrawRect.width;
                             var ph = redrawRect.height;
+                            var px = redrawRect.x;
+                            var py = redrawRect.y;
+                            var pxx = px + pw;
+                            var pyy = py + ph;
 
                             //ELEMENT
-                            var ex = child.x;
-                            var exx = ex + child.width;
-                            var ey = child.y;
-                            var eyy = ey + child.height;
+                            var z = 2;
                             var ew = child.width;
                             var eh = child.height;
+                            var ex = child.x;
+                            var ey = child.y;
+                            var exx = ex + ew;
+                            var eyy = ey + eh;
 
                             //CLIPPING
                             var cl = ex < px ? px - ex : 0;
-                            var cr = pxx < exx ? exx - pxx : 0;
                             var ct = ey < py ? py - ey : 0;
+                            var cr = pxx < exx ? exx - pxx : 0;
                             var cb = pyy < eyy ? eyy - pyy : 0;
 
                             //SOURCE BITMAP
@@ -133,6 +134,7 @@ function Viewports(engine, config){
                             var sy = ct;
                             var sw = ew - cl - cr;
                             var sh = eh - ct - cb;
+
 
                             //DESTINATION BITMAP
                             var dx = ex + cl;
@@ -149,15 +151,15 @@ function Viewports(engine, config){
                                     dx|0, dy|0,
                                     dw|0, dh|0
                                 );
-                                if(SHOW_REDRAW_AREA) {
-                                    element.bitmap.context.strokeStyle = '#f00';
-                                    element.bitmap.context.lineWidth = 1;
-                                    element.bitmap.context.strokeRect(
-                                        dx|0, dy|0,
-                                        dw|0, dh|0
-                                    );
-                                }
                             }
+                        }
+
+                        if(config.showRedrawRects) {
+                            element.bitmap.context.strokeStyle = '#f00';
+                            element.bitmap.context.strokeRect(
+                                redrawRect.x|0, redrawRect.y|0,
+                                redrawRect.width|0, redrawRect.height|0
+                            );
                         }
                     }
                 }
