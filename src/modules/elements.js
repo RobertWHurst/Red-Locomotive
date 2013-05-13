@@ -28,20 +28,16 @@ function Elements(engine, config){
 
         var api = element.api = {
             uid: uid,
-            get x() { return getSetPosOrDim('x', element); },
-            set x(value) { return getSetPosOrDim('x', element, value); },
-            get y() { return getSetPosOrDim('y', element); },
-            set y(value) { return getSetPosOrDim('y', element, value); },
-            get cx() { return getSetPosOrDim('cx', element); },
-            set cx(value) { return getSetPosOrDim('cx', element, value); },
-            get cy() { return getSetPosOrDim('cy', element); },
-            set cy(value) { return getSetPosOrDim('cy', element, value); },
-            get z() { return getSetPosOrDim('z', element); },
-            set z(value) { return getSetPosOrDim('z', element, value); },
-            get width() { return getSetPosOrDim('width', element); },
-            set width(value) { return getSetPosOrDim('width', element, value); },
-            get height() { return getSetPosOrDim('height', element); },
-            set height(value) { return getSetPosOrDim('height', element, value); },
+            get x() { return getSet('x', element); },
+            set x(value) { return getSet('x', element, value); },
+            get y() { return getSet('y', element); },
+            set y(value) { return getSet('y', element, value); },
+            get z() { return getSet('z', element); },
+            set z(value) { return getSet('z', element, value); },
+            get width() { return getSet('width', element); },
+            set width(value) { return getSet('width', element, value); },
+            get height() { return getSet('height', element); },
+            set height(value) { return getSet('height', element, value); },
             get sprite() { return getSetSprite(element); },
             set sprite(spriteApi) { return getSetSprite(element, spriteApi); },
             clear: function() { clear(element); },
@@ -53,16 +49,7 @@ function Elements(engine, config){
         return api;
     }
 
-    function getSetPosOrDim(property, element, value) {
-        if(
-            property != 'x' &&
-            property != 'y' &&
-            property != 'cx' &&
-            property != 'cy' &&
-            property != 'z' &&
-            property != 'width' &&
-            property != 'height'
-        ) { return; }
+    function getSet(property, element, value) {
         if(value != undefined) {
             if(element.bitmap) {
                 if(property == 'width') { element.bitmap.width = value; }
@@ -97,7 +84,7 @@ function Elements(engine, config){
     }
 
     function redraw(element, child) {
-        element.redraw = true;
+        if(!element.redraw) { element.redraw = true; }
         var rect = Rect(child.x, child.y, child.width, child.height);
         var overlapingRects = element.redrawIndex.remove(rect);
         while(overlapingRects[0]) {
@@ -109,7 +96,7 @@ function Elements(engine, config){
     function index(element) {
         if(!element.parent) { return }
         element.drawOrder = element.parent.childDrawOrder();
-        element.parent.childIndex.insert(element);
+        element.parent.childIndex.insert(element, element);
         redraw(element.parent, element);
     }
 
