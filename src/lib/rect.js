@@ -13,38 +13,16 @@ function Rect(x, y, width, height) {
     var rect = {
         x: x || 0,
         y: y || 0,
-        get cx() { return cx(rect); },
-        set cx(value) { return cx(rect, value); },
-        get cy() { return cy(rect); },
-        set cy(value) { return cy(rect, value); },
         width: width || 0,
         height: height || 0
     };
     return rect;
 }
 
-function cx(rect, newCx) {
-    var curCx = rect.x + (rect.width / 2);
-    if(newCx != undefined) {
-        rect.x += newCx - curCx;
-    }
-    return curCx;
-}
-
-function cy(rect, newCy) {
-    var curCy = rect.y + (rect.height / 2);
-    if(newCy != undefined) {
-        rect.y += newCy - curCy;
-    }
-    return curCy;
-}
-
 function isRect(obj) {
     return (
         typeof obj.x == 'number' &&
         typeof obj.y == 'number' &&
-        typeof obj.cx == 'number' &&
-        typeof obj.cy == 'number' &&
         typeof obj.width == 'number' &&
         typeof obj.height == 'number'
     );
