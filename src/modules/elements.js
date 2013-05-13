@@ -88,9 +88,18 @@ function Elements(engine, config){
         var rect = Rect(child.x, child.y, child.width, child.height);
         var overlapingRects = element.redrawIndex.remove(rect);
         while(overlapingRects[0]) {
-            rect = Rect.merge(rect, overlapingRects.shift());
+            var orect = overlapingRects.shift().rect;
+            rect = Rect.merge(rect, orect);
         }
-        element.redrawIndex.insert(rect);
+        if(rect.width > 400 || rect.height > 400) {
+            var rects = Rect.split(rect);
+            while(rects[0]) {
+                var rect = rects.shift();
+                element.redrawIndex.insert(rect);
+            }
+        } else {
+            element.redrawIndex.insert(rect);
+        }
     }
 
     function index(element) {
