@@ -38,21 +38,32 @@ function Clock(Hz, maxBatchSize) {
     })();
 
     if(typeof window == 'object') {
-        window.addEventListener('focus', function() { visible = true; start(); });
-        window.addEventListener('blur', function() { visible = false; });
+        window.addEventListener('focus', function() {
+            visible = true;
+            if(paused) { return; }
+            init();
+        });
+        window.addEventListener('blur', function() {
+            visible = false;
+        });
     }
 
     return api;
 
     function start() {
-        if(paused) { paused = false; }
-        clockTime = Date.now();
-        scheduledTicks = 0;
-        exec();
+        if(!paused) { return; }
+        paused = false;
+        init();
     }
 
     function stop() {
         paused = true;
+    }
+
+    function init() {
+        clockTime = Date.now();
+        scheduledTicks = 0;
+        exec();
     }
 
     /**
