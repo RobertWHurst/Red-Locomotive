@@ -1,6 +1,7 @@
 module.exports = Rect;
 module.exports.trim = trimRect;
 module.exports.merge = mergeRect;
+module.exports.split = splitRect;
 module.exports.contains = containsRect;
 module.exports.overlaps = overlapsRect;
 module.exports.is = isRect;
@@ -44,6 +45,15 @@ function mergeRect(rectA, rectB) {
     }
 
     return Rect(x, y, width, height);
+}
+
+function splitRect(rect) {
+    return [
+        Rect(rect.x + rect.width / 2,   rect.y,                     rect.width / 2, rect.height / 2),
+        Rect(rect.x + rect.width / 2,   rect.y + rect.height / 2,   rect.width / 2, rect.height / 2),
+        Rect(rect.x,                    rect.y + rect.height / 2,   rect.width / 2, rect.height / 2),
+        Rect(rect.x,                    rect.y,                     rect.width / 2, rect.height / 2)
+    ];
 }
 
 function trimRect(rectA, rectB) {
