@@ -31,7 +31,7 @@ function extend(    ) {
 }
 
 function random(limit) {
-    return Math.floor(Math.random() * (limit || 100)) || 0
+    return Math.random() * (limit || 100) || 0
 }
 
 function round(number, precision) {
