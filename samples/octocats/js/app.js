@@ -18,16 +18,6 @@ window.addEventListener('load', function() {
     var sprite = app.Sprite('foo', 'https://a248.e.akamai.net/assets.github.com/images/modules/logos_page/Octocat.png?1366128849');
     sprite.bind('ready', function() {
 
-        // var x, y;
-        // window.addEventListener('mousemove', function(event) {
-        //     x = event.pageX;
-        //     y = event.pageY;
-        // });
-        // app.bind('tick', function() {
-        //     foo.cx = x;
-        //     foo.cy = y;
-        // });
-
         var foo = app.Element('foo', -800, 100, 0, 800, 665, sprite);
         app.bind('tick', function() {
             foo.x += 1;
@@ -40,7 +30,7 @@ window.addEventListener('load', function() {
             if(bar.x < -800) { bar.x = innerWidth + 800; }
         });
 
-        var baz = app.Element('bar', innerWidth / 2 - 400, -665, 0, 800, 665, sprite);
+        var baz = app.Element('baz', innerWidth / 2 - 400, -665, 0, 800, 665, sprite);
         app.bind('tick', function() {
             baz.y += 1;
             if(baz.y >= innerHeight + baz.height) { baz.y = -665; }
