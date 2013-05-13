@@ -15,7 +15,7 @@ describe('uidRegistry()', function() {
         var uids = [];
         var uidTestRange = 500;
         var i = uidTestRange;
-        while(i--) { uids.push(uidRegistry('uid')); }
+        while(i--) { uids.push(uidRegistry()); }
         for(i = 0; i < uidTestRange; i++) {
             var a = uids[i];
             for(var ii = 0; ii < uidTestRange; ii++) {

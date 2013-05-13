@@ -58,32 +58,32 @@ describe('quadTree{}', function() {
 
     it('should return inserted data within an given area', function() {
         var data = {x: -64, y: -64, width: 64, height: 64 };
-        q.insert(data);
+        q.insert(data, data);
         var results = q.get({x: 0, y: 0, width: 64, height: 64 });
         if(results[0]) { throw new Error('should not return data from empty region'); }
         results = q.get({x: -64, y: -64, width: 64, height: 64 });
-        if(results[0] != data) { throw new Error('did not return previously inserted data'); }
+        if(results[0].data != data) { throw new Error('did not return previously inserted data'); }
     });
 
     it('should remove inserted data within an given area', function() {
         var data0 = {x: -64, y: -64, width: 64, height: 64 };
         var data1 = {x: 0, y: 0, width: 64, height: 64 };
-        q.insert(data0);
-        q.insert(data1);
+        q.insert(data0, data0);
+        q.insert(data1, data1);
         var removed = q.remove({x: 0, y: 0, width: 64, height: 64 });
         if(q.root.leafs[0].x != data0.x) { throw new Error('remaining leaf did not mach x coordinate'); }
         if(q.root.leafs[0].y != data0.y) { throw new Error('remaining leaf did not mach y coordinate'); }
         if(q.root.leafs[0].width != data0.width) { throw new Error('remaining leaf did not mach width'); }
         if(q.root.leafs[0].height != data0.height) { throw new Error('remaining leaf did not mach height'); }
         if(q.root.leafs[1]) { throw new Error('leaf was not removed'); }
-        if(removed[0] != data1) { throw new Error('removed leaf was not returned'); }
+        if(removed[0].data != data1) { throw new Error('removed leaf was not returned'); }
     })
 
     it('should remove only given data when specified', function() {
         var data0 = {x: -64, y: -64, width: 64, height: 64 };
         var data1 = {x: -32, y: -32, width: 64, height: 64 };
-        q.insert(data0);
-        q.insert(data1);
+        q.insert(data0, data0);
+        q.insert(data1, data1);
         q.remove({x: -32, y: -32, width: 64, height: 64 }, data1);
         if(q.root.leafs[0].x != data0.x) { throw new Error('remaining leaf did not mach x coordinate'); }
         if(q.root.leafs[0].y != data0.y) { throw new Error('remaining leaf did not mach y coordinate'); }
