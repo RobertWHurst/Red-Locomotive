@@ -5,9 +5,6 @@ module.exports.fromPoint = fromPoint;
 module.exports.fromVector = fromVector;
 
 function Quad(quadrant, opposite, adjacent) {
-    if(quadrant != undefined && typeof quadrant != 'number') { throw new Error('quadrant must be a number'); }
-    if(opposite != undefined && typeof opposite != 'number') { throw new Error('opposite must be a number'); }
-    if(adjacent != undefined && typeof adjacent != 'number') { throw new Error('adjacent must be a number'); }
     var quad = {
         q: quadrant ? quadrant - (Math.floor(quadrant / 4) * 4) : 0,
         o: opposite ? Math.abs(opposite) : 0,

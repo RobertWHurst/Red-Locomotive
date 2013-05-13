@@ -6,8 +6,6 @@ module.exports.fromQuad = fromQuad;
 module.exports.relativeTo = relativeTo;
 
 function Point(x, y) {
-    if(x != undefined && typeof x != 'number') { throw new Error('x must be a number'); }
-    if(y != undefined && typeof y != 'number') { throw new Error('y must be a number'); }
     var rect = {
         x: x || 0,
         y: y || 0,

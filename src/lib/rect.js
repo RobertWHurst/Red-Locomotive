@@ -7,10 +7,6 @@ module.exports.overlaps = overlapsRect;
 module.exports.is = isRect;
 
 function Rect(x, y, width, height) {
-    if(x != undefined && typeof x != 'number') { throw new Error('x must be a number'); }
-    if(y != undefined && typeof y != 'number') { throw new Error('y must be a number'); }
-    if(width != undefined && typeof width != 'number') { throw new Error('width must be a number'); }
-    if(height != undefined && typeof height != 'number') { throw new Error('height must be a number'); }
     var rect = {
         x: x || 0,
         y: y || 0,
