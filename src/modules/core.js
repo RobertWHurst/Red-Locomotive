@@ -15,6 +15,7 @@ function Core(engine, options) {
     engine.info = info;
     engine.warn = warn;
     engine.error = error;
+    engine.config = getSetConfig;
 
     clock.onTick = function() { engine.trigger('tick'); };
 
@@ -38,4 +39,10 @@ function Core(engine, options) {
         log.apply(null, ['error'].concat(args));
     }
 
+    function getSetConfig(key, value) {
+        if(value != undefined) {
+            options[key] = value
+        }
+        return options[key];
+    }
 }
