@@ -1,11 +1,8 @@
 var Rect = require('./rect');
-var UidRegistry = require('./uid-registry');
 
 module.exports = QuadTree;
 
 function QuadTree(size, maxLeafsPerNode, maxDepth, x, y) {
-    var LeafUid = UidRegistry();
-    var leafData = {};
 
     size = size || 4096;
     maxLeafsPerNode = maxLeafsPerNode || 4;
@@ -27,35 +24,55 @@ function QuadTree(size, maxLeafsPerNode, maxDepth, x, y) {
     return api;
 
     function Node(x, y, size, depth) {
-        var node = Rect(x, y, size, size);
+        var node = {
+            x: x,
+            y: y,
+            width: size,
+            height: size
+        };
         node.leafs = [];
         node.depth = depth;
         return node;
     }
 
-    function Leaf(data) {
-        var leaf = Rect(data.x, data.y, data.width, data.height);
-        leaf.uid = LeafUid();
-        leafData[leaf.uid] = data;
+    function Leaf(rect, data) {
+        var leaf = {
+            x: rect.x,
+            y: rect.y,
+            width: rect.width,
+            height: rect.height,
+            data: data
+        };
         return leaf;
     }
 
-    function insert(data) {
-        return insertLeaf(quadTree, Leaf(data));
+    function insert(rect, data) {
+        return insertLeaf(quadTree, Leaf(rect, data));
     }
 
-    function get(rect) {
-        var leafs = getLeaf(quadTree, rect);
+    function get(rect, data) {
+        if(data != undefined) {
+            var leafs = getLeaf(quadTree, rect, dataFilter);
+        } else {
+            var leafs = getLeaf(quadTree, rect);
+        }
+
         var results = [];
-        var uids = [];
+        var uniqueLeafs = [];
         while(leafs[0]) {
             var leaf = leafs.shift();
-            if(uids.indexOf(leaf.uid) == -1) {
-                uids.push(leaf.uid);
-                results.push(leafData[leaf.uid]);
-            }
+            if(uniqueLeafs.indexOf(leaf) != -1) { continue; }
+            uniqueLeafs.push(leaf);
+            var result = {};
+            result.rect = Rect(leaf.x, leaf.y, leaf.width, leaf.height);
+            if(leaf.data != undefined) { result.data = leaf.data; }
+            results.push(result);
         }
         return results;
+
+        function dataFilter(leaf) {
+            return leaf.data == data;
+        }
     }
 
     function remove(rect, data) {
@@ -66,20 +83,23 @@ function QuadTree(size, maxLeafsPerNode, maxDepth, x, y) {
         }
 
         var results = [];
-        var uids = [];
+        var uniqueLeafs = [];
         while(leafs[0]) {
             var leaf = leafs.shift();
-            if(uids.indexOf(leaf.uid) == -1) {
-                results.push(leafData[leaf.uid]);
-                removeLeaf(quadTree, leaf);
-                LeafUid.clear(leaf.uid);
-                uids.push(leaf.uid);
-            }
+            if(uniqueLeafs.indexOf(leaf) != -1) { continue; }
+            uniqueLeafs.push(leaf);
+
+            var result = {};
+            result.rect = Rect(leaf.x, leaf.y, leaf.width, leaf.height);
+            if(leaf.data != undefined) { result.data = leaf.data; }
+            results.push(result);
+
+            removeLeaf(quadTree, leaf);
         }
         return results;
 
         function dataFilter(leaf) {
-            return leafData[leaf.uid] == data;
+            return leaf.data == data;
         }
     }
 
@@ -126,10 +146,10 @@ function QuadTree(size, maxLeafsPerNode, maxDepth, x, y) {
     function removeLeaf(node, leaf) {
         var leafs = [];
         if(node.leafs) {
-            for(var iI = 0; iI < node.leafs.length; iI += 1) {
-                if(leaf.uid == node.leafs[iI].uid) {
+            for(var iI = 0, ln = node.leafs.length; iI < ln; iI += 1) {
+                if(leaf == node.leafs[iI]) {
                     leafs.push(node.leafs.splice(iI, 1)[0]);
-                    iI -= 1;
+                    iI -= 1; ln -= 1;
                 }
             }
         } else {
@@ -171,8 +191,8 @@ function QuadTree(size, maxLeafsPerNode, maxDepth, x, y) {
         //TODO: compute the new size rather than taking stabs at it.
         var newSize = quadTree.width * 2;
         var leafs = getLeaf(quadTree, quadTree);
-        if(leaf.cy < quadTree.cy) {
-            if(leaf.cx < quadTree.cx) {
+        if(leaf.y + (leaf.height / 2) < quadTree.y + (quadTree.height / 2)) {
+            if(leaf.x + (leaf.width / 2) < quadTree.x + (quadTree.width / 2)) {
                 var x = quadTree.x - quadTree.width;
                 var y = quadTree.y - quadTree.width;
             } else {
