@@ -1,6 +1,7 @@
 RL = RedLocomotive;
 
 var app = RL();
+app.config('showRedrawRects', true);
 var viewport = app.Viewport('main', 0, 0, 0, 0, '#fff');
 
 window.addEventListener('load', function() {

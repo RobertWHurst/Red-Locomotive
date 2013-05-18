@@ -35,14 +35,25 @@ window.addEventListener('load', function() {
             app.config('showRedrawRects', !app.config('showRedrawRects'));
         }
         if(event.keyCode == 66) {
-            createBunny(i++);
+            var ii = 50;
+            while(ii--) {
+                createBunny(i++);
+            }
         }
     });
 
     function createBunny(id) {
-        var bunny = app.Element('bunny-' + id, RL.random(100), RL.random(100), 0, 26, 36, bunnySprite);
-        var xd = RL.random(1) + 0.1;
-        var yd = RL.random(1) + 0.1;
+        var bunny = app.Element(
+            'bunny-' + id,
+            (innerWidth / 2) + (RL.random(100) - 50) - 26,
+            (innerHeight / 2) + (RL.random(100) - 50) - 36,
+            0,
+            26,
+            36,
+            bunnySprite
+        );
+        var xd = RL.random(4) - 2;
+        var yd = RL.random(4) - 2;
         app.bind('tick', function() {
             bunny.x += xd;
             bunny.y += yd;
