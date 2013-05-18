@@ -1,6 +1,7 @@
 var Bitmap = require('../lib/bitmap');
 var Clock = require('../lib/clock');
 var Rect = require('../lib/rect');
+var QuadTree = require('../lib/quad-tree');
 var UidRegistry = require('../lib/uid-registry');
 var t = require('../lib/tools');
 
@@ -26,11 +27,13 @@ function Viewports(engine, config){
             y = undefined;
         }
 
-        var viewport = Rect(x, y, width, height);
 
-        var clock = Clock('r');
+        var clock = Clock('r', 1);
         clock.onTick = render;
 
+        var redrawIndex = QuadTree();
+
+        var viewport = Rect(x, y, width, height);
         viewport.uid = uid;
         viewport.fillStyle = fillStyle;
         viewport.bitmap = Bitmap(width, height);
@@ -86,18 +89,43 @@ function Viewports(engine, config){
                 //redraw if nessisary
                 if(element.redraw) {
 
+
+                    //COMPUTE MODIFIED SCREEN AREA
+
+                    //add any redraw rects owned by the current element
+                    if(element.redrawRect) {
+                        redrawIndex.insert(element.redrawRect);
+                        element.redrawRect = undefined;
+                    }
+
+                    //get the elements within the element
+                    var children = element.childIndex.get(element.parent);
+                    while(children[0]) {
+                        var child = children.shift().data;
+                        var rect = child.redrawRect;
+                        child.redrawRect = undefined;
+                        if(rect) {
+                            var overlapingRects = redrawIndex.get(rect);
+                            while(overlapingRects[0]) {
+                                var rect = Rect.merge(overlapingRects.shift().rect, rect);
+                            }
+                            redrawIndex.insert(rect);
+                        }
+                    }
+
+
+                    //REDRAW MODIFIED AREA
+
                     //get the areas for redraw
-                    var redrawRects = element.redrawIndex.remove(element.parent);
+                    var redrawRects = redrawIndex.remove(redrawIndex.root);
                     while(redrawRects[0]) {
-                        var redrawRect = Rect.trim(redrawRects.shift().rect, element.parent);
-                        redrawRect.x -= 1;
-                        redrawRect.y -= 1;
-                        redrawRect.width += 2;
-                        redrawRect.height += 2;
+                        //var redrawRect = Rect.trim(redrawRects.shift().rect, element.parent);
+                        var redrawRect = redrawRects.shift().rect;
+                        if(redrawRect.width < 1 || redrawRect.height < 1) { continue; }
 
                         //clear the redraw area
                         element.bitmap.context.clearRect(
-                            redrawRect.x|0, redrawRect.y|0,
+                            redrawRect.x|0,     redrawRect.y|0,
                             redrawRect.width|0, redrawRect.height|0
                         );
 

@@ -54,11 +54,11 @@ function Elements(engine, config){
             if(element.bitmap) {
                 if(property == 'width') { element.bitmap.width = value; }
                 if(property == 'height') { element.bitmap.height = value; }
-                redraw(element, element);
             }
             unIndex(element);
             element[property] = value;
             index(element);
+            redraw(element, element);
         }
         return element[property];
     }
@@ -66,6 +66,7 @@ function Elements(engine, config){
     function getSetSprite(element, sprite) {
         if(sprite != undefined) {
             element.sprite = Sprite.rawAccess(sprite);
+            redraw(element, element);
             return sprite;
         } else if(element.sprite && element.sprite.api) {
             return element.sprite.api;
@@ -77,54 +78,43 @@ function Elements(engine, config){
     function upgrade(element) {
         if(element.childIndex) { return; }
         element.childIndex = QuadTree();
-        element.redrawIndex = QuadTree();
         element.redraw = true; //set to true for first draw
         element.bitmap = Bitmap(element.width, element.height);
-        element.childDrawOrder = UidRegistry();
+        element.childDrawOrder = 0;
     }
 
-    function redraw(element, child) {
-        if(!element.redraw) { element.redraw = true; }
-        var rect = Rect(child.x, child.y, child.width, child.height);
-        var overlapingRects = element.redrawIndex.remove(rect);
-        while(overlapingRects[0]) {
-            var orect = overlapingRects.shift().rect;
-            rect = Rect.merge(rect, orect);
-        }
-        if(rect.width > 400 || rect.height > 400) {
-            var rects = Rect.split(rect);
-            while(rects[0]) {
-                var rect = rects.shift();
-                element.redrawIndex.insert(rect);
-            }
+    function redraw(element, rect) {
+        if(element.parent && !element.parent.redraw) { element.parent.redraw = true; }
+        rect = Rect(rect.x - 2, rect.y - 2, rect.width + 4, rect.height + 4);
+        if(element.redrawRect) {
+            element.redrawRect = Rect.merge(element.redrawRect, rect);
         } else {
-            element.redrawIndex.insert(rect);
+            element.redrawRect = rect;
         }
     }
 
     function index(element) {
         if(!element.parent) { return }
-        element.drawOrder = element.parent.childDrawOrder();
+        element.drawOrder = element.parent.childDrawOrder += 1;
         element.parent.childIndex.insert(element, element);
-        redraw(element.parent, element);
     }
 
     function unIndex(element) {
         if(!element.parent) { return; }
-        redraw(element.parent, element);
         element.parent.childIndex.remove(element, element);
-        element.parent.childDrawOrder.clear(element.drawOrder);
     }
 
     function appendChild(parent, element) {
         upgrade(parent);
         element.parent = parent;
+        redraw(element, element);
         index(element);
     }
 
     function removeChild(parent, element) {
         if(!parent.childIndex) { return; }
         unIndex(element);
+        redraw(parent, element);
         element.parent = undefined;
     }
 
