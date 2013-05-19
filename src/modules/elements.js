@@ -58,8 +58,8 @@ function Elements(engine, config){
             }
             unIndex(element);
             element[property] = value;
+            if(element.parent) { element.parent.update = true; }
             index(element);
-            redraw(element, element);
         }
         return element[property];
     }
@@ -67,7 +67,7 @@ function Elements(engine, config){
     function getSetSprite(element, sprite) {
         if(sprite != undefined) {
             element.sprite = Sprite.rawAccess(sprite);
-            redraw(element, element);
+            if(element.parent) { element.parent.update = true; }
             return sprite;
         } else if(element.sprite && element.sprite.api) {
             return element.sprite.api;
@@ -77,26 +77,18 @@ function Elements(engine, config){
     // Upgrades an element so it can contain sub elements
     // This is done later to prevent preformance lost
     function upgrade(element) {
-        if(element.childIndex) { return; }
-        element.childIndex = QuadTree();
-        element.redraw = true; //set to true for first draw
+        if(element.bitmap) { return; }
         element.bitmap = Bitmap(element.width, element.height);
+        element.childIndex = QuadTree();
+        element.drawData = {};
+        element.drawData.index = QuadTree();
+        element.drawData.lastDrawn = [];
+        element.drawData.children = {};
         element.childDrawOrder = 0;
-    }
-
-    function redraw(element, rect) {
-        if(element.parent && !element.parent.redraw) { element.parent.redraw = true; }
-        rect = Rect(rect.x, rect.y, rect.width, rect.height);
-        if(element.redrawRect) {
-            element.redrawRect = Rect.merge(element.redrawRect, rect);
-        } else {
-            element.redrawRect = Rect(rect.x, rect.y, rect.width, rect.height);
-        }
     }
 
     function index(element) {
         if(!element.parent) { return }
-        element.drawOrder = element.parent.childDrawOrder += 1;
         element.parent.childIndex.insert(element, element);
     }
 
@@ -107,16 +99,17 @@ function Elements(engine, config){
 
     function appendChild(parent, element) {
         upgrade(parent);
+        parent.update = true;
         element.parent = parent;
-        redraw(element, element);
+        element.drawOrder = parent.childDrawOrder += 1;
         index(element);
     }
 
     function removeChild(parent, element) {
         if(!parent.childIndex) { return; }
         unIndex(element);
-        redraw(parent, element);
         element.parent = undefined;
+        element.drawOrder = undefined;
     }
 
     function rawAccess(api) {

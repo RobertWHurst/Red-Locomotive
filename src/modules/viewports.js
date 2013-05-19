@@ -31,18 +31,15 @@ function Viewports(engine, config){
         var clock = Clock('r', 1);
         clock.onTick = render;
 
-        var redrawIndex = QuadTree();
-
         var viewport = Rect(x, y, width, height);
         viewport.uid = uid;
         viewport.fillStyle = fillStyle;
         viewport.bitmap = Bitmap(width, height);
-
         viewports[uid] = viewport;
 
         var api = {
-            get stage() { return stage(); },
-            set stage(value) { return stage(value); }
+            get stage() { return getSetStage(); },
+            set stage(value) { return getSetStage(value); }
         };
         api.uid = uid;
         api.element = viewport.bitmap;
@@ -55,13 +52,14 @@ function Viewports(engine, config){
 
         return api;
 
-        function stage(stage) {
+        function getSetStage(stage) {
             if(stage != undefined) { 
-                viewport.stage = Stage.rawAccess(stage);
-                viewport.stage.parent = viewport;
-                viewport.stage.bitmap.width = viewport.width;
-                viewport.stage.bitmap.height = viewport.height;
-                viewport.stage.bitmap = viewport.bitmap;
+                stage = viewport.stage = Stage.rawAccess(stage);
+                stage.parent = viewport;
+                stage.width = viewport.width;
+                stage.height = viewport.height;
+                stage.bitmap = viewport.bitmap;
+                window.s = stage;
                 return stage;
             } else if(viewport.stage && viewport.stage.api) {
                 return viewport.stage.api;
@@ -76,140 +74,143 @@ function Viewports(engine, config){
 
         function renderElement(element) {
 
-            //return sprite bitmap
-            if(!element.bitmap) {
-                if(element.sprite && element.sprite.ready) {
-                    return element.sprite.bitmap;
-                }
-            } 
+            //Composite Element with Children (and maybe a sprite)
+            if(element.bitmap) {
 
-            //return composited bitmap
-            else {
+                //if the element has been updated
+                if(element.update) {
+                    element.update = false;
 
-                //redraw if nessisary
-                if(element.redraw) {
-                    element.redraw = false;
+                    // compute the visible area
+                    var visibleRect = Rect(
+                        -element.x,
+                        -element.y,
+                        element.width,
+                        element.height
+                    );
 
-                    if(config.showRedrawRects) {
-                        element.bitmap.context.clearRect(0, 0, element.bitmap.width, element.bitmap.height);
-                    }
+                    // get all children in view
+                    var children = element.childIndex.get(visibleRect);
 
-                    //COMPUTE MODIFIED SCREEN AREA
-
-                    //add any redraw rects owned by the current element
-                    if(element.redrawRect) {
-                        redrawIndex.insert(element.redrawRect);
-                        element.redrawRect = Rect(
-                            element.x,
-                            element.y,
-                            element.width,
-                            element.height
-                        );
-                    }
-
-                    //get the elements within the element
-                    var children = element.childIndex.get(element.parent);
-                    while(children[0]) {
-                        var child = children.shift().data;
-                        var rect = child.redrawRect;
-                        child.redrawRect = Rect(
-                            child.x,
-                            child.y,
-                            child.width,
-                            child.height
-                        );
-                        if(rect) {
-                            var overlapingRects = redrawIndex.remove(rect);
-                            while(overlapingRects[0]) {
-                                var _rect = overlapingRects[0].rect;
-                                var clippedRects = Rect.clip(overlapingRects.shift().rect, rect);
-                                while(clippedRects[0]) {
-                                    redrawIndex.insert(clippedRects.shift());
-                                }
+                    // add children that just left the view (clean up exiting artifacts)
+                    while(element.drawData.lastDrawn[0]) {
+                        var child = element.drawData.lastDrawn.shift();
+                        var cI = children.length - 1;
+                        while(cI > 0) {
+                            cI -= 1;
+                            if(children[cI].data == child.data) {
+                                child = undefined;
+                                break;
                             }
-                            redrawIndex.insert(rect);
+                        }
+                        if(child) {
+                            children.unshift(child);
                         }
                     }
 
+                    // compute the area to redraw relative to the screen
+                    while(children[0]) {
+                        element.drawData.lastDrawn.push(children[0]);
+                        var child = children[0].data;
+                        var childRect = children.shift().rect;
 
-                    //REDRAW MODIFIED AREA
 
-                    //get the areas for redraw
-                    var redrawRects = redrawIndex.remove(redrawIndex.root);
+                        // compute the relative position of the element to the view
+                        childRect.x += visibleRect.x;
+                        childRect.y += visibleRect.y;
+                        var lastChildRect = element.drawData.children[child.uid] || childRect;
+
+                        // save the relative position to the element so the next cycle can
+                        // track changes in position.
+                        element.drawData.children[child.uid] = childRect;
+
+                        // compute redraw rectangles and add them to the draw index
+                        var redrawRects = Rect.clip(lastChildRect, childRect);
+                        redrawRects.unshift(childRect);
+                        while(redrawRects[0]) {
+
+                            // Prevent overlapping redraw rects by removing all overlapping
+                            // rects already in the index, clip each of them, and then re-add
+                            // them to the index.
+                            var overlappingRects = element.drawData.index.remove(redrawRects[0]);
+                            while(overlappingRects[0]) {
+                                var clippedRects = Rect.clip(overlappingRects.shift().rect, redrawRects[0]);
+                                while(clippedRects[0]) {
+                                    element.drawData.index.insert(clippedRects.shift());
+                                }
+                            }
+
+                            //insert the redraw rect
+                            element.drawData.index.insert(redrawRects.shift());
+                        }
+
+                    }
+
+                    // redraw the view in updated areas
+                    var redrawRects = element.drawData.index.remove(element.drawData.index.root);
                     while(redrawRects[0]) {
-                        //var redrawRect = Rect.trim(redrawRects.shift().rect, element.parent);
-                        var redrawRect = redrawRects.shift().rect;
+                        var redrawRect = Rect.trim(redrawRects.shift().rect, element);
 
-                        redrawRect.width += 1;
-                        redrawRect.height += 1;
+                        var rx = redrawRect.x - 1;
+                        var ry = redrawRect.y - 1;
+                        var rw = redrawRect.width + 2;
+                        var rh = redrawRect.height + 2;
 
-                        if(redrawRect.width < 1 || redrawRect.height < 1) { continue; }
+                        // erase the view under the redraw rect
+                        element.bitmap.context.clearRect(rx, ry, rw, rh);
+                        if(config.showRedrawRects) {
+                            element.bitmap.context.strokeStyle = "rgba(255, 0, 0, 0.5)";
+                            element.bitmap.context.strokeRect(rx, ry, rw, rh);
+                        }
 
-                        //clear the redraw area
-                        element.bitmap.context.clearRect(
-                            redrawRect.x|0,     redrawRect.y|0,
-                            redrawRect.width|0, redrawRect.height|0
+                        // get the absolute pos of the redraw Rect
+                        // so children indexed that overlap the
+                        // absolute pos can be gathered for to be
+                        // redrawn
+                        var absRedrawRect = Rect(
+                            rx - visibleRect.x,
+                            ry - visibleRect.y,
+                            rw,
+                            rh
                         );
 
-                        //redraw the current redrawRect
-                        var children = element.childIndex.get(redrawRect).sort(elementSort);
+                        // get all children within the redraw rect
+                        // sorted so they are drawn in the correct
+                        // order.
+                        var children = element.childIndex.get(absRedrawRect).sort(elementIndexSort);
                         while(children[0]) {
                             var child = children.shift().data;
 
-                            //MASK
-                            var pw = redrawRect.width;
-                            var ph = redrawRect.height;
-                            var px = redrawRect.x;
-                            var py = redrawRect.y;
-                            var pxx = px + pw;
-                            var pyy = py + ph;
+                            // get the child's relative rect relative to
+                            // the view
+                            var cx = child.x + visibleRect.x;
+                            var cy = child.y + visibleRect.y;
+                            var cw = child.width;
+                            var ch = child.height;
 
-                            //ELEMENT
-                            var z = 2;
-                            var ew = child.width;
-                            var eh = child.height;
-                            var ex = child.x;
-                            var ey = child.y;
-                            var exx = ex + ew;
-                            var eyy = ey + eh;
+                            // calculate what part of the child's bitmap
+                            // to draw from.
+                            // TODO: scale should be calculated by child
+                            // scale vs element zoom.
+                            var scale = 1;
+                            var sx = (Math.max(cx, rx) - cx) / scale;
+                            var sy = (Math.max(cy, ry) - cy) / scale;
+                            var sw = (Math.min(cx + cw, rx + rw) - Math.max(cx, rx)) / scale;
+                            var sh = (Math.min(cy + ch, ry + rh) - Math.max(cy, ry)) / scale;
 
-                            //CLIPPING
-                            var cl = ex < px ? px - ex : 0;
-                            var ct = ey < py ? py - ey : 0;
-                            var cr = pxx < exx ? exx - pxx : 0;
-                            var cb = pyy < eyy ? eyy - pyy : 0;
+                            // calculate where the source data should be
+                            // drawn too
+                            var dx = cx + (sx * scale);
+                            var dy = cy + (sy * scale);
+                            var dw = sw * scale;
+                            var dh = sh * scale;
 
-                            //SOURCE BITMAP
-                            var sx = cl;
-                            var sy = ct;
-                            var sw = ew - cl - cr;
-                            var sh = eh - ct - cb;
+                            if(sw < 1 || sh < 1 || dw < 1 || dh < 1) { continue; }
 
-
-                            //DESTINATION BITMAP
-                            var dx = ex + cl;
-                            var dy = ey + ct;
-                            var dw = ew - cl - cr;
-                            var dh = eh - ct - cb;
-
-                            //draw the child to the bitmap
-                            if(dw > 0 && dh > 0 && sw > 0 && sh > 0) {
-                                element.bitmap.context.drawImage(
-                                    renderElement(child),
-                                    sx|0, sy|0, 
-                                    sw|0, sh|0,
-                                    dx|0, dy|0,
-                                    dw|0, dh|0
-                                );
-                            }
-                        }
-
-                        if(config.showRedrawRects) {
-                            element.bitmap.context.strokeStyle = '#f00';
-                            element.bitmap.context.lineWidth = 1;
-                            element.bitmap.context.strokeRect(
-                                redrawRect.x+0.5, redrawRect.y+0.5|0,
-                                redrawRect.width-1|0, redrawRect.height-1|0
+                            element.bitmap.context.drawImage(
+                                renderElement(child),
+                                sx, sy, sw, sh,
+                                dx, dy, dw, dh
                             );
                         }
                     }
@@ -217,17 +218,22 @@ function Viewports(engine, config){
 
                 return element.bitmap;
             }
+
+            //Simple Element with sprite
+            else if(element.sprite) {
+                return element.sprite.bitmap;
+            }
         }
 
-        function elementSort(elementA, elementB) {
-            if(elementA.z > elementB.z) {
+        function elementIndexSort(elementA, elementB) {
+            if(elementA.data.z > elementB.data.z) {
                 return 1;
-            } else if(elementA.z < elementB.z) {
+            } else if(elementA.data.z < elementB.data.z) {
                 return -1;
             } else {
-                if(elementA.drawOrder > elementB.drawOrder){
+                if(elementA.data.drawOrder > elementB.data.drawOrder){
                     return 1;
-                } else if(elementA.drawOrder < elementB.drawOrder) {
+                } else if(elementA.data.drawOrder < elementB.data.drawOrder) {
                     return -1;
                 } else {
                     return 0;
@@ -243,8 +249,8 @@ function Viewports(engine, config){
             viewport.width = viewport.bitmap.width = width;
             viewport.height = viewport.bitmap.height = height;
             if(viewport.stage) {
-                viewport.stage.bitmap.width = width;
-                viewport.stage.bitmap.height = height;
+                viewport.stage.width = width;
+                viewport.stage.height = height;
             }
         }
 
