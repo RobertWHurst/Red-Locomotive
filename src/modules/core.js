@@ -6,7 +6,7 @@ module.exports = Core;
 
 function Core(engine, options) {
     var logs = {};
-    var clock = Clock(options.coreClock || 1000);
+    var clock = Clock(options.coreClock || 100);
 
     Emitter(engine);
     engine.start = clock.start;

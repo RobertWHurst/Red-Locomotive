@@ -35,7 +35,7 @@ window.addEventListener('load', function() {
             app.config('showRedrawRects', !app.config('showRedrawRects'));
         }
         if(event.keyCode == 66) {
-            var ii = 50;
+            var ii = 100;
             while(ii--) {
                 createBunny(i++);
             }
@@ -52,11 +52,13 @@ window.addEventListener('load', function() {
             36,
             bunnySprite
         );
-        var xd = RL.random(1) - 0.5;
-        var yd = RL.random(1) - 0.5;
+        var xd = RL.random(10) - 5;
+        var yd = RL.random(10) - 5;
         app.bind('tick', function() {
             bunny.x += xd;
             bunny.y += yd;
+            // if(bunny.x < -innerWidth || bunny.x + bunny.width > innerWidth * 2) { xd = -xd; }
+            // if(bunny.y < -innerHeight || bunny.y + bunny.height > innerHeight * 2) { yd = -yd; }
             if(bunny.x < 0 || bunny.x + bunny.width > innerWidth) { xd = -xd; }
             if(bunny.y < 0 || bunny.y + bunny.height > innerHeight) { yd = -yd; }
         });

@@ -21,19 +21,19 @@ window.addEventListener('load', function() {
 
         var foo = app.Element('foo', -800, 100, 0, 800, 665, sprite);
         app.bind('tick', function() {
-            foo.x += 1;
+            foo.x += 10;
             if(foo.x >= innerWidth) { foo.x = -foo.width; }
         });
 
         var bar = app.Element('bar', innerWidth + 800, 100, 0, 800, 665, sprite);
         app.bind('tick', function() {
-            bar.x += -1;
+            bar.x += -10;
             if(bar.x < -800) { bar.x = innerWidth + 800; }
         });
 
         var baz = app.Element('baz', innerWidth / 2 - 400, -665, 0, 800, 665, sprite);
         app.bind('tick', function() {
-            baz.y += 1;
+            baz.y += 10;
             if(baz.y >= innerHeight + baz.height) { baz.y = -665; }
         });
 
