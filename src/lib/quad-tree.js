@@ -48,10 +48,22 @@ function QuadTree(size, maxLeafsPerNode, maxDepth, x, y) {
     }
 
     function insert(rect, data) {
+
+        if(typeof rect.x != 'number') { throw new Error('rect must have an x property'); }
+        if(typeof rect.y != 'number') { throw new Error('rect must have an y property'); }
+        if(typeof rect.width != 'number') { throw new Error('rect must have an width property'); }
+        if(typeof rect.height != 'number') { throw new Error('rect must have an height property'); }
+
         return insertLeaf(quadTree, Leaf(rect, data));
     }
 
     function get(rect, data) {
+
+        if(typeof rect.x != 'number') { throw new Error('rect must have an x property'); }
+        if(typeof rect.y != 'number') { throw new Error('rect must have an y property'); }
+        if(typeof rect.width != 'number') { throw new Error('rect must have an width property'); }
+        if(typeof rect.height != 'number') { throw new Error('rect must have an height property'); }
+
         var leafs = [];
         if(data != undefined) {
             getLeaf(leafs, quadTree, rect, dataFilter);
@@ -78,6 +90,12 @@ function QuadTree(size, maxLeafsPerNode, maxDepth, x, y) {
     }
 
     function remove(rect, data) {
+
+        if(typeof rect.x != 'number') { throw new Error('rect must have an x property'); }
+        if(typeof rect.y != 'number') { throw new Error('rect must have an y property'); }
+        if(typeof rect.width != 'number') { throw new Error('rect must have an width property'); }
+        if(typeof rect.height != 'number') { throw new Error('rect must have an height property'); }
+
         var leafs =[];
         if(data != undefined) {
             getLeaf(leafs, quadTree, rect, data);
@@ -130,8 +148,9 @@ function QuadTree(size, maxLeafsPerNode, maxDepth, x, y) {
         if(node.leafs) {
             for(var iI = 0, ln = node.leafs.length; iI < ln; iI += 1) {
                 if(Rect.overlaps(rect, node.leafs[iI])) {
-                    if(data != undefined && node.leafs[iI].data != data) { continue; }
-                    leafs.push(node.leafs[iI]);
+                    if(data == undefined || node.leafs[iI].data == data) {
+                        leafs.push(node.leafs[iI]);
+                    }
                 }
             }
         } else {
