@@ -2,6 +2,7 @@ module.exports = Rect;
 module.exports.trim = trimRect;
 module.exports.merge = mergeRect;
 module.exports.split = splitRect;
+module.exports.clip = clipRect;
 module.exports.contains = containsRect;
 module.exports.overlaps = overlapsRect;
 module.exports.is = isRect;
@@ -50,6 +51,55 @@ function splitRect(rect) {
         Rect(rect.x,                    rect.y + rect.height / 2,   rect.width / 2, rect.height / 2),
         Rect(rect.x,                    rect.y,                     rect.width / 2, rect.height / 2)
     ];
+}
+
+function clipRect(rectA, rectB) {
+    var ax = rectA.x;
+    var ay = rectA.y;
+    var aw = rectA.width;
+    var ah = rectA.height;
+
+    var bx = rectB.x;
+    var by = rectB.y;
+    var bw = rectB.width;
+    var bh = rectB.height;
+
+    var rects = [];
+    var rx, ry, rw, rh;
+
+    if(ay < by) {
+        rx = ax;
+        ry = ay;
+        rw = aw;
+        rh = by - ry;
+        rects.push(Rect(rx, ry, rw, rh));
+    }
+
+    if(ax < bx) {
+        rx = ax;
+        ry = Math.max(ay, by);
+        rw = bx - rx;
+        rh = Math.min(ay + ah, by + bh) - ry;
+        rects.push(Rect(rx, ry, rw, rh));
+    }
+
+    if(ax + aw > bx + bw) {
+        rx = bx + bw;
+        ry = Math.max(ay, by);
+        rw = ax + aw - rx;
+        rh = Math.min(ay + ah, by + bh) - ry;
+        rects.push(Rect(rx, ry, rw, rh));
+    }
+
+    if(ay + ah > by + bh) {
+        rx = ax;
+        ry = by + bh;
+        rw = ax + aw - rx;
+        rh = ay + ah - ry;
+        rects.push(Rect(rx, ry, rw, rh));
+    }
+
+    return rects;
 }
 
 function trimRect(rectA, rectB) {

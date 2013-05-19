@@ -88,14 +88,23 @@ function Viewports(engine, config){
 
                 //redraw if nessisary
                 if(element.redraw) {
+                    element.redraw = false;
 
+                    if(config.showRedrawRects) {
+                        element.bitmap.context.clearRect(0, 0, element.bitmap.width, element.bitmap.height);
+                    }
 
                     //COMPUTE MODIFIED SCREEN AREA
 
                     //add any redraw rects owned by the current element
                     if(element.redrawRect) {
                         redrawIndex.insert(element.redrawRect);
-                        element.redrawRect = undefined;
+                        element.redrawRect = Rect(
+                            element.x,
+                            element.y,
+                            element.width,
+                            element.height
+                        );
                     }
 
                     //get the elements within the element
@@ -103,11 +112,20 @@ function Viewports(engine, config){
                     while(children[0]) {
                         var child = children.shift().data;
                         var rect = child.redrawRect;
-                        child.redrawRect = undefined;
+                        child.redrawRect = Rect(
+                            child.x,
+                            child.y,
+                            child.width,
+                            child.height
+                        );
                         if(rect) {
-                            var overlapingRects = redrawIndex.get(rect);
+                            var overlapingRects = redrawIndex.remove(rect);
                             while(overlapingRects[0]) {
-                                var rect = Rect.merge(overlapingRects.shift().rect, rect);
+                                var _rect = overlapingRects[0].rect;
+                                var clippedRects = Rect.clip(overlapingRects.shift().rect, rect);
+                                while(clippedRects[0]) {
+                                    redrawIndex.insert(clippedRects.shift());
+                                }
                             }
                             redrawIndex.insert(rect);
                         }
@@ -121,6 +139,10 @@ function Viewports(engine, config){
                     while(redrawRects[0]) {
                         //var redrawRect = Rect.trim(redrawRects.shift().rect, element.parent);
                         var redrawRect = redrawRects.shift().rect;
+
+                        redrawRect.width += 1;
+                        redrawRect.height += 1;
+
                         if(redrawRect.width < 1 || redrawRect.height < 1) { continue; }
 
                         //clear the redraw area
@@ -184,9 +206,10 @@ function Viewports(engine, config){
 
                         if(config.showRedrawRects) {
                             element.bitmap.context.strokeStyle = '#f00';
+                            element.bitmap.context.lineWidth = 1;
                             element.bitmap.context.strokeRect(
-                                redrawRect.x|0, redrawRect.y|0,
-                                redrawRect.width|0, redrawRect.height|0
+                                redrawRect.x+0.5, redrawRect.y+0.5|0,
+                                redrawRect.width-1|0, redrawRect.height-1|0
                             );
                         }
                     }

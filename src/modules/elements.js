@@ -20,8 +20,9 @@ function Elements(engine, config){
         var uid = ElementUid(id);
 
         var element = Rect(x, y, width, height);
-        element.z = z || 0;
         element.uid = uid;
+        element.z = z || 0;
+        element.redrawRect = Rect(x, y, width, height);
         elements[uid] = element;
 
         if(spriteApi) { getSetSprite(element, spriteApi); }
@@ -85,11 +86,11 @@ function Elements(engine, config){
 
     function redraw(element, rect) {
         if(element.parent && !element.parent.redraw) { element.parent.redraw = true; }
-        rect = Rect(rect.x - 2, rect.y - 2, rect.width + 4, rect.height + 4);
+        rect = Rect(rect.x, rect.y, rect.width, rect.height);
         if(element.redrawRect) {
             element.redrawRect = Rect.merge(element.redrawRect, rect);
         } else {
-            element.redrawRect = rect;
+            element.redrawRect = Rect(rect.x, rect.y, rect.width, rect.height);
         }
     }
 

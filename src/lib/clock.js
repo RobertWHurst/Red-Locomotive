@@ -17,7 +17,7 @@ module.exports = Clock;
 function Clock(Hz, maxBatchSize) {
 
     var clockTime = Date.now();
-    var maxBatchSize = maxBatchSize || 10;
+    var maxBatchSize = maxBatchSize || 8;
     var scheduledTicks = 0;
     var paused = true;
     var visible = true;
