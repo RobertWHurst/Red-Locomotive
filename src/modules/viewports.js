@@ -39,23 +39,44 @@ function Viewports(engine, config){
 
         var api = {
             get stage() { return getSetStage(); },
-            set stage(value) { return getSetStage(value); }
+            set stage(value) { return getSetStage(value); },
+            get x() { return getSet('x'); },
+            set x(value) { return getSet('x', value); },
+            get y() { return getSet('y'); },
+            set y(value) { return getSet('y', value); },
+            get width() { return getSet('width'); },
+            set width(value) { return getSet('width', value); },
+            get height() { return getSet('height'); },
+            set height(value) { return getSet('height', value); },
+            uid: uid,
+            element: viewport.bitmap,
+            fillStyle: setFillStyle,
+            clear: clear,
+            start: clock.start,
+            stop: clock.stop
         };
-        api.uid = uid;
-        api.element = viewport.bitmap;
-        api.fillStyle = setFillStyle;
-        api.resize = resize;
-        api.clear = clear;
-        api.element = viewport.bitmap;
-        api.start = clock.start;
-        api.stop = clock.stop;
 
         return api;
+
+        function getSet(property, value) {
+            if(value != undefined) {
+                viewport[property] = value;
+                if(property == 'width' || property == 'height') {
+                    viewport.bitmap[property] = value;
+                }
+                if(viewport.stage) {
+                    viewport.stage[property] = value;
+                }
+            }
+            return viewport[property];
+        }
 
         function getSetStage(stage) {
             if(stage != undefined) { 
                 stage = viewport.stage = Stage.rawAccess(stage);
                 stage.parent = viewport;
+                stage.x = viewport.x;
+                stage.y = viewport.y;
                 stage.width = viewport.width;
                 stage.height = viewport.height;
                 stage.bitmap = viewport.bitmap;
@@ -64,6 +85,19 @@ function Viewports(engine, config){
             } else if(viewport.stage && viewport.stage.api) {
                 return viewport.stage.api;
             }
+        }
+
+        function setFillStyle(fillStyle) {
+            viewport.fillStyle = fillStyle;
+        }
+
+        function clear() {
+            viewport.clock.stop();
+            if(viewport.bitmap.parent) {
+                viewport.bitmap.parent.removeChild(viewport.bitmap);
+            }
+            viewports[uid];
+            ViewportUid.clear(uid);
         }
 
         function render() {
@@ -239,28 +273,6 @@ function Viewports(engine, config){
                     return 0;
                 }
             }
-        }
-
-        function setFillStyle(fillStyle) {
-            viewport.fillStyle = fillStyle;
-        }
-
-        function resize(width, height) {
-            viewport.width = viewport.bitmap.width = width;
-            viewport.height = viewport.bitmap.height = height;
-            if(viewport.stage) {
-                viewport.stage.width = width;
-                viewport.stage.height = height;
-            }
-        }
-
-        function clear() {
-            viewport.clock.stop();
-            if(viewport.bitmap.parent) {
-                viewport.bitmap.parent.removeChild(viewport.bitmap);
-            }
-            viewports[uid];
-            ViewportUid.clear(uid);
         }
     }
 }
