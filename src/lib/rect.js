@@ -54,6 +54,8 @@ function splitRect(rect) {
 }
 
 function clipRect(rectA, rectB) {
+    if(!overlapsRect(rectA, rectB)) { return [rectA]; }
+
     var ax = rectA.x;
     var ay = rectA.y;
     var aw = rectA.width;
@@ -131,9 +133,6 @@ function containsRect(rect, subjectRect) {
 }
 
 function overlapsRect(rectA, rectB) {
-    var x = false;
-    var y = false;
-
     var ax = rectA.x;
     var axx = rectA.x + rectA.width - 1;
     var ay = rectA.y;
