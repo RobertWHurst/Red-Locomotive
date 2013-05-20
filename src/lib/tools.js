@@ -1,21 +1,3 @@
-Tools.extend = extend;
-Tools.random = random;
-Tools.round = round;
-Tools.tan = tan;
-Tools.sin = sin;
-Tools.cos = cos;
-Tools.atan = atan;
-Tools.asin = asin;
-Tools.acos = acos;
-module.exports = Tools;
-
-function Tools(base) {
-    for(var tool in Tools) {
-        if(Tools.hasOwnProperty(tool)) {
-            base[tool] = module.exports[tool];
-        }
-    }
-}
 
 function extend(    ) {
     var objs = Array.prototype.slice.call(arguments);
@@ -64,3 +46,22 @@ function asin(input) {
 function acos(input) {
     return Math.acos(input) / Math.PI * 180;
 }
+
+function tools(base) {
+    for(var tool in tools) {
+        if(tools.hasOwnProperty(tool)) {
+            base[tool] = module.exports[tool];
+        }
+    }
+}
+tools.extend = extend;
+tools.random = random;
+tools.round = round;
+tools.tan = tan;
+tools.sin = sin;
+tools.cos = cos;
+tools.atan = atan;
+tools.asin = asin;
+tools.acos = acos;
+
+module.exports = tools;

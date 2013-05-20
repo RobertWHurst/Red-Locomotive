@@ -1,4 +1,16 @@
-module.exports = Clock;
+
+var setImmediate = (function() {
+    return  typeof setImmediate == 'funtion' &&
+            setImmediate ||
+            typeof requestAnimationFrame == 'funtion' &&
+            requestAnimationFrame ||
+            function(exec) { setTimeout(exec, 0); };
+})();
+var requestAnimationFrame = (function() {
+    return  typeof requestAnimationFrame == 'funtion' &&
+            requestAnimationFrame ||
+            function(exec) { setTimeout(exec, 17); };
+})();
 
 /**
  * Clock Class
@@ -14,94 +26,74 @@ module.exports = Clock;
  *
  * new(Clock)([Number Hz=1000]) => Clock clock
  */
-function Clock(Hz, maxBatchSize) {
+function Clock(Hz) {
 
-    var clockTime = Date.now();
-    var maxBatchSize = maxBatchSize || 1;
-    var scheduledTicks = 0;
-    var paused = true;
-    var visible = true;
-
-    var api = {};
-    api.start = start;
-    api.stop = stop;
-    api.onTick = function() {};
-
-    next = (function() {
-        var si = typeof setImmediate == 'function';
-        var ra = typeof requestAnimationFrame == 'function';
-        if(Hz == 'i' && si) { return setImmediate; }
-        else if(Hz == 'r' && ra) { return requestAnimationFrame; }
-        else if(si) { return setImmediate; }
-        else if(ra) { return requestAnimationFrame; }
-        else { return function(callback) { setTimeout(callback, 0); }; }
-    })();
+    this.Hz = Hz || 'i';
+    this.paused = false;
+    this.active = false;
+    this._clockTime = Date.now();
+    this._tickTime = 0;
+    this.onTick = function() {};
 
     if(typeof window == 'object') {
+        var _this = this;
         window.addEventListener('focus', function() {
-            visible = true;
-            if(paused) { return; }
-            init();
+            if(!_this.paused) { return; }
+            _this.paused = false;
+            _this._init();
         });
         window.addEventListener('blur', function() {
-            visible = false;
+            if(_this.paused) { return; }
+            _this.paused = true;
         });
     }
+}
 
-    return api;
+Clock.prototype.start = function() {
+    if(this.active) { return; }
+    this.active = true;
+    this._init();
+}
+Clock.prototype.stop = function() {
+    if(!this.active) { return; }
+    this.active = false;
+}
 
-    function start() {
-        if(!paused) { return; }
-        paused = false;
-        init();
+Clock.prototype._init = function() {
+    this._clockTime = Date.now();
+    this._tickTime = 0;
+    this._exec();
+}
+Clock.prototype._exec = function() {
+
+    //exit if paused
+    if(this.paused || !this.active) { return; }
+
+    if(typeof this.Hz == 'number') {
+
+        // Compute the tick time and if
+        // greater than 1 execute onTick.
+        var batchTime = Date.now();
+        this._tickTime += (batchTime - this._clockTime) * (this.Hz / 1000);
+        var ticks = this._tickTime|0;
+        this._tickTime -= ticks;
+        this._clockTime = batchTime;
+        if(ticks > 0) { this.onTick(); }
+
+    } else {
+
+        // Execute onTick.
+        this._clockTime = Date.now();
+        this.onTick();
+
     }
 
-    function stop() {
-        paused = true;
-    }
-
-    function init() {
-        clockTime = Date.now();
-        scheduledTicks = 0;
-        exec();
-    }
-
-    /**
-     * Executed each tick of the JavaScript VM by the
-     * constructor. Dispatches the tick event. This
-     * is a separate function so it can be
-     * overwritten.
-     */
-    var batchTime, ticks;
-    function exec() {
-
-        //exit if paused
-        if(paused || !visible) { return; }
-
-        //if target Hz set 
-        if(typeof Hz == 'number') {
-
-            //compute clock time and ticks for this batch
-            batchTime = Date.now();
-            scheduledTicks += (batchTime - clockTime) * (Hz / 1000);
-            ticks = scheduledTicks|0;
-            scheduledTicks -= ticks;
-            clockTime = batchTime;
-
-            //limit the ticks this batch to maxBatchSize
-            if(maxBatchSize > 0 && ticks > maxBatchSize) {
-                ticks = maxBatchSize;
-            }
-
-            //execute each tick
-            while(ticks--) { api.onTick(); }
-        }
-
-        //max Hz
-        else {
-            api.onTick();
-        }
-        
-        next(exec);
+    // Schedule the next cycle.
+    if(this.Hz == 'r') {
+        requestAnimationFrame(this._exec);
+    } else {
+        setImmediate(this._exec);
     }
 };
+
+module.exports = Clock;

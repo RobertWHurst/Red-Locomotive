@@ -1,40 +1,38 @@
-module.exports = Emitter;
 
-function Emitter(base) {
-    var listeners = {};
-
-    var api = base || {};
-    api.trigger = trigger;
-    api.bind = bind;
-    api.unbind = unbind;
-    return api;
-
-    function trigger(event, a1, a2, a3, a4, a5, a6, a7, a8, a9, aL) {
-        if(!listeners[event] || listeners[event].length < 1) { return; }
-        if(typeof aL != 'undefined') {
-            var args = Array.prototype.slice.call(arguments, [1]);
-        }
-        for(var iL = 0; iL < listeners[event].length; iL += 1) {
-            if(args) {
-                listeners[event][iL].apply(null, args);
-            } else {
-                listeners[event][iL](a1, a2, a3, a4, a5, a6, a7, a8, a9);
-            }
-        }
+function Emitter() {
+    this.listeners = {};
+}
+Emitter.extend = function(base) {
+    Emitter.call(base);
+    base.trigger = Emitter.prototype.trigger;
+    base.bind = Emitter.prototype.bind;
+    base.unbind = Emitter.prototype.unbind;
+};
+Emitter.prototype.trigger = function(event, a1, a2, a3, a4, a5, a6, a7, a8, a9, aL) {
+    if(!this.listeners[event] || this.listeners[event].length < 1) { return; }
+    if(typeof aL != 'undefined') {
+        var args = Array.prototype.slice.call(arguments, [1]);
     }
-
-    function bind(event, listener) {
-        if(!listeners[event]) { listeners[event] = []; }
-        listeners[event].push(listener);
-    }
-
-    function unbind(event, listener) {
-        if(!listeners[event]) { return; }
-        for(var iL = 0; iL < listeners[event].length; iL += 1) {
-            if(listeners[event][iL] == listener) {
-                listeners[event].splice(iL, 1);
-                iL -= 1;
-            }
+    for(var iL = 0; iL < this.listeners[event].length; iL += 1) {
+        if(args) {
+            this.listeners[event][iL].apply(null, args);
+        } else {
+            this.listeners[event][iL](a1, a2, a3, a4, a5, a6, a7, a8, a9);
         }
     }
 };
+Emitter.prototype.bind = function(event, listener) {
+    if(!this.listeners[event]) { this.listeners[event] = []; }
+    this.listeners[event].push(listener);
+};
+Emitter.prototype.unbind = function(event, listener) {
+    if(!this.listeners[event]) { return; }
+    for(var iL = 0; iL < this.listeners[event].length; iL += 1) {
+        if(this.listeners[event][iL] == listener) {
+            this.listeners[event].splice(iL, 1);
+            iL -= 1;
+        }
+    }
+};
+
+module.exports = Emitter;

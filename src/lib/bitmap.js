@@ -1,27 +1,36 @@
-module.exports = Bitmap;
-module.exports.is = isBitmap;
-var NodeCanvas;
 
 function Bitmap(width, height, source, sX, sY, sW, sH, dX, dY, dW, dH) {
 
+    // Allow for the first argument to be source
+    // if no other arguments are given.
     if(height == undefined && typeof width == 'object') {
         source = width;
         width = source.width;
         height = source.height;
     }
 
-    var bitmap = Canvas(width, height);
-    bitmap.context = bitmap.getContext('2d');
+    this.width = width;
+    this.height = height;
+    this.canvas = createCanvas(width, height);
+    this.context = this.canvas.getContext('2d');
 
-    bitmap.context.imageSmoothingEnabled = false;
-    bitmap.context.webkitImageSmoothingEnabled = false;
-    bitmap.context.mozImageSmoothingEnabled = false;
+    // disable image smoothing so pixel graphics
+    // are crisp
+    this.context.imageSmoothingEnabled = false;
+    this.context.webkitImageSmoothingEnabled = false;
+    this.context.mozImageSmoothingEnabled = false;
 
+    // if a source is given then copy it over
     if(source != undefined) {
-        // BUGFIX: node-canvas does not ignore any passed arguments even if they are
-        // set to undefined. therefore defualt values must be set.
+        if (source.canvas) { source = source.canvas; };
+
+        // BUGFIX: node-canvas does not ignore any
+        // passed arguments even if they are set 
+        // to undefined. therefore defualt values
+        // must be set.
         //
-        // TJ: node-canvas is great, so please fix and I'll buy you a case of beer ;)
+        // TJ: node-canvas is great, so please fix
+        // and I'll buy you a case of beer ;)
         // - Robert
         sX = sX || 0;
         sY = sY || 0;
@@ -34,27 +43,35 @@ function Bitmap(width, height, source, sX, sY, sW, sH, dX, dY, dW, dH) {
         dH = dH || source.height;
         // ENDOF BUGFIX
 
-        bitmap.context.drawImage(source, sX, sY, sW, sH, dX, dY, dW, dH);
+        this.context.drawImage(source, sX, sY, sW, sH, dX, dY, dW, dH);
     }
 
-    return bitmap;
+    // Attach getters & setters for setting the
+    // bitmap width and height. These getters &
+    // setters update the internal canvas
+    // element's width and height to match the
+    // bitmap.
+    Object.defineProperty(this, 'width', {
+        get: function() {
+            return this.canvas.width;
+        },
+        set: function(width) {
+            this.canvas.width = width;
+            return width;
+        }
+    });
+    Object.defineProperty(this, 'height', {
+        get: function() {
+            return this.canvas.height;
+        },
+        set: function(height) {
+            this.canvas.height = height;
+            return height;
+        }
+    });
 }
 
-function isBitmap(obj) {
-    if(NodeCanvas) {
-        return (
-            obj instanceof NodeCanvas &&
-            obj.context instanceof NodeCanvas.Context2d
-        );
-    } else if(typeof window == 'object') {
-        return (
-            obj instanceof window.HTMLCanvasElement &&
-            obj.context instanceof window.CanvasRenderingContext2D
-        );
-    }
-}
-
-function Canvas(width, height) {
+function createCanvas(width, height) {
 
     width = width || 0;
     height = height || 0;
@@ -65,9 +82,10 @@ function Canvas(width, height) {
         canvas.height = height;
     }
     else {
-        NodeCanvas = require('canvas' + '');
-        var canvas = new NodeCanvas(width, height);
+        var canvas = new (require('canvas' + ''))(width, height);
     }
 
     return canvas;
 }
+
+module.exports = Bitmap;
