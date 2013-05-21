@@ -1,32 +1,79 @@
-var Bitmap = require('../').Bitmap;
+var RL = require('../');
+var should = require('should');
+var HTMLCanvasElement = (function() {
+    return  (typeof HTMLCanvasElement == 'object') &&
+            HTMLCanvasElement ||
+            (require('canvas'));
+})();
+var CanvasRenderingContext2D = (function() {
+    return  (typeof CanvasRenderingContext2D == 'object') &&
+            CanvasRenderingContext2D ||
+            (require('canvas')).Context2d;
+})();
 
-describe('Bitmap()', function() {
-    // Bitmap(width, height, source, sX, sY, sW, sH, dX, dY, dW, dH)
-    it('should return a bitmap instance', function() {
-        var bitmap = Bitmap();
-        if(typeof bitmap != 'object') { throw new Error('bitmap must be an object'); }
-        if(typeof bitmap.context != 'object') { throw new Error('bitmap.context must be an object'); }
-    });
-    it('should accept a custom width and height', function() {
-        var bitmap = Bitmap(600, 200);
-        if(bitmap.width != 600) { throw new Error('bitmap.width should be 600'); }
-        if(bitmap.height != 200) { throw new Error('bitmap.height should be 200'); }
-    });
-    it('should accept a custom source', function() {
-        var srcBitmap = Bitmap(100, 100);
-        srcBitmap.context.fillStyle = 'rgba(50, 255, 30, 1)';
-        srcBitmap.context.fillRect(0, 0, 100, 100);
-        var bitmap = Bitmap(100, 100, srcBitmap, 0, 0);
+describe('RL.Bitmap', function() {
+    var bitmap;
+
+    it('should accept a source and apply it to the bitmap', function() {
+        var sourceBitmap = new RL.Bitmap(100, 100);
+        sourceBitmap.context.fillStyle = 'rgba(50, 255, 30, 1)';
+        sourceBitmap.context.fillRect(0, 0, 100, 100);
+        var bitmap = new RL.Bitmap(sourceBitmap);
         var pixel = bitmap.context.getImageData(0, 0, 1, 1).data;
-        if(pixel[0] !== 50 || pixel[1] !== 255 || pixel[2] !== 30) { throw new Error('bitmap should contain image data from source'); }
+        pixel[0].should.be.equal(50);
+        pixel[1].should.be.equal(255);
+        pixel[2].should.be.equal(30);
     });
-});
 
-describe('Bitmap.is()', function() {
-    it('should accept an object and return true if the object is a Bitmap. should return false if not a Bitmap', function() {
-        var bitmap = Bitmap();
-        var obj = {};
-        if(!Bitmap.is(bitmap)) { throw new Error('must return true'); }
-        if(Bitmap.is(obj)) { throw new Error('must return false'); }
+    beforeEach(function() {
+        bitmap = new RL.Bitmap();
+    });
+
+    describe('.canvas', function() {
+        it('should be an instance of HTMLCanvasElement', function() {
+            bitmap.canvas.should.be.instanceOf(HTMLCanvasElement);
+        });
+    });
+
+    describe('.context', function() {
+        it('should be an instance of CanvasRenderingContext2D', function() {
+            bitmap.context.should.be.instanceOf(CanvasRenderingContext2D);
+        });
+    });
+
+    describe('.width', function() {
+        it('should be a number', function() {
+            bitmap.width.should.be.a('number');
+        });
+        it('should always be the equal to .canvas.width', function() {
+            bitmap.width.should.equal(bitmap.canvas.width);
+        });
+    });
+
+    describe('.height', function() {
+        it('should be a number', function() {
+            bitmap.height.should.be.a('number');
+        });
+        it('should always be the equal to .canvas.height', function() {
+            bitmap.height.should.equal(bitmap.canvas.height);
+        });
+    });
+
+    describe('.draw', function() {
+        it('should be a function', function() {
+            bitmap.draw.should.be.a('function');
+        });
+        it('should accept a bitmap and apply it to the bitmap', function() {
+            var sourceBitmap = new RL.Bitmap(100, 100);
+            sourceBitmap.context.fillStyle = 'rgba(50, 255, 30, 1)';
+            sourceBitmap.context.fillRect(0, 0, 100, 100);
+            bitmap.width = 100;
+            bitmap.height = 100;
+            bitmap.draw(sourceBitmap);
+            var pixel = bitmap.context.getImageData(0, 0, 1, 1).data;
+            pixel[0].should.be.equal(50);
+            pixel[1].should.be.equal(255);
+            pixel[2].should.be.equal(30);
+        });
     });
 });

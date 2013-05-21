@@ -1,48 +1,93 @@
+
 var Clock = require('../lib/clock');
 var Dispatcher = require('../lib/dispatcher');
 var Emitter = require('../lib/emitter');
 
-module.exports = Core;
+module.exports = function(engine) {
 
-function Core(engine, options) {
-    var logs = {};
-    var clock = Clock(options.coreClock || 100);
-
-    Emitter(engine);
-    engine.start = clock.start;
-    engine.stop = clock.stop;
+    engine._coreClock = new Clock(engine.config.coreClockHz || 'i');
+    engine._coreClock.onTick = function() {
+        engine.trigger('_tick');
+        engine.trigger('tick');
+    };
+    engine._watched = [];
+    engine.start = start;
+    engine.stop = stop;
     engine.log = log;
     engine.info = info;
     engine.warn = warn;
     engine.error = error;
-    engine.config = getSetConfig;
+    engine.watch = watch;
+    engine.unwatch = unwatch;
 
-    clock.onTick = function() { engine.trigger('tick'); };
+    function start() {
+        engine._coreClock.start();
+    }
+
+    function stop() {
+        engine._coreClock.stop();
+    }
 
     function log(log    ) {
         var args = Array.prototype.slice.call(arguments, 1);
-        logs[log] = args;
+        engine._logs[log] = args;
     }
 
     function info(    ) {
         var args = Array.prototype.slice.call(arguments);
-        log.apply(null, ['info'].concat(args));
+        engine.log.apply(null, ['info'].concat(args));
     }
 
     function warn(    ) {
         var args = Array.prototype.slice.call(arguments);
-        log.apply(null, ['warn'].concat(args));
+        engine.log.apply(null, ['warn'].concat(args));
     }
 
     function error(    ) {
         var args = Array.prototype.slice.call(arguments);
-        log.apply(null, ['error'].concat(args));
+        engine.log.apply(null, ['error'].concat(args));
     }
 
-    function getSetConfig(key, value) {
-        if(value != undefined) {
-            options[key] = value
+    function watch(object, property, callback) {
+        if(property instanceof Array) {
+            while(property[0]) {
+                watch(object, property.shift(), callback);
+            }
+        } else {
+            var origionalValue = object[property];
+            engine._watched.push({
+                watcher: watcher,
+                object: object,
+                property: property,
+                callback: callback
+            });
+            engine.bind('_tick', watcher);
         }
-        return options[key];
+
+        function watcher() {
+            if(origionalValue !== object[property]) {
+                callback(property, origionalValue, object[property]);
+                origionalValue = object[property];
+            }
+        }
     }
-}
+
+    function unwatch(object, property, callback) {
+        if(property instanceof Array) {
+            while(property[0]) {
+                unwatch(object, property.shift(), callback);
+            }
+        } else {
+            for(var i = 0; i < engine._watched.length; i += 1) {
+                var watched = engine._watched[i];
+                if(
+                    watched.object === object &&
+                    watched.property === property &&
+                    watched.callback === callback
+                ) {
+                    engine.unbind('_tick', watched.watcher);
+                }
+            }
+        }
+    }
+};

@@ -1,127 +1,110 @@
+
 var UidRegistry = require('../lib/uid-registry');
 var QuadTree = require('../lib/quad-tree');
-var Rect = require('../lib/Rect');
+var Rect = require('../lib/rect');
+var Emitter = require('../lib/emitter');
 var Bitmap = require('../lib/bitmap');
+var t = require('../lib/tools');
 
-module.exports = Elements;
-
-function Elements(engine, config){
-    var ElementUid = UidRegistry();
-
-    var elements = {};
-
+module.exports = function(engine) {
+    var ElementUid = new UidRegistry();
     var Sprite = engine.Sprite;
 
     engine.Element = Element;
-    engine.Element.rawAccess = rawAccess;
-    engine.Element.get = get;
 
-    function Element(id, x, y, z, width, height, spriteApi) {
-        var uid = ElementUid(id);
+    function Element(id, x, y, z, width, height, sprite) {
+        if(!sprite instanceof Sprite) { throw new Error('sprite must be an instance of Sprite'); }
 
-        var element = Rect(x, y, width, height);
-        element.uid = uid;
-        element.z = z || 0;
-        element.redrawRect = Rect(x, y, width, height);
-        elements[uid] = element;
+        Rect.call(this, x, y, width, height);
+        Emitter.call(this);
 
-        if(spriteApi) { getSetSprite(element, spriteApi); }
+        Object.defineProperty(this, 'uid', {
+            value: ElementUid.generate(id),
+            writable: false,
+            enumerable: true,
+            configurable: false
+        });
+        this.z = z || 0;
+        this.sprite = sprite;
+        this._update = false;
+        this._redrawRect = new Rect(x, y, width, height);
+        this._parent = undefined;
+        this._bitmap = undefined;
+        this._childIndex = undefined;
+        this._drawData = undefined;
+        this._drawOrder = undefined;
+        this._childDrawOrder = undefined;
 
-        var api = element.api = {
-            uid: uid,
-            get x() { return getSet('x', element); },
-            set x(value) { return getSet('x', element, value); },
-            get y() { return getSet('y', element); },
-            set y(value) { return getSet('y', element, value); },
-            get z() { return getSet('z', element); },
-            set z(value) { return getSet('z', element, value); },
-            get width() { return getSet('width', element); },
-            set width(value) { return getSet('width', element, value); },
-            get height() { return getSet('height', element); },
-            set height(value) { return getSet('height', element, value); },
-            get sprite() { return getSetSprite(element); },
-            set sprite(spriteApi) { return getSetSprite(element, spriteApi); },
-            clear: function() { clear(element); },
-            append: function(elementApi) { appendChild(element, rawAccess(elementApi)); },
-            remove: function(elementApi) { removeChild(element, rawAccess(elementApi)); },
-            upgrade: function() { upgrade(element); }
-        };
+        var _this = this;
+        engine.watch(this, 'sprite', function() {
+            if(_this._parent) { _this._parent._update = true; }
+        });
+        engine.watch(this, ['x', 'y', 'z', 'width', 'height'], function(property, oldValue, newValue) {
+            if(_this._parent) { _this._parent._update = true; }
 
-        return api;
-    }
-
-    function getSet(property, element, value) {
-        if(value != undefined) {
-            if(element.bitmap) {
-                if(property == 'width') { element.bitmap.width = value; }
-                if(property == 'height') { element.bitmap.height = value; }
+            // if the element has a bitmap, and
+            // the property is width or height,
+            // update that property on the bitmap.
+            if(_this._bitmap) {
+                if(property == 'width') { _this._bitmap.width = newValue; }
+                if(property == 'height') { _this._bitmap.height = newValue; }
             }
-            unIndex(element);
-            element[property] = value;
-            if(element.parent) { element.parent.update = true; }
-            index(element);
-        }
-        return element[property];
-    }
 
-    function getSetSprite(element, sprite) {
-        if(sprite != undefined) {
-            element.sprite = Sprite.rawAccess(sprite);
-            if(element.parent) { element.parent.update = true; }
-            return sprite;
-        } else if(element.sprite && element.sprite.api) {
-            return element.sprite.api;
-        }
+            // momentarily roll back the property
+            // value to correctly unindex the
+            // element from the parent element's
+            // child index. After unindexing,
+            // re-apply the new value and
+            // re-index.
+            _this[property] = oldValue;
+            _this._unIndex();
+            _this[property] = newValue;
+            _this._index();
+        });
     }
+    t.inherit(Element, Rect, Emitter);
 
-    // Upgrades an element so it can contain sub elements
-    // This is done later to prevent preformance lost
-    function upgrade(element) {
-        if(element.bitmap) { return; }
-        element.bitmap = Bitmap(element.width, element.height);
-        element.childIndex = QuadTree();
-        element.drawData = {};
-        element.drawData.index = QuadTree();
-        element.drawData.lastDrawn = [];
-        element.drawData.children = {};
-        element.childDrawOrder = 0;
-    }
+    Element.prototype.append = function(element) {
+        if(!element instanceof Element) { throw new Error('element must be an instance of Element'); }
+        this._upgrade();
+        this._update = true;
+        element._parent = this;
+        element._drawOrder = this._childDrawOrder += 1;
+        element._index();
+    };
 
-    function index(element) {
-        if(!element.parent) { return }
-        element.parent.childIndex.insert(element, element);
-    }
+    Element.prototype.remove = function(element) {
+        if(!element instanceof Element) { throw new Error('element must be an instance of Element'); }
+        if(!this._childIndex) { return; }
+        element._unIndex();
+        element._parent = undefined;
+        element._drawOrder = undefined;
+    };
 
-    function unIndex(element) {
-        if(!element.parent) { return; }
-        element.parent.childIndex.remove(element, element);
-    }
-
-    function appendChild(parent, element) {
-        upgrade(parent);
-        parent.update = true;
-        element.parent = parent;
-        element.drawOrder = parent.childDrawOrder += 1;
-        index(element);
-    }
-
-    function removeChild(parent, element) {
-        if(!parent.childIndex) { return; }
-        unIndex(element);
-        element.parent = undefined;
-        element.drawOrder = undefined;
-    }
-
-    function rawAccess(api) {
-        return elements[api.uid];
-    }
-
-    function get(uid) {
-        return elements[uid].api;
-    }
-
-    function clear(element) {
-        unIndex(element);
+    Element.prototype.clear = function() {
+        this._unIndex();
         ElementUid.clear(element.uid);
-    }
-}
+    };
+
+    Element.prototype._upgrade = function() {
+        if(this._bitmap != undefined) { return; }
+        this._bitmap = new Bitmap(this.width, this.height);
+        this._childIndex = new QuadTree();
+        this._drawData = {};
+        this._drawData.index = new QuadTree();
+        this._drawData.lastDrawn = [];
+        this._drawData.children = {};
+        this._childDrawOrder = 0;
+    };
+
+    Element.prototype._index = function() {
+        if(!this._parent) { return }
+        if(this._parent) { this._parent._update = true; }
+        this._parent._childIndex.insert(this, this);
+    };
+
+    Element.prototype._unIndex = function() {
+        if(!this._parent) { return; }
+        this._parent._childIndex.remove(this, this);
+    };
+};

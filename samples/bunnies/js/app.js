@@ -1,7 +1,5 @@
-RL = RedLocomotive;
-
-var app = RL();
-var viewport = app.Viewport('main', 0, 0, 0, 0, '#fff');
+var app = new RL();
+var viewport = new app.Viewport('main', 0, 0, 0, 0, '#fff');
 
 window.addEventListener('load', function() {
 
@@ -11,12 +9,12 @@ window.addEventListener('load', function() {
     });
     viewport.width = innerWidth;
     viewport.height = innerHeight;
-    document.body.appendChild(viewport.element);
+    document.body.appendChild(viewport.node);
 
-    var main = app.Stage('main');
+    var main = new app.Stage('main');
     viewport.stage = main;
 
-    var bunnySprite = app.Sprite('bunny', 'img/bunny.png');
+    var bunnySprite = new app.Sprite('bunny', 'img/bunny.png');
 
     var active = false;
     var i = 1;
@@ -33,7 +31,7 @@ window.addEventListener('load', function() {
             }
         }
         if(event.keyCode == 13) {
-            app.config('showRedrawRects', !app.config('showRedrawRects'));
+            app.config.showRedrawRects = !app.config.showRedrawRects;
         }
         if(event.keyCode == 66) {
             var ii = 100;
@@ -44,7 +42,7 @@ window.addEventListener('load', function() {
     });
 
     function createBunny(id) {
-        var bunny = app.Element(
+        var bunny = new app.Element(
             'bunny-' + id,
             (innerWidth / 2) + (RL.random(100) - 50) - 26,
             (innerHeight / 2) + (RL.random(100) - 50) - 36,

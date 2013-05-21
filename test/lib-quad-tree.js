@@ -1,117 +1,195 @@
-var QuadTree = require('../').QuadTree;
+var RL = require('../');
+var should = require('should');
 
-describe('QuadTree()', function() {
-    it('should return a quadTree instance', function() {
-        var q = QuadTree();
-        if(typeof q != 'object') { throw new Error('quadTree must be an object'); }
-        if(typeof q.root != 'object') { throw new Error('quadTree.root must be a object'); }
-        if(typeof q.insert != 'function') { throw new Error('quadTree.insert must be a function'); }
-        if(typeof q.remove != 'function') { throw new Error('quadTree.remove must be a function'); }
-        if(typeof q.get != 'function') { throw new Error('quadTree.get must be a function'); }
+
+describe('Leaf', function() {
+
+    var leafA;
+    beforeEach(function() {
+        leafA = new RL.QuadTree.Leaf({x:0, y:10, width:100, height:50}, 'leafA');
     });
-    it('should accept a custom inital size', function() {
-        try{
-            QuadTree(100);
-            throw new Error('quadTree size must be enforced to be a power of two');
-        } catch(e) {}
-        var q = QuadTree(256);
-        if(q.root.width != 256) { throw new Error('quadTree size incorrect'); }
-    });
-    it('should accept a custom maximum leafs per node', function() {
-        var q = QuadTree(null, 2);
-        q.insert({x:-100,y:-100,width:100,height:100});
-        q.insert({x:100,y:-100,width:100,height:100});
-        if(q.root.leafs) { throw new Error('quadTree should have split'); }
-        if(!q.root.q0.leafs[0]) { throw new Error('quadTree root.q0 should have one leaf'); }
-        if(!q.root.q1.leafs[0]) { throw new Error('quadTree root.q1 should have one leaf'); }
-    });
-    it('should accept a custom maximum tree depth', function() {
-        var q = QuadTree(null, 1, 1);
-        q.insert({x:-100,y:-100,width:100,height:100});
-        q.insert({x:100,y:-100,width:100,height:100});
-        if(!q.root.leafs) { throw new Error('quadTree should have not have split'); }
-        if(!q.root.leafs[1]) { throw new Error('quadTree root should have two leafs'); }
-    });
-    it('should accept a custom initial x and y position', function() {
-        var q = QuadTree(null, null, null, 200, 100);
-        if(q.root.x != 200) { throw new Error('quadTree root.x should be 200'); }
-        if(q.root.y != 100) { throw new Error('quadTree root.x should be 100'); }
+
+    describe('.data', function() {
+        it('should be equal to the data given to the leaf constructor', function() {
+            leafA.data.should.be.equal('leafA');
+        });
     });
 });
 
-describe('quadTree{}', function() {
-    var q;
 
+describe('Node', function() {
+
+    var node, leafA, leafB;
     beforeEach(function() {
-        q = QuadTree(128, 4);
+        node = new RL.QuadTree.Node(
+            0,
+            0,
+            128,
+            0,
+            2,
+            2
+        );
+        leafA = new RL.QuadTree.Leaf({
+            x: 0,
+            y: 10,
+            width: 64,
+            height: 54
+        }, 'leafA');
+        leafB = new RL.QuadTree.Leaf({
+            x: 64,
+            y: 10,
+            width: 64,
+            height: 54
+        }, 'leafB');
     });
 
-    it('should index inserted data', function() {
-        var data = {x: 0, y: 0, width: 100, height: 100};
-        q.insert(data);
-        var leaf = q.root.leafs[0];
-        if(leaf.x != data.x) { throw new Error('leaf did not mach x coordinate'); }
-        if(leaf.y != data.y) { throw new Error('leaf did not mach y coordinate'); }
-        if(leaf.width != data.width) { throw new Error('leaf did not mach width'); }
-        if(leaf.height != data.height) { throw new Error('leaf did not mach height'); }
+    describe('.leafs', function() {
+        it('should be an array', function() {
+            node.leafs.should.be.instanceOf(Array);
+        });
     });
 
-    it('should return inserted data within an given area', function() {
-        var data = {x: -64, y: -64, width: 64, height: 64 };
-        q.insert(data, data);
-        var results = q.get({x: 0, y: 0, width: 64, height: 64 });
-        if(results[0]) { throw new Error('should not return data from empty region'); }
-        results = q.get({x: -64, y: -64, width: 64, height: 64 });
-        if(results[0].data != data) { throw new Error('did not return previously inserted data'); }
+    describe('.depth', function() {
+        it('should be a number', function() {
+            node.depth.should.be.a('number');
+        });
     });
 
-    it('should remove inserted data within an given area', function() {
-        var data0 = {x: -64, y: -64, width: 64, height: 64 };
-        var data1 = {x: 0, y: 0, width: 64, height: 64 };
-        q.insert(data0, data0);
-        q.insert(data1, data1);
-        var removed = q.remove({x: 0, y: 0, width: 64, height: 64 });
-        if(q.root.leafs[0].x != data0.x) { throw new Error('remaining leaf did not mach x coordinate'); }
-        if(q.root.leafs[0].y != data0.y) { throw new Error('remaining leaf did not mach y coordinate'); }
-        if(q.root.leafs[0].width != data0.width) { throw new Error('remaining leaf did not mach width'); }
-        if(q.root.leafs[0].height != data0.height) { throw new Error('remaining leaf did not mach height'); }
-        if(q.root.leafs[1]) { throw new Error('leaf was not removed'); }
-        if(removed[0].data != data1) { throw new Error('removed leaf was not returned'); }
-    })
-
-    it('should remove only given data when specified', function() {
-        var data0 = {x: -64, y: -64, width: 64, height: 64 };
-        var data1 = {x: -32, y: -32, width: 64, height: 64 };
-        q.insert(data0, data0);
-        q.insert(data1, data1);
-        q.remove({x: -32, y: -32, width: 64, height: 64 }, data1);
-        if(q.root.leafs[0].x != data0.x) { throw new Error('remaining leaf did not mach x coordinate'); }
-        if(q.root.leafs[0].y != data0.y) { throw new Error('remaining leaf did not mach y coordinate'); }
-        if(q.root.leafs[0].width != data0.width) { throw new Error('remaining leaf did not mach width'); }
-        if(q.root.leafs[0].height != data0.height) { throw new Error('remaining leaf did not mach height'); }
-        if(q.root.leafs[1]) { throw new Error('leaf was not removed'); }
+    describe('.maxDepth', function() {
+        it('should be a number', function() {
+            node.maxDepth.should.be.a('number');
+        });
     });
 
-    it('should split any node once the maximum leaf count has been reached', function() {
-        var data = {};
-        data.q0 = {x: -64, y: -64, width: 64, height: 64};
-        data.q1 = {x: 0, y: -64, width: 64, height: 64};
-        data.q2 = {x: -64, y: 0, width: 64, height: 64};
-        data.q3 = {x: 0, y: 0, width: 64, height: 64};
-        q.insert(data.q0);
-        q.insert(data.q1);
-        q.insert(data.q2);
-        q.insert(data.q3);
-        var nodes = ['q0', 'q1', 'q2', 'q3'];
-        while(nodes[0]) {
-            var node = nodes.shift();
-            var leaf = q.root[node].leafs[0];
-            if(leaf.x != data[node].x) { throw new Error('leaf did not mach x coordinate'); }
-            if(leaf.y != data[node].y) { throw new Error('leaf did not mach y coordinate'); }
-            if(leaf.width != data[node].width) { throw new Error('leaf did not mach width'); }
-            if(leaf.height != data[node].height) { throw new Error('leaf did not mach height'); }
-        }
+    describe('.maxLeafs', function() {
+        it('should be a number', function() {
+            node.maxLeafs.should.be.a('number');
+        });
     });
 
-    it
+    describe('.split', function() {
+        it('should split the node into four sub nodes', function() {
+            node.split();
+            should.exist(node.q0);
+            should.exist(node.q1);
+            should.exist(node.q2);
+            should.exist(node.q3);
+            should.not.exist(node.leafs);
+        });
+        it('should migrate leafs from the node into the correct sub nodes', function() {
+            node.insertLeaf(leafA);
+            node.split();
+            node.q0.leafs[0].data.should.be.equal('leafA');
+        });
+    });
+
+    describe('.merge', function() {
+        it('should merge sub nodes into the parent node', function() {
+            node.split();
+            node.merge();
+            should.not.exist(node.q0);
+            should.not.exist(node.q1);
+            should.not.exist(node.q2);
+            should.not.exist(node.q3);
+            should.exist(node.leafs);
+        });
+        it('should migrate leafs from the sub nodes into the node', function() {
+            node.leafs.push(leafA);
+            node.split();
+            node.merge();
+            node.leafs[0].data.should.be.equal('leafA');
+        });
+    });
+
+    describe('.insertLeaf', function() {
+        beforeEach(function() {
+            node.insertLeaf(leafA);
+        });
+        it('should insert a leaf into the node', function() {
+            node.leafs[0].data.should.be.equal('leafA');
+        });
+        it('should automatically split the node once the the number of leafs in the node exceed maxLeafs', function() {
+            node.insertLeaf(leafB);
+            node.q0.leafs[0].data.should.be.equal('leafA');
+            node.q1.leafs[0].data.should.be.equal('leafB');
+        });
+    });
+
+    describe('.getLeaf', function() {
+        beforeEach(function() {
+            node.insertLeaf(leafA);
+            node.insertLeaf(leafB);
+        });
+        it('should return leafs that overlap a given rect', function() {
+            var leafs = node.getLeaf(node);
+            leafs[0].data.should.be.equal('leafA');
+            leafs[1].data.should.be.equal('leafB');
+        });
+    });
+
+    describe('.removeLeaf', function() {
+        beforeEach(function() {
+            node.insertLeaf(leafA);
+            node.insertLeaf(leafB);
+        });
+        it('should return leafs that overlap a given rect and remove them from the node', function() {
+            node.removeLeaf(leafA);
+            node.q1.leafs[0].data.should.be.equal('leafB');
+            should.not.exist(node.leafs);
+            should.not.exist(node.q0.leafs[0]);
+            should.exist(node.q0);
+            should.exist(node.q1);
+            should.exist(node.q2);
+            should.exist(node.q3);
+        });
+    });
+});
+
+
+describe('QuadTree', function() {
+
+    var quadTree, rectA, rectB;
+    beforeEach(function() {
+        rectA = {x:0, y:0, width:128, height:128};
+        rectB = {x:-128, y:-128, width:128, height:128};
+        quadTree = new RL.QuadTree(128, 4, 16, 0, 0);
+    });
+
+    describe('.root', function() {
+        it('should be a RL.QuadTree.Node instance', function() {
+            quadTree.root.should.be.instanceOf(RL.QuadTree.Node);
+        });
+    });
+
+    describe('.insert', function() {
+        it('should insert data to the tree', function() {
+            quadTree.insert(rectA, 'dataA');
+            quadTree.root.leafs[0].data.should.be.equal('dataA');
+        });
+        it('should grow the tree if the rectangle is outside of the quadTree', function() {
+            quadTree.insert(rectA, 'dataA');
+            quadTree.insert(rectB, 'dataB');
+            quadTree.root.width.should.be.equal(256);
+            quadTree.root.height.should.be.equal(256);
+            quadTree.root.x.should.be.equal(-128);
+            quadTree.root.y.should.be.equal(-128);
+        });
+    });
+
+    describe('.get', function() {
+        it('should retrive data to the tree', function() {
+            quadTree.insert(rectA, 'dataA');
+            var results = quadTree.get(rectA);
+            results[0].data.should.be.equal('dataA');
+        });
+    });
+
+    describe('.remove', function() {
+        it('should remove data to the tree', function() {
+            quadTree.insert(rectA, 'dataA');
+            var results = quadTree.remove(rectA);
+            results[0].data.should.be.equal('dataA');
+            should.not.exist(quadTree.root.leafs[0]);
+        });
+    });
 });

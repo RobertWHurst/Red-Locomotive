@@ -1,52 +1,59 @@
-//EXT LIBS
-var Path = require('path');
-
-//MODULES
-var Core = require('./modules/core');
-var Elements = require('./modules/elements');
-var Sprites = require('./modules/sprites');
-var Stages = require('./modules/stages');
-var Viewports = require('./modules/viewports');
-
-//CONFIG
-var defaults = require('./defaults.json');
-
-//STATIC LIBS
-RedLocomotive.Bitmap = require('./lib/bitmap');
-RedLocomotive.Clock = require('./lib/clock');
-RedLocomotive.Dispatcher = require('./lib/dispatcher');
-RedLocomotive.Emitter = require('./lib/emitter');
-RedLocomotive.Point = require('./lib/point');
-RedLocomotive.QuadTree = require('./lib/quad-tree');
-RedLocomotive.Quad = require('./lib/quad');
-RedLocomotive.Rect = require('./lib/rect');
-RedLocomotive.UidRegistry = require('./lib/uid-registry');
-RedLocomotive.Vector = require('./lib/vector');
-
-//TOOLING FUNCTIONS
-var t = require('./lib/tools');
-t(RedLocomotive);
 
 if(typeof define == 'function' && define.amd) {
-    define(RedLocomotive);
+    define(RL);
 } else if(typeof window == 'object') {
-    if(!window.RedLocomotive) { window.RedLocomotive = RedLocomotive; }
+    RL._namespaces = [];
+    RL._namespaceBackups = [];
+    RL.noConflict = noConflict;
+    RL.noConflict('RL', 'RedLocomotive');
 } else {
-    module.exports = RedLocomotive;
+    module.exports = RL;
 }
 
-function RedLocomotive(opts) {
+var Emitter = require('./lib/emitter');
 
-    //CONFIG
-    var config = opts && t.extend(defaults, opts) || defaults;
+var t = require('./lib/tools');
 
-    //MODULES
-    var api = {};
-    Core(api, config);
-    Sprites(api, config);
-    Elements(api, config);
-    Stages(api, config);
-    Viewports(api, config);
+function RL(opts) {
+    Emitter.call(this);
 
-    return api
+    this.config = t.extend(require('./defaults.json'), opts);
+
+    require('./modules/core')(this);
+    require('./modules/sprites')(this);
+    require('./modules/elements')(this);
+    require('./modules/stages')(this);
+    require('./modules/viewports')(this);
 }
+
+t(RL);
+RL.Emitter = Emitter;
+RL.Bitmap = require('./lib/bitmap');
+RL.Clock = require('./lib/clock');
+RL.Dispatcher = require('./lib/dispatcher');
+RL.Point = require('./lib/point');
+RL.QuadTree = require('./lib/quad-tree');
+RL.Quad = require('./lib/quad');
+RL.Rect = require('./lib/rect');
+RL.UidRegistry = require('./lib/uid-registry');
+RL.Vector = require('./lib/vector');
+
+RL.prototype = Object.create(RL.Emitter.prototype);
+RL.prototype.constructor = RL;
+
+// NOTE: This method is only attached if the
+// engine is included in a browser with a script
+// tag. This is why the no conflict is not simply
+// added to the class as a static method here.
+function noConflict(   ) {
+    newNamespaces = Array.prototype.slice.call(arguments);
+    while(this._namespaces[0]) {
+        var namespace = this._namespaces.shift();
+        window[namespace] = this._namespaceBackups[namespace];
+    }
+    while(newNamespaces[0]) {
+        var namespace = newNamespaces.shift();
+        this._namespaceBackups[namespace] = window[namespace];
+        window[namespace] = RL;
+    }
+};

@@ -1,33 +1,50 @@
-var Dispatcher = require('../').Dispatcher;
+var RL = require('../');
+var should = require('should');
 
-describe('Dispatcher()', function() {
-    it('should return a dispatcher instance', function() {
-        var dispatcher = Dispatcher();
-        if(typeof dispatcher != 'object') { throw new Error('dispatcher must be an object'); }
-        if(typeof dispatcher.bind != 'function') { throw new Error('dispatcher.bind must be an function'); }
-        if(typeof dispatcher.trigger != 'function') { throw new Error('dispatcher.trigger must be an function'); }
-        if(typeof dispatcher.unbind != 'function') { throw new Error('dispatcher.unbind must be an function'); }
+describe('RL.Dispatcher', function() {
+    describe('#extend', function() {
+        it('should augment an object to function as a dispatcher', function() {
+            var arr = [];
+            RL.Dispatcher.extend(arr);
+            arr.listeners.should.be.instanceOf(Array);
+            arr.bind.should.be.a('function');
+            arr.unbind.should.be.a('function');
+            arr.trigger.should.be.a('function');
+        });
     });
-});
-describe('dispatcher{}', function() {
+
     var dispatcher;
     beforeEach(function() {
-        dispatcher = Dispatcher();
+        dispatcher = new RL.Dispatcher();
     });
-    it('should be possible to bind and trigger listeners', function() {
-        var i = 0;
-        dispatcher.bind(function() { i += 1; });
-        dispatcher.bind(function() { i += 2; });
-        dispatcher.trigger();
-        if(i != 3) { throw new Error('i should have been 3'); }
+
+    describe('.bind', function() {
+        it('should bind a given listener', function() {
+            var listener = function() {};
+            dispatcher.bind(listener);
+            dispatcher.listeners[0].should.be.equal(listener);
+        });
     });
-    it('should be possible to clear existing listeners', function() {
-        var i = 0;
-        var toxic = function() { i = NaN; };
-        dispatcher.bind(toxic);
-        dispatcher.bind(function() { i += 2; });
-        dispatcher.unbind(toxic);
-        dispatcher.trigger();
-        if(i != 2) { throw new Error('i should have been 2'); }
+
+    describe('.unbind', function() {
+        it('should unbind a given listener', function() {
+            var listener = function() {};
+            dispatcher.bind(listener);
+            dispatcher.listeners[0].should.be.equal(listener);
+            dispatcher.unbind(listener);
+            should.not.exist(dispatcher.listeners[0]);
+        });
+    });
+
+    describe('.trigger', function() {
+        it('should trigger all bound listeners', function() {
+            var i = 0;
+            var listenerA = function() { i += 1; };
+            var listenerB = function() { i += 2; };
+            dispatcher.bind(listenerA);
+            dispatcher.bind(listenerB);
+            dispatcher.trigger();
+            i.should.be.equal(3);
+        });
     });
 });

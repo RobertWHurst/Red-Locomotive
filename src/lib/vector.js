@@ -2,10 +2,6 @@ var t = require('./tools');
 var Point = require('./point');
 var Quad = require('./quad');
 
-module.exports = Vector;
-module.exports.fromPoint = fromPoint;
-module.exports.fromQuad = fromQuad;
-
 function Vector(degree, length) {
     var rect = {
         degree: degree ? degree - (Math.floor(degree / 360) * 360) : 0,
@@ -13,16 +9,16 @@ function Vector(degree, length) {
     };
     return rect;
 }
-
-function fromPoint(point) {
+Vector.fromPoint = function(point) {
     return fromQuad(Quad.fromPoint(point));
-}
-
-function fromQuad(quad) {
+};
+Vector.fromQuad = function(quad) {
     var degree = t.atan(quad.a / quad.o);
     var point = Point.fromQuad(quad);
     var x = Math.abs(point.x);
     var y = Math.abs(point.y);
     var length = Math.sqrt(Math.pow(y, 2) + Math.pow(x, 2));
-    return Vector(degree, length);
-}
+    return new Vector(degree, length);
+};
+
+module.exports = Vector;

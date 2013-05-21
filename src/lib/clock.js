@@ -1,107 +1,93 @@
-module.exports = Clock;
 
-/**
- * Clock Class
- *
- * Clock is an EventEmitter that emits a tick
- * event for every millisecond. Because the
- * JavaScript VM can not run a tick each
- * millisecond, the tick event is emitted enough
- * times each tick to compensate for the length
- * of each tick of the VM. For example, if a tick
- * of the VM takes 7ms, the tick event will be
- * emitted 7 times the next tick.
- *
- * new(Clock)([Number Hz=1000]) => Clock clock
- */
-function Clock(Hz, maxBatchSize) {
+var setImmediate = (function() {
+    return  typeof setImmediate == 'funtion' &&
+            setImmediate ||
+            typeof requestAnimationFrame == 'funtion' &&
+            requestAnimationFrame ||
+            function(exec) { setTimeout(exec, 0); };
+})();
+var requestAnimationFrame = (function() {
+    return  typeof requestAnimationFrame == 'funtion' &&
+            requestAnimationFrame ||
+            function(exec) { setTimeout(exec, 17); };
+})();
 
-    var clockTime = Date.now();
-    var maxBatchSize = maxBatchSize || 1;
-    var scheduledTicks = 0;
-    var paused = true;
-    var visible = true;
 
-    var api = {};
-    api.start = start;
-    api.stop = stop;
-    api.onTick = function() {};
+function Clock(Hz) {
 
-    next = (function() {
-        var si = typeof setImmediate == 'function';
-        var ra = typeof requestAnimationFrame == 'function';
-        if(Hz == 'i' && si) { return setImmediate; }
-        else if(Hz == 'r' && ra) { return requestAnimationFrame; }
-        else if(si) { return setImmediate; }
-        else if(ra) { return requestAnimationFrame; }
-        else { return function(callback) { setTimeout(callback, 0); }; }
-    })();
+    this.Hz = Hz || 'i';
+    this.onTick = function() {};
+    this._paused = false;
+    this._active = false;
+    this._clockTime = Date.now();
+    this._tickTime = 0;
 
+    // if in a browser, the clock should
+    // automatically pause so the browser doesn't
+    // cause issues when it throttles the shit
+    // out of the VM instance.
     if(typeof window == 'object') {
+        var _this = this;
         window.addEventListener('focus', function() {
-            visible = true;
-            if(paused) { return; }
-            init();
+            if(!_this._paused) { return; }
+            _this._paused = false;
+            _this._init();
         });
         window.addEventListener('blur', function() {
-            visible = false;
+            if(_this._paused) { return; }
+            _this._paused = true;
         });
     }
+};
 
-    return api;
+Clock.prototype.start = function() {
+    if(this._active) { return; }
+    this._active = true;
+    this._init();
+};
 
-    function start() {
-        if(!paused) { return; }
-        paused = false;
-        init();
+Clock.prototype.stop = function() {
+    if(!this._active) { return; }
+    this._active = false;
+};
+
+Clock.prototype._init = function() {
+    this._clockTime = Date.now();
+    this._tickTime = 0;
+    this._exec();
+};
+
+Clock.prototype._exec = function() {
+
+    //exit if paused
+    if(this._paused || !this._active) { return; }
+
+    if(typeof this.Hz == 'number') {
+
+        // Compute the tick time and if
+        // greater than 1 execute onTick.
+        var batchTime = Date.now();
+        this._tickTime += (batchTime - this._clockTime) * (this.Hz / 1000);
+        var ticks = this._tickTime|0;
+        this._tickTime -= ticks;
+        this._clockTime = batchTime;
+        if(ticks > 0) { this.onTick(); }
+
+    } else {
+
+        // Execute onTick.
+        this._clockTime = Date.now();
+        this.onTick();
+
     }
 
-    function stop() {
-        paused = true;
-    }
-
-    function init() {
-        clockTime = Date.now();
-        scheduledTicks = 0;
-        exec();
-    }
-
-    /**
-     * Executed each tick of the JavaScript VM by the
-     * constructor. Dispatches the tick event. This
-     * is a separate function so it can be
-     * overwritten.
-     */
-    var batchTime, ticks;
-    function exec() {
-
-        //exit if paused
-        if(paused || !visible) { return; }
-
-        //if target Hz set 
-        if(typeof Hz == 'number') {
-
-            //compute clock time and ticks for this batch
-            batchTime = Date.now();
-            scheduledTicks += (batchTime - clockTime) * (Hz / 1000);
-            ticks = scheduledTicks|0;
-            scheduledTicks -= ticks;
-            clockTime = batchTime;
-
-            //limit the ticks this batch to maxBatchSize
-            if(maxBatchSize > 0 && ticks > maxBatchSize) {
-                ticks = maxBatchSize;
-            }
-
-            //execute each tick
-            while(ticks--) { api.onTick(); }
-        }
-
-        //max Hz
-        else {
-            api.onTick();
-        }
-        
-        next(exec);
+    // Schedule the next cycle.
+    var _this = this;
+    if(this.Hz == 'r') {
+        requestAnimationFrame(function() { _this._exec(); });
+    } else {
+        setImmediate(function() { _this._exec(); });
     }
 };
+
+module.exports = Clock;
