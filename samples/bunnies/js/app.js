@@ -6,10 +6,11 @@ var viewport = app.Viewport('main', 0, 0, 0, 0, '#fff');
 window.addEventListener('load', function() {
 
     window.addEventListener('resize', function() {
-        viewport.resize(innerWidth, innerHeight);
+        viewport.width = innerWidth;
+        viewport.height = innerHeight;
     });
-
-    viewport.resize(innerWidth, innerHeight);
+    viewport.width = innerWidth;
+    viewport.height = innerHeight;
     document.body.appendChild(viewport.element);
 
     var main = app.Stage('main');
