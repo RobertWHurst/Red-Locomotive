@@ -1,43 +1,56 @@
-var Clock = require('../').Clock;
+var RL = require('../');
+var should = require('should');
 
-describe('Clock()', function() {
-    it('should return a clock instance', function() {
-        var clock = Clock();
-        if(typeof clock != 'object') { throw new Error('clock must be an object'); }
-        if(typeof clock.onTick != 'function') { throw new Error('clock.onTick must be a function'); }
-        if(typeof clock.start != 'function') { throw new Error('clock.start must be a function'); }
-        if(typeof clock.stop != 'function') { throw new Error('clock.stop must be a function'); }
+describe('RL.Clock', function() {
+
+    var clock;
+    beforeEach(function() {
+        clock = new RL.Clock(20);
     });
-    it('should accept a custom Hz', function(done) {
-        var clock = Clock(20);
-        var i = 0;
-        clock.onTick = function() { i += 1; };
-        clock.start();
-        setTimeout(function() {
-            if(i != 2) { done(new Error('i should be equal to 2')); }
-            else { done(); }
-        }, 110);
+
+    describe('.Hz', function() {
+        it('should set the clock speed', function(done) {
+            clock.Hz = 40;
+            var i = 0;
+            clock.onTick = function() { i += 1; };
+            clock._active = true;
+            clock._init();
+            setTimeout(function() {
+                i.should.be.equal(4);
+                clock._active = false;
+                done();
+            }, 110);
+        });
     });
-});
-describe('clock{}', function() {
-    it('should not be running on init', function(done) {
-        var clock = Clock(20);
-        var i = 0;
-        clock.onTick = function() { i += 1; };
-        setTimeout(function() {
-            if(i != 0) { done(new Error('i should be equal to 0')); }
-            else { done(); }
-        }, 110);
+
+    describe('.start', function() {
+        it('should start the clock', function(done) {
+            var i = 0;
+            clock.onTick = function() { i += 1; };
+            clock.start();
+            setTimeout(function() {
+                clock._active.should.be.true;
+                i.should.be.above(0);
+                clock.stop();
+                done();
+            }, Math.ceil(1000 / clock.Hz) + 10);
+        });
     });
-    it('should stop running on call of clock.stop', function(done) {
-        var clock = Clock(20);
-        var i = 0;
-        clock.onTick = function() { i += 1; };
-        clock.start();
-        setTimeout(function() { clock.stop(); }, 60);
-        setTimeout(function() {
-            if(i != 1) { done(new Error('i should be equal to 1')); }
-            else { done(); }
-        }, 110);
+
+    describe('.stop', function() {
+        it('should stop the clock', function(done) {
+            var i = 0, ii;
+            clock.onTick = function() { i += 1; };
+            clock.start();
+            setTimeout(function() {
+                ii = i;
+                clock.stop();
+            }, Math.ceil(500 / clock.Hz) + 10);
+            setTimeout(function() {
+                clock._active.should.be.false;
+                i.should.be.equal(ii);
+                done();
+            }, Math.ceil(1000 / clock.Hz) + 10);
+        });
     });
 });

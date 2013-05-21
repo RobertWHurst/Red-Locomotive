@@ -1,37 +1,16 @@
 var UidRegistry = require('../lib/uid-registry');
 var QuadTree = require('../lib/quad-tree');
+var t = require('../lib/tools');
 
-module.exports = Stages;
-
-function Stages(engine, config){
+module.exports = function(engine, config) {
     var StageUid = UidRegistry();
     var Element = engine.Element;
 
-    var stages = {};
-
     engine.Stage = Stage;
-    engine.Stage.rawAccess = rawAccess;
 
     function Stage(id) {
-
-        var stage = Element.rawAccess(Element(id));
-        stage.api.upgrade();
-        stages[stage.uid] = stage;
-
-        var api = {};
-        api.uid = stage.uid;
-
-        //stage api
-        api.clear = stage.api.clear;
-
-        //children api
-        api.append = stage.api.append;
-        api.remove = stage.api.remove;
-
-        return api;
+        Element.call(this, id);
+        this._upgrade();
     }
-
-    function rawAccess(api) {
-        return stages[api.uid];
-    }
-}
+    t.inherit(Stage, Element);
+};

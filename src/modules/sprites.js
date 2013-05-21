@@ -1,70 +1,58 @@
+
 var UidRegistry = require('../lib/uid-registry');
 var Bitmap = require('../lib/bitmap');
 var Emitter = require('../lib/emitter');
-//var QuadTree = require('../lib/quad-tree');
-//var Rect = require('../lib/Rect');
+var t = require('../lib/tools');
 
-module.exports = Sprites;
-
-function Sprites(engine, config){
-    var SpriteUid = UidRegistry();
+module.exports = function(engine) {
+    var SpriteUid = new UidRegistry();
 
     var sprites = {};
 
     engine.Sprite = Sprite;
-    engine.Sprite.rawAccess = rawAccess;
-    engine.Sprite.get = get;
 
     function Sprite(id, source, index) {
-        var uid = SpriteUid(id);
+        Emitter.call(this);
 
-        var sprite = {};
-        sprite.uid = uid;
-        sprite.ready = false;
-        sprite.index = index;
-        sprites[uid] = sprite;
-
-        var api = Emitter();
-        api.uid = uid;
-        api.clear = function() { clear(sprite); }
-
-        fetchSource(source, function(bitmap) {
-            sprite.bitmap = bitmap;
-            sprite.ready = true;
-            api.trigger('ready');
+        Object.defineProperty(this, 'uid', {
+            value: SpriteUid.generate(id),
+            writable: false,
+            enumerable: true,
+            configurable: false
         });
-
-        return api;
+        this.ready = false;
+        this.index = index;
+        this.bitmap = undefined;
+        this._fetchSource(source);
     }
+    t.inherit(Sprite, Emitter);
 
-    function fetchSource(source, callback) {
+    Sprite.prototype._fetchSource = function(source) {
         if(typeof source == 'object') {
-            callback(source);
+            this.ready = true;
+            this.trigger('ready');
+            this.bitmap = new Bitmap(source);
         } else if(typeof source == 'string') {
             var image = new Image();
             image.src = source;
+            var _this = this;
             if(image.width > 0) {
+                this.ready = true;
+                this.bitmap = new Bitmap(image);
                 setTimeout(function() {
-                    callback(Bitmap(image))
+                    _this.trigger('ready');
                 }, 0);
             } else {
                 image.onload = function() {
-                    callback(Bitmap(image));
+                    _this.ready = true;
+                    _this.bitmap = new Bitmap(image);
+                    _this.trigger('ready');
                 };
             }
         }
-    }
+    };
 
-    function rawAccess(api) {
-        return sprites[api.uid];
-    }
-
-    function get(uid) {
-        return sprites[uid].api;
-    }
-
-    function clear(sprite) {
-        unIndex(sprite);
-        SpriteUid.clear(sprite.uid);
-    }
-}
+    Sprite.clear = function() {
+        SpriteUid.clear(this.uid);
+    };
+};

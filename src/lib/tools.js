@@ -1,15 +1,38 @@
 
 function extend(    ) {
     var objs = Array.prototype.slice.call(arguments);
-    var newObj = {};
+    var newObj = objs[0] instanceof Array ? [] : {};
+    var deepCopy = objs[objs.length - 1] == true;
+    if(deepCopy) { objs.pop(); }
     while(objs[0]) {
         var obj = objs.shift();
+        if(typeof obj !== 'object') { throw new Error('all arguments must be an object'); }
         for(var key in obj) {
             if(!obj.hasOwnProperty(key)) { continue; }
-            newObj[key] = obj[key];
+            if(deepCopy && typeof obj[key] == 'object') {
+                newObj[key] = extend(obj[key], true);
+            } else {
+                newObj[key] = obj[key];
+            }
         }
     }
     return newObj;
+}
+
+function inherit(SubjectClass    ) {
+    var classes = Array.prototype.slice.call(arguments, 1);
+
+    // copy each prototype (de-reference) so the
+    // original is not modified.
+    var prototypes = [];
+    for(var i = 0; i < classes.length; i += 1) {
+        prototypes.push(classes[i].prototype);
+    }
+
+    // create the merged prototype and restore the
+    // correct constructor
+    SubjectClass.prototype = Object.create(extend.apply(null, prototypes));
+    SubjectClass.prototype.constructor = SubjectClass;
 }
 
 function random(limit) {
@@ -55,6 +78,7 @@ function tools(base) {
     }
 }
 tools.extend = extend;
+tools.inherit = inherit;
 tools.random = random;
 tools.round = round;
 tools.tan = tan;

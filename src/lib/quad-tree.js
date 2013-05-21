@@ -1,4 +1,5 @@
 var Rect = require('./rect');
+var t = require('./tools');
 
 
 function Leaf(rect, data) {
@@ -16,8 +17,7 @@ function Node(x, y, size, depth, maxDepth, maxLeafs) {
     this.maxDepth = maxDepth;
     this.maxLeafs = maxLeafs;
 }
-Node.prototype = Object.create(Rect.prototype);
-Node.prototype.constructor = Node;
+t.inherit(Node, Rect);
 
 Node.prototype.split = function() {
 
@@ -225,7 +225,6 @@ QuadTree.Node = Node;
 QuadTree.Leaf = Leaf;
 
 QuadTree.prototype.insert = function(rect, data) {
-    if(rect instanceof Rect) { throw new Error('rect must be an instance of Rect'); }
     
     // create a leaf.
     var leaf = new Leaf(rect, data);
@@ -240,7 +239,6 @@ QuadTree.prototype.insert = function(rect, data) {
 };
 
 QuadTree.prototype.get = function(rect, data) {
-    if(rect instanceof Rect) { throw new Error('rect must be an instance of Rect'); }
 
     // get the leafs from the root node that
     // overlap the search rect, and if provided,
@@ -266,7 +264,6 @@ QuadTree.prototype.get = function(rect, data) {
 };
 
 QuadTree.prototype.remove = function(rect, data) {
-    if(rect instanceof Rect) { throw new Error('rect must be an instance of Rect'); }
 
     // get the leafs from the root node that
     // overlap the search rect, and if provided,
