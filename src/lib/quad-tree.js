@@ -200,11 +200,11 @@ Node.prototype.removeLeaf = function(leaf) {
 
 function QuadTree(size, maxLeafs, maxDepth, x, y) {
 
-    size = size || 4096;
+    size = size || 1024;
     x = x != undefined ? x : -(size / 2);
     y = y != undefined ? y : -(size / 2);
-    maxLeafs = maxLeafs || 4;
-    maxDepth = maxDepth || 16;
+    maxLeafs = maxLeafs || 16;
+    maxDepth = maxDepth || 8;
 
     if(typeof x != 'number') { throw new Error('if given x must be a number'); }
     if(typeof y != 'number') { throw new Error('if given y must be a number'); }
