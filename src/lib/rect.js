@@ -52,14 +52,14 @@ Rect.prototype.clip = function(rect) {
         rx = ax;
         ry = ay;
         rw = aw;
-        rh = by - ry;
+        rh = by - ry + 1;
         rects.push(new Rect(rx, ry, rw, rh));
     }
 
     if(ax < bx) {
         rx = ax;
         ry = Math.max(ay, by);
-        rw = bx - rx;
+        rw = bx - rx + 1;
         rh = Math.min(ay + ah, by + bh) - ry;
         rects.push(new Rect(rx, ry, rw, rh));
     }

@@ -83,14 +83,14 @@ function Viewports(engine){
     Viewport.prototype._renderElement = function(element) {
 
         //Composite Element with Children (and 
-        // maybe a sprite)
+        // maybe a sprite).
         if(element._bitmap) {
 
-            //if the element has been updated
+            //if the element has been updated.
             if(element._update) {
                 element._update = false;
 
-                // compute the visible area
+                // compute the visible area.
                 var visibleRect = new Rect(
                     -element.x,
                     -element.y,
@@ -98,18 +98,18 @@ function Viewports(engine){
                     element.height
                 );
 
-                // get all children in view
+                // get all children in view.
                 var children = element._childIndex.get(visibleRect);
 
                 // add children that just left the
                 // view (clean up exiting 
-                // artifacts)
+                // artifacts).
                 while(element._drawData.lastDrawn[0]) {
                     var child = element._drawData.lastDrawn.shift();
-                    var cI = children.length - 1;
-                    while(cI > 0) {
-                        cI -= 1;
-                        if(children[cI].data == child.data) {
+                    var cL = children.length - 1;
+                    while(cL > 0) {
+                        cL -= 1;
+                        if(children[cL].data == child.data) {
                             child = undefined;
                             break;
                         }
