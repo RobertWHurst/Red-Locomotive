@@ -24,23 +24,12 @@ module.exports = function(engine) {
             enumerable: true,
             configurable: false
         });
+        
         this.z = z || 0;
+        this._cI = 0;
         this.sprite = sprite;
-        this._update = false;
-        this._redrawRect = new Rect(x, y, width, height);
-        this._parent = undefined;
-        this._bitmap = undefined;
-        this._childIndex = undefined;
-        this._drawData = undefined;
-        this._drawOrder = undefined;
-        this._childDrawOrder = undefined;
-
         var _this = this;
-        engine.watch(this, 'sprite', function() {
-            if(_this._parent) { _this._parent._update = true; }
-        });
         engine.watch(this, ['x', 'y', 'z', 'width', 'height'], function(property, oldValue, newValue) {
-            if(_this._parent) { _this._parent._update = true; }
 
             // if the element has a bitmap, and
             // the property is width or height,
@@ -67,9 +56,8 @@ module.exports = function(engine) {
     Element.prototype.append = function(element) {
         if(!element instanceof Element) { throw new Error('element must be an instance of Element'); }
         this._upgrade();
-        this._update = true;
         element._parent = this;
-        element._drawOrder = this._childDrawOrder += 1;
+        element._cI = this._childCI += 1;
         element._index();
     };
 
@@ -78,7 +66,7 @@ module.exports = function(engine) {
         if(!this._childIndex) { return; }
         element._unIndex();
         element._parent = undefined;
-        element._drawOrder = undefined;
+        element._cI = undefined;
     };
 
     Element.prototype.clear = function() {
@@ -90,11 +78,7 @@ module.exports = function(engine) {
         if(this._bitmap != undefined) { return; }
         this._bitmap = new Bitmap(this.width, this.height);
         this._childIndex = new QuadTree();
-        this._drawData = {};
-        this._drawData.index = new QuadTree();
-        this._drawData.lastDrawn = [];
-        this._drawData.children = {};
-        this._childDrawOrder = 0;
+        this._childCI = 0;
     };
 
     Element.prototype._index = function() {
