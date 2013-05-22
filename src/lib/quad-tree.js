@@ -144,16 +144,16 @@ Node.prototype.getLeaf = function(results, rect, data) {
         // search each sub node for leafs within
         // the rect, and if defined, leafs that
         // share the same data given
-        if(rect.overlaps(this.q0)) {
+        if(this.q0.overlaps(rect)) {
             this.q0.getLeaf(results, rect, data);
         }
-        if(rect.overlaps(this.q1)) {
+        if(this.q1.overlaps(rect)) {
             this.q1.getLeaf(results, rect, data);
         }
-        if(rect.overlaps(this.q2)) {
+        if(this.q2.overlaps(rect)) {
             this.q2.getLeaf(results, rect, data);
         }
-        if(rect.overlaps(this.q3)) {
+        if(this.q3.overlaps(rect)) {
             this.q3.getLeaf(results, rect, data);
         }
 
@@ -200,10 +200,10 @@ Node.prototype.removeLeaf = function(leaf) {
 
 function QuadTree(size, maxLeafs, maxDepth, x, y) {
 
-    size = size || 1024;
+    size = size || 8192;
     x = x != undefined ? x : -(size / 2);
     y = y != undefined ? y : -(size / 2);
-    maxLeafs = maxLeafs || 16;
+    maxLeafs = maxLeafs || 32;
     maxDepth = maxDepth || 8;
 
     if(typeof x != 'number') { throw new Error('if given x must be a number'); }
