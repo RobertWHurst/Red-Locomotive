@@ -348,7 +348,7 @@ QuadTree.prototype._grow = function(leaf) {
         ry,
         Math.max(rw, rh),
         0,
-        this.root.maxDepth,
+        this.root.maxDepth + 1,
         this.root.maxLeafs
     );
     while(leafs[0]) { this.root.insertLeaf(leafs.shift()); }
