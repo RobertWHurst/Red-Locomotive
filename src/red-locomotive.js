@@ -37,6 +37,8 @@ RL.Quad = require('./lib/quad');
 RL.Rect = require('./lib/rect');
 RL.UidRegistry = require('./lib/uid-registry');
 RL.Vector = require('./lib/vector');
+RL.Grid = require('./lib/grid');
+RL.IsoGrid = require('./lib/iso-grid');
 
 RL.prototype = Object.create(RL.Emitter.prototype);
 RL.prototype.constructor = RL;

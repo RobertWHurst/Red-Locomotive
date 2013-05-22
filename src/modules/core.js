@@ -7,8 +7,9 @@ module.exports = function(engine) {
 
     engine._coreClock = new Clock(engine.config.coreClockHz || 'i');
     engine._coreClock.onTick = function() {
-        engine.trigger('_tick');
+        engine.trigger('_beforeTick');
         engine.trigger('tick');
+        engine.trigger('_afterTick');
     };
     engine._watched = [];
     engine.start = start;
@@ -61,7 +62,7 @@ module.exports = function(engine) {
                 property: property,
                 callback: callback
             });
-            engine.bind('_tick', watcher);
+            engine.bind('_afterTick', watcher);
         }
 
         function watcher() {
@@ -85,7 +86,7 @@ module.exports = function(engine) {
                     watched.property === property &&
                     watched.callback === callback
                 ) {
-                    engine.unbind('_tick', watched.watcher);
+                    engine.unbind('_afterTick', watched.watcher);
                 }
             }
         }
