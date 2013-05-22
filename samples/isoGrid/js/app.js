@@ -22,7 +22,7 @@ window.addEventListener('load', function() {
     var tileSprite = new app.Sprite('tile', 'img/tile.png');
     tileSprite.bind('ready', function() {
 
-        var gridSize = 10;
+        var gridSize = 44;
         var y = gridSize;
         while(y-- > -gridSize) {
             var x = gridSize;

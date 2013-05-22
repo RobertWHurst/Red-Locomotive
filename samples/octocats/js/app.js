@@ -1,6 +1,5 @@
 var app = new RL({
     showRedrawRects: true,
-    coreClockHz: 100
 });
 viewport = new app.Viewport('main', 0, 0, 0, 0, '#fff');
 

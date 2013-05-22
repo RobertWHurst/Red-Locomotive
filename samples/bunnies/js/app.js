@@ -34,7 +34,7 @@ window.addEventListener('load', function() {
             app.config.showRedrawRects = !app.config.showRedrawRects;
         }
         if(event.keyCode == 66) {
-            var ii = 100;
+            var ii = 1000;
             while(ii--) {
                 createBunny(i++);
             }
@@ -58,8 +58,8 @@ window.addEventListener('load', function() {
             bunny.y += yd;
             // if(bunny.x < -innerWidth || bunny.x + bunny.width > innerWidth * 2) { xd = -xd; }
             // if(bunny.y < -innerHeight || bunny.y + bunny.height > innerHeight * 2) { yd = -yd; }
-            if(bunny.x < 0 || bunny.x + bunny.width > innerWidth) { xd = -xd; }
-            if(bunny.y < 0 || bunny.y + bunny.height > innerHeight) { yd = -yd; }
+            if(bunny.x < -innerWidth || bunny.x + bunny.width > innerWidth * 2) { xd = -xd; }
+            if(bunny.y < -innerHeight || bunny.y + bunny.height > innerHeight * 2) { yd = -yd; }
         });
         main.append(bunny);
     }
