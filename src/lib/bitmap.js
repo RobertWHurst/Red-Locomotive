@@ -67,19 +67,32 @@ Bitmap.prototype.draw = function(source, sX, sY, sW, sH, dX, dY, dW, dH) {
     // TJ: node-canvas is great, so please fix
     // and I'll buy you a case of beer ;)
     // - Robert
-    sX = sX || 0;
-    sY = sY || 0;
-    sW = sW || source.width;
-    sH = sH || source.height;
 
-    dX = dX || 0;
-    dY = dY || 0;
-    dW = dW || source.width;
-    dH = dH || source.height;
-    // ENDOF BUGFIX
+    if(dX == undefined) {
+        
+        dX = sX || 0;
+        dY = sY || 0;
+        dW = sW || source.width;
+        dH = sH || source.height;
 
-    // draw the source to the canvas
-    this.context.drawImage(source, sX, sY, sW, sH, dX, dY, dW, dH);
+        // draw the source to the canvas
+        this.context.drawImage(source, dX, dY, dW, dH);
+
+    } else {
+
+        sX = sX || 0;
+        sY = sY || 0;
+        sW = sW || source.width;
+        sH = sH || source.height;
+
+        dX = dX || 0;
+        dY = dY || 0;
+        dW = dW || source.width;
+        dH = dH || source.height;
+
+        // draw the source to the canvas
+        this.context.drawImage(source, sX, sY, sW, sH, dX, dY, dW, dH);
+    }
 };
 
 function createCanvas(width, height) {
