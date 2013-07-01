@@ -51,8 +51,8 @@ window.addEventListener('load', function() {
             36,
             bunnySprite
         );
-        var xd = RL.random(10) - 5;
-        var yd = RL.random(10) - 5;
+        var xd = RL.random(30) - 15;
+        var yd = RL.random(30) - 15;
         app.bind('tick', function() {
             bunny.x += xd;
             bunny.y += yd;
