@@ -321,11 +321,11 @@ QuadTree.prototype._grow = function(leaf) {
     // calculate the new position and dimentions
     // of root to contain the new leaf.
     while(lx < rx) {
-        rx -= rw;
+        rx -= (rw - 1);
         rw *= 2;
     }
     while(ly < ry) {
-        ry -= rh;
+        ry -= (rh - 1);
         rh *= 2;
     }
     while(lx + lw > rx + rw) {
